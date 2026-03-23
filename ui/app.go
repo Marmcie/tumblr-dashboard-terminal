@@ -29,14 +29,6 @@ func (m *App) GetSize() (int, int) {
 
 func (m *App) SetRoot(child component.Component) {
 	m.root = &child
-	initializeDepth((*m.root), 0)
-}
-
-func initializeDepth(comp component.Component, depth int) {
-	comp.SetDepth(depth)
-	for _, c := range comp.GetChildren() {
-		initializeDepth(c, depth+1)
-	}
 }
 
 func (m *App) Render() string {
