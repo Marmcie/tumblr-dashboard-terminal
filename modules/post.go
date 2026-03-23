@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"strconv"
 
+	"github.com/forPelevin/gomoji"
 	"github.com/mattn/go-runewidth"
 	"golang.org/x/text/width"
 )
@@ -328,7 +329,9 @@ func (c *Content) RenderWithData() struct {
 		EastAsianWidth:     false,
 		StrictEmojiNeutral: false,
 	}
-	for _, v := range str.String() {
+	
+	postStr:=gomoji.RemoveEmojis(str.String())
+	for _, v := range postStr {
 		info := width.LookupRune(v)
 		runeWidth := con.RuneWidth(v)
 
@@ -358,10 +361,12 @@ func (p *Post) GetSummary() string {
 		StrictEmojiNeutral: false,
 	}
 	var result bytes.Buffer
-	for _, v := range p.Summary {
+	summary:=gomoji.RemoveEmojis(p.Summary)
+	for _, v := range summary {
 		info := width.LookupRune(v)
 		runeWidth := con.RuneWidth(v)
 
+		//INFO: SUS EMOJIS LIST : ⭐⭐⭐⭐
 		if info.Kind() == width.EastAsianFullwidth || info.Kind() == width.EastAsianWide {
 			for range runeWidth - 1 {
 				// INFO: Output 0 width character to account for full width chars

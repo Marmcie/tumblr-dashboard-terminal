@@ -47,11 +47,10 @@ func (l *Line) PrepareFrame() {
 		if ct >= innerWidth {
 			break
 		}
-		if c == '\u200b' {
-			innerWidth--
+		if c != '\u200b' {
+			ct++
 		}
 		res = append(res, style.Render(string(c)))
-		ct++
 	}
 	result = append(result, res)
 

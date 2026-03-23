@@ -7,6 +7,7 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/mattn/go-runewidth"
 )
 
 type Contents struct {
@@ -86,7 +87,7 @@ func (f *Contents) DisplayPost(post modules.Post) {
 			//INFO: Divide the text into lines, while preventing word break
 			for lines := range strings.SplitSeq(contents.Str, "\n") {
 				for word := range strings.SplitSeq(lines, " ") {
-					if len(str)+len(word)+1 >= innerWidth {
+					if runewidth.StringWidth(str)+runewidth.StringWidth(word)+1 >= innerWidth {
 						parts = append(parts, str)
 						styles = append(styles, style)
 						str = word + " "
