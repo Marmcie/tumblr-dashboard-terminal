@@ -26,7 +26,7 @@ type Config struct {
 		Image        string
 		Quote        string
 		Filtered     string
-		Blacklisted     string
+		Blacklisted  string
 	}
 }
 

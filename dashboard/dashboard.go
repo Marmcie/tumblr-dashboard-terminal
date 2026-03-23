@@ -237,9 +237,9 @@ func (d *Dashboard) filterPosts(posts []npf.Post) []*npf.Post {
 			}
 		}
 		reblogs := post.Render()
-		for i := 0; i < len(reblogs); i++ {
+		for i := range reblogs {
 			reblog := reblogs[i]
-			for a := 0; a < len(filteredContents); a++ {
+			for a := range filteredContents {
 				filteredWord := filteredContents[a]
 				if strings.Contains(reblog.Blog.Name, filteredWord) {
 					post.IsFiltered = true
