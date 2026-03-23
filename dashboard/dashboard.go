@@ -255,8 +255,21 @@ func (d *Dashboard) UpdateInfo(post npf.Post) {
 	hours := int(diff.Hours())
 	minutes := int(diff.Minutes()) - (hours * 60)
 	seconds := int(diff.Seconds()) - ((hours * 60 * 60) + (minutes * 60))
+	days := hours / 24
 
-	diffStr = fmt.Sprintf("%02d:%02d:%02d", hours, minutes, seconds)
+	if days > 0 {
+		diffStr = fmt.Sprintf("%d days", days)
+	} else {
+		if hours > 0 {
+			diffStr = fmt.Sprintf("%d hours", hours)
+		} else {
+			if minutes > 0 {
+				diffStr = fmt.Sprintf("%d minutes", minutes)
+			} else {
+				diffStr = fmt.Sprintf("%d seconds", seconds)
+			}
+		}
+	}
 
 	var str = bytes.Buffer{}
 	str.WriteString("Date      :  " + t.Format("2006-01-02 15:04:05 MST") + " (" + diffStr + " ago)" + "\n")
