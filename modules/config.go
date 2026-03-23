@@ -9,7 +9,10 @@ import (
 type Config struct {
 	Consumer_key string
 	Secret_key   string
+	Debug        bool
 }
+
+var debug bool
 
 func GetConfig() Config {
 
@@ -22,7 +25,7 @@ func GetConfig() Config {
 		log.Fatal(err)
 	}
 
-	config := Config{}
+	config := Config{Debug: false}
 	err = json.Unmarshal(configBytes, &config)
 
 	if err != nil {
@@ -31,5 +34,11 @@ func GetConfig() Config {
 		log.Fatal(err)
 	}
 
+	debug = config.Debug
+
 	return config
+}
+
+func IsDebug() bool {
+	return debug
 }

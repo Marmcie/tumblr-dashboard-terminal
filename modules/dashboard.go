@@ -4,10 +4,9 @@ import (
 	"math/rand/v2"
 	"strings"
 
-	htmltomarkdown "github.com/JohannesKaufmann/html-to-markdown/v2"
+	// htmltomarkdown "github.com/JohannesKaufmann/html-to-markdown/v2"
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
-	"github.com/tumblr/tumblr.go"
 )
 
 type Dashboard struct {
@@ -16,9 +15,10 @@ type Dashboard struct {
 	selectedIndex int
 	client        *TumblrClient
 
-	Root        *tview.Flex
-	postWrapper *tview.Flex
-	postContent *tview.TextView
+	Root            *tview.Flex
+	postWrapper     *tview.Flex
+	postContent     *tview.Flex
+	postContentText *tview.TextView
 
 	leftSide  *tview.Flex
 	rightSide *tview.Flex
@@ -27,7 +27,10 @@ type Dashboard struct {
 	postInfo *tview.TextView
 
 	rows  []*tview.TextView
-	posts []tumblr.Post
+	posts []Post
+
+	renders        []*tview.TextView
+	selectedReblog int
 
 	colors map[string]tcell.Color
 }
@@ -71,13 +74,22 @@ func (d *Dashboard) initEvents(app *tview.Application) *Dashboard {
 			d.postWrapper.SetBorderColor(tcell.ColorBlue)
 		}
 
+		if event.Rune() == 'j' {
+			d.selectedReblog = fit(d.selectedReblog+1, len(d.renders))
+			d.UpdateContentRender()
+		}
+		if event.Rune() == 'k' {
+			d.selectedReblog = fit(d.selectedReblog-1, len(d.renders))
+			d.UpdateContentRender()
+		}
+
 		return event
 	})
 
 	d.Root.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		if event.Rune() == 'o' {
 			post := d.GetSelectedPost()
-			openInBrowser(post.ShortUrl)
+			openInBrowser(post.Short_url)
 		}
 		if event.Rune() == 'q' {
 			app.Stop()
@@ -113,18 +125,19 @@ func (d *Dashboard) UpdateFeed() {
 		post := res[n]
 		d.posts = append(d.posts, post)
 
-		blogName := post.BlogName
+		blogName := post.Blog.GetName()
 		_, ok := d.colors[blogName]
 
 		if !ok {
 			d.colors[blogName] = colors[rand.Int()%len(colors)]
 		}
 
-		contents, err := htmltomarkdown.ConvertString(post.Body)
+		// contents, err := htmltomarkdown.ConvertString(post.Body)
+		contents := post.Summary
 		length := min(len(contents), 120)
 		postName := contents[:length]
-		if err != nil {
-		}
+		// if err != nil {
+		// }
 		row := tview.NewTextView().SetText(blogName + ":" + postName)
 		row.SetTextColor(d.colors[blogName])
 		d.rows = append(d.rows, row)
@@ -159,8 +172,8 @@ func (d *Dashboard) UpdateView() {
 		d.postWrapper.AddItem(d.rows[v+d.viewOffset], 1, 0, false)
 	}
 
-	prevColor := d.colors[d.posts[fit(d.selectedIndex-1, count)].BlogName]
-	nextColor := d.colors[d.posts[fit(d.selectedIndex+1, count)].BlogName]
+	prevColor := d.colors[d.posts[fit(d.selectedIndex-1, count)].Blog_name]
+	nextColor := d.colors[d.posts[fit(d.selectedIndex+1, count)].Blog_name]
 
 	d.rows[d.selectedIndex].SetBackgroundColor(tcell.ColorWhiteSmoke)
 	d.rows[d.selectedIndex].SetTextColor(tcell.ColorBlack)
@@ -173,27 +186,58 @@ func (d *Dashboard) UpdateView() {
 // Render the selected post into the post window
 func (d *Dashboard) RenderPost() {
 	post := d.posts[d.selectedIndex]
-	contents := post.Body
-	if post.Format == "html" {
-		contents, _ = htmltomarkdown.ConvertString(post.Body)
-	}
+	d.postContent.Clear()
+	d.selectedReblog = 0
+	d.renders = []*tview.TextView{}
 
-	d.postContent.SetText(contents)
+	for _, r := range post.Render() {
+		t := tview.NewTextView()
+		t.SetText(r)
+		t.SetBorderPadding(0, 0, 0, 0)
+		t.SetBorder(true)
+		t.SetTitleAlign(tview.AlignLeft)
+		d.renders = append(d.renders, t)
+	}
 
 	info := ""
 	info += "Date      :  " + post.Date + "\n"
-	info += "URL       :  " + post.ShortUrl + "\n"
-	info += "Blog name :  " + post.BlogName + "\n"
+	info += "URL       :  " + post.Short_url + "\n"
+	info += "Blog name :  " + post.Blog_name + "\n"
 	info += "Tags      :  "
+
 	if len(post.Tags) > 0 {
 		info += "#"
 		info += strings.Join(post.Tags, " #")
 	}
 
 	d.postInfo.SetText(info)
+
+	d.UpdateContentRender()
 }
 
-func (d *Dashboard) GetSelectedPost() tumblr.Post {
+func (d *Dashboard) UpdateContentRender() {
+	for i, v := range d.renders {
+		v.SetBorderColor(tcell.ColorDarkGray)
+		if i == d.selectedReblog {
+			v.SetBorderColor(tcell.ColorWhite)
+		}
+	}
+	post := d.posts[d.selectedIndex]
+	names := post.BlogNames()
+
+	d.postContent.Clear()
+	_, _, w, h := d.postContent.GetInnerRect()
+	index := 0
+	for i := d.selectedReblog; i < len(d.renders); i++ {
+		r := d.renders[i]
+		r.SetTitle(names[i])
+		hei := lineNumber(r.GetText(false), w)
+		d.postContent.AddItem(r, min(hei, h-index), 0, false)
+		index += hei
+	}
+}
+
+func (d *Dashboard) GetSelectedPost() Post {
 	return d.posts[d.selectedIndex]
 }
 
@@ -202,6 +246,7 @@ func NewDashboard(client *TumblrClient, app *tview.Application) *Dashboard {
 	d.offset = 0
 	d.viewOffset = 0
 	d.selectedIndex = 0
+	d.selectedReblog = 0
 	d.client = client
 
 	d.Root = tview.NewFlex()
@@ -227,10 +272,13 @@ func NewDashboard(client *TumblrClient, app *tview.Application) *Dashboard {
 	//INFO: Right side
 	d.rightSide = tview.NewFlex().SetDirection(tview.FlexRow)
 
-	d.postContent = tview.NewTextView().SetScrollable(true)
+	d.postContent = tview.NewFlex()
+	d.postContent.SetDirection(tview.FlexRow)
 	d.postContent.SetBorder(true)
 	d.postContent.SetTitle("Post")
 	d.rightSide.AddItem(d.postContent, 0, 4, false)
+
+	d.postContentText = tview.NewTextView()
 
 	d.postInfo = tview.NewTextView()
 	d.postInfo.SetTitle("Post information")
@@ -271,4 +319,21 @@ func controlText() string {
 	str += "q        :  Quit\n"
 
 	return str
+}
+
+func lineNumber(str string, width int) int {
+	var ct = 2
+	var x = 0
+	for _, v := range str {
+		if v == '\n' {
+			ct++
+			x = 0
+		}
+		if x >= width {
+			ct++
+			x = 0
+		}
+		x++
+	}
+	return ct
 }

@@ -1,20 +1,23 @@
 package modules
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os/user"
+	"time"
 
 	"github.com/zalando/go-keyring"
 	"golang.org/x/oauth2"
 )
 
-func GetClient() *http.Client {
+func getAuthConfig() *oauth2.Config {
 	config := GetConfig()
-	conf := &oauth2.Config{
+	return &oauth2.Config{
 		ClientID:     config.Consumer_key,
 		ClientSecret: config.Secret_key,
 		Endpoint: oauth2.Endpoint{
@@ -22,7 +25,22 @@ func GetClient() *http.Client {
 			TokenURL: "https://api.tumblr.com/v2/oauth2/token",
 		},
 		RedirectURL: "http://localhost:6969/",
+		Scopes: []string{
+			"basic",
+			"offline_access",
+		},
 	}
+
+}
+
+type OAuth2Token struct {
+	Token      *oauth2.Token
+	created_at int64
+}
+
+func GetClient() *http.Client {
+	conf := getAuthConfig()
+	ctx := context.Background()
 
 	usr, _ := user.Current()
 	user := usr.Username
@@ -30,20 +48,29 @@ func GetClient() *http.Client {
 
 	// get password
 	tokenStr, _ := keyring.Get(service, user)
-
-	var token *oauth2.Token
+	
+	var token *OAuth2Token
 	if len(tokenStr) == 0 {
-		token = Auth()
+		//INFO:Create new token
+		token = &OAuth2Token{}
+		token.Token = Auth(ctx)
+		token.created_at = time.Now().Unix()
 		bytes, _ := json.Marshal(token)
 		keyring.Set(service, user, string(bytes))
 	} else {
-		token = &oauth2.Token{}
+		//INFO:Get token from keyring
+		token = &OAuth2Token{}
 		json.Unmarshal([]byte(tokenStr), token)
+		now := time.Now().Unix()
+		//INFO:Attempt token refresh
+		if now >= token.created_at+token.Token.ExpiresIn {
+			token.Token = Refresh(ctx, token.Token.RefreshToken)
+			bytes, _ := json.Marshal(token)
+			keyring.Set(service, user, string(bytes))
+		}
 	}
 
-	ctx := context.Background()
-
-	return conf.Client(ctx, token)
+	return conf.Client(ctx, token.Token)
 
 }
 
@@ -51,25 +78,13 @@ func RemoveToken() {
 	usr, _ := user.Current()
 	user := usr.Username
 	service := "tumblr-terminal-token"
-	err := keyring.Delete(service, user)
-
-	print("Invalid OAuth2 token\n")
-	log.Fatal(err)
+	keyring.Delete(service, user)
 }
 
-func Auth() *oauth2.Token {
-	ctx := context.Background()
-	config := GetConfig()
+func Auth(ctx context.Context) *oauth2.Token {
 
-	conf := &oauth2.Config{
-		ClientID:     config.Consumer_key,
-		ClientSecret: config.Secret_key,
-		Endpoint: oauth2.Endpoint{
-			AuthURL:  "https://www.tumblr.com/oauth2/authorize",
-			TokenURL: "https://api.tumblr.com/v2/oauth2/token",
-		},
-		RedirectURL: "http://localhost:6969/",
-	}
+	conf := getAuthConfig()
+
 	verifier := oauth2.GenerateVerifier()
 
 	requestUrl := conf.AuthCodeURL("state", oauth2.AccessTypeOffline, oauth2.S256ChallengeOption(verifier))
@@ -93,4 +108,44 @@ func Auth() *oauth2.Token {
 
 	srv.ListenAndServe()
 	return token
+}
+
+func Refresh(ctx context.Context, refreshToken string) *oauth2.Token {
+	conf := getAuthConfig()
+	url := "http://api.tumblr.com/v2/oauth2/token"
+
+	b := map[string]string{
+		"grant_type":    "refresh_token",
+		"client_id":     conf.ClientID,
+		"client_secret": conf.ClientSecret,
+		"refresh_token": refreshToken,
+	}
+
+	str, _ := json.Marshal(b)
+
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(str))
+	if err != nil {
+		print("Request creation error")
+		RemoveToken()
+		panic(err)
+	}
+	req.Header.Set("X-Custom-Header", "myvalue")
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+
+	if err != nil {
+		print("Request error")
+		RemoveToken()
+		panic(err)
+	}
+
+	response, _ := io.ReadAll(resp.Body)
+	var tok *oauth2.Token
+
+	json.Unmarshal(response, &tok)
+
+	return tok
+
 }

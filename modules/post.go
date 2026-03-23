@@ -1,0 +1,300 @@
+package modules
+
+import "strconv"
+
+type Post struct {
+	Type                       string
+	Original_type              string
+	Is_blocks_post_format      bool
+	Blog_name                  string
+	Blog                       Blog
+	Id                         int64
+	Id_string                  string
+	Is_blazed                  bool
+	Is_blaze_pending           bool
+	Can_ignite                 bool
+	Can_blaze                  bool
+	Post_url                   string
+	Parent_post_url            string
+	Slug                       string
+	Date                       string
+	Timestamp                  int64
+	State                      string
+	Reblog_key                 string
+	Tags                       []string
+	Short_url                  string
+	Summary                    string
+	Should_open_in_legacy      bool
+	Recommended_source         string
+	Recommended_color          string
+	Followed                   bool
+	Liked                      bool
+	Note_count                 int64
+	Content                    []Content
+	Layout                     []Layout
+	Trail                      []TrailPost
+	Reblogged_from_id          int64
+	Reblogged_from_url         string
+	Reblogged_from_name        string
+	Reblogged_from_title       string
+	Reblogged_from_uuid        string
+	Reblogged_from_can_message bool
+	Reblogged_from_following   bool
+	Reblogged_root_id          int64
+	Reblogged_root_url         string
+	Reblogged_root_name        string
+	Reblogged_root_title       string
+	Reblogged_root_uuid        string
+	Reblogged_root_can_message bool
+	Reblogged_root_following   bool
+	Can_like                   bool
+	Interactability_reblog     string
+	Can_reblog                 bool
+	Interactability_blaze      string
+	Can_send_in_message        bool
+	Can_reply                  bool
+	Display_avatar             bool
+}
+
+type Blog struct {
+	Name                   string
+	Title                  string
+	Description            string
+	Url                    string
+	Uuid                   string
+	Updated                int64
+	Avatar                 []Avatar
+	Tumblrmart_accessories struct {
+		Badges               []Badge
+		Blue_checkmark_count int64
+	}
+	Can_show_badges    bool
+	Active             bool
+	Show_follow_action bool
+}
+
+type Content struct {
+	Type                        string
+	Text                        string
+	Width                       int64
+	Height                      int64
+	Original_dimensions_missing bool
+	Cropped                     bool
+	Has_original_dimensions     bool
+	Subtype                     string
+	Indent_level                int64
+	Formatting                  []Formatting
+	Alt_text                    string
+	Caption                     string
+	Media                       []Media
+	Feedback_token              string
+	Colors                      map[string]string
+	Poster                      Media
+	Author                      string
+
+	Provider   string
+	Artist     string
+	Album      string
+	Embed_html string
+	Embed_url  string
+
+	Can_autoplay_on_cellular bool
+
+	Is_visible bool
+
+	Metadata struct {
+		Id string
+	}
+	Question string
+	Answers  []struct {
+		Client_id   string
+		Answer_text string
+	}
+}
+
+type Formatting struct {
+	Start int64
+	End   int64
+	Type  string
+	Url   string
+	Blog  struct {
+		Uuid string
+		Name string
+		Url  string
+	}
+
+	Hex string
+}
+
+type Media struct {
+	Type   string
+	Url    string
+	Width  int64
+	Height int64
+	Hd     bool
+}
+
+type Layout struct {
+	Type           string
+	Display        []map[string][]int64
+	Truncate_after int64
+	Blocks         []int64
+
+	Attribution struct {
+		Type string
+		Url  string
+		Blog Blog
+	}
+}
+
+type TrailPost struct {
+	Post struct {
+		Id            int64
+		Timestamp     int64
+		Is_commercial bool
+	}
+	Blog             Blog
+	Content          []Content
+	Layout           []Layout
+	Broken_blog_name string
+}
+
+type Avatar struct {
+	Width  int64
+	Height int64
+	Url    string
+}
+
+type Badge struct {
+	Product_group   string
+	Urls            []string
+	Destination_url string
+}
+
+func (p *Post) Render() []string {
+	var result []string
+	if len(p.Content) > 0 {
+		str := ""
+		for _, c := range p.Content {
+			str += c.Render()
+			str += "\n"
+		}
+		result = append(result, str)
+	}
+	for _, t := range p.Trail {
+		str := ""
+		for _, c := range t.Content {
+			str += c.Render()
+			str += "\n"
+		}
+		str += "\n"
+		result = append(result, str)
+	}
+
+	return result
+}
+
+func (p *Post) BlogNames() []string {
+	var result []string
+	if len(p.Content) > 0 {
+		result = append(result, p.Blog.GetName())
+	}
+	for _, t := range p.Trail {
+		name := t.Blog.GetName()
+		if len(name) == 0 {
+			name = t.Broken_blog_name
+		}
+		result = append(result, name)
+	}
+	return result
+}
+
+func (p *Post) RenderString() string {
+	var str = ""
+	var reblog = ">"
+	if len(p.Content) > 0 {
+		str = "[" + p.Blog.Name + "]\n"
+		for _, c := range p.Content {
+			str += c.Render()
+			str += "\n"
+		}
+	}
+	for _, t := range p.Trail {
+		str += reblog + "[" + t.Blog.Name + "]\n"
+		for _, c := range t.Content {
+			str += c.Render()
+			str += "\n"
+		}
+		str += "\n"
+		reblog += ">"
+	}
+
+	return str
+}
+
+func (c *Content) Render() string {
+	var str = ""
+	var index = 0
+
+	switch c.Type {
+	case "image":
+		alt := c.Alt_text
+		if len(alt) == 0 {
+			alt = "No alt"
+		}
+		str += "[Image : " + alt + "]"
+	case "text":
+		switch c.Subtype {
+
+		case "heading1":
+			str += "# " + c.Text
+
+		case "heading2":
+			str += "## " + c.Text
+
+		case "ordered-list-item":
+			str += strconv.Itoa(index) + ". "
+			str += c.Text
+			index = index + 1
+
+		case "unordered-list-item":
+			str += "- "
+			str += c.Text
+
+		default:
+			str += c.Text
+		}
+
+		if c.Subtype != "ordered-list-item" {
+			index = 0
+		}
+
+	case "poll":
+		str += "Question : " + c.Question + "\n"
+		for _, a := range c.Answers {
+			str += "- " + a.Answer_text + "\n"
+		}
+		str += c.Text
+
+	default:
+		str += c.Text
+	}
+
+	return str
+}
+
+func (m *Media) Render() string {
+	var str = ""
+	str += "![Image]("
+	str += m.Url
+	str += ")"
+	return str
+}
+
+func (b *Blog) GetName() string {
+	if len(b.Name) > 0 {
+		return b.Name
+	}
+
+	return b.Title
+}

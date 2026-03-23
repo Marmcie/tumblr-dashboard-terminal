@@ -7,13 +7,11 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
-
-	"github.com/tumblr/tumblr.go"
 )
 
 type dashboardResponse struct {
 	Response struct {
-		Posts []tumblr.Post
+		Posts []Post
 	}
 	meta struct {
 		status int
@@ -31,7 +29,7 @@ func NewTumblrClient() TumblrClient {
 	return c
 }
 
-func (c *TumblrClient) GetDashboard(offset int) []tumblr.Post {
+func (c *TumblrClient) GetDashboard(offset int) []Post {
 
 	defer func() {
 		if err := recover(); err != nil {
@@ -45,11 +43,14 @@ func (c *TumblrClient) GetDashboard(offset int) []tumblr.Post {
 
 	q := u.Query()
 	q.Add("offset", strconv.Itoa(offset*20))
+	q.Add("reblog_info", "true")
+	q.Add("npf", "true")
 
 	u.RawQuery = q.Encode()
 
 	resp, _ := c.Client.Get(u.String())
 	bytes, _ := io.ReadAll(resp.Body)
+
 
 	dash := dashboardResponse{}
 	json.Unmarshal(bytes, &dash)
