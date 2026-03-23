@@ -1,6 +1,7 @@
 package dashboard
 
 import (
+	"bytes"
 	"fmt"
 	"strings"
 	"time"
@@ -248,16 +249,15 @@ func (d *Dashboard) UpdateInfo(post npf.Post) {
 
 	diffStr = fmt.Sprintf("%02d:%02d:%02d", hours, minutes, seconds)
 
-	str := ""
-	str += "Date      :  " + t.Format("2006-01-02 15:04:05 MST") + " (" + diffStr + " ago)" + "\n"
-	str += "URL       :  " + post.Short_url + "\n"
-	str += "Blog name :  " + post.Blog_name + "\n"
-	str += "Tags      :  "
-
+	var str = bytes.Buffer{}
+	str.WriteString("Date      :  " + t.Format("2006-01-02 15:04:05 MST") + " (" + diffStr + " ago)" + "\n")
+	str.WriteString("URL       :  " + post.Short_url + "\n")
+	str.WriteString("Blog name :  " + post.Blog_name + "\n")
+	str.WriteString("Tags      :  ")
 	if len(post.Tags) > 0 {
-		str += "#"
-		str += strings.Join(post.Tags, " #")
+		str.WriteString("#")
+		str.WriteString(strings.Join(post.Tags, " #"))
 	}
 
-	d.info.SetText(str)
+	d.info.SetText(str.String())
 }

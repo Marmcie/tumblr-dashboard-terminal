@@ -83,8 +83,8 @@ func (p *Post) Render() []TrailData {
 		for _, c := range p.Content {
 			data := c.RenderWithData()
 			res = append(res, ContentData{
-				ContentType: data.contentType,
-				Str:         data.str,
+				ContentType: data.ContentType,
+				Str:         data.Str,
 			})
 		}
 		result = append(result, TrailData{
@@ -98,8 +98,8 @@ func (p *Post) Render() []TrailData {
 		for _, c := range t.Content {
 			data := c.RenderWithData()
 			res = append(res, ContentData{
-				ContentType: data.contentType,
-				Str:         data.str,
+				ContentType: data.ContentType,
+				Str:         data.Str,
 			})
 		}
 		result = append(result, TrailData{

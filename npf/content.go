@@ -47,10 +47,7 @@ type Content struct {
 	}
 }
 
-func (c *Content) RenderWithData() struct {
-	contentType string
-	str         string
-} {
+func (c *Content) RenderWithData() ContentData {
 	var str bytes.Buffer
 	var cType = ""
 
@@ -135,11 +132,8 @@ func (c *Content) RenderWithData() struct {
 
 	postStr := RenderUnicode(str.String())
 
-	return struct {
-		contentType string
-		str         string
-	}{
-		contentType: cType,
-		str:         postStr,
+	return  ContentData{
+		ContentType: cType,
+		Str: postStr,
 	}
 }

@@ -92,7 +92,6 @@ func (f *Feed) AddPosts(posts []npf.Post) {
 		})
 	}
 	f.listElem.SetCursor(f.listElem.Cursor)
-	f.listElem.RunSelectedOption()
 }
 
 func (f *Feed) Focus() {
