@@ -42,6 +42,8 @@ func (m RootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	m.App.Width = s.Width
 	m.App.Height = s.Height
 
+	(*m.App.root).SetSize(s.Width,s.Height)
+
 	switch msg := msg.(type) {
 
 	// Is it a key press?

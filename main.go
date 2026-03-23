@@ -59,7 +59,7 @@ func main() {
 	slist := component.NewSelectlist()
 	slist.ShowBorder = true
 	slist.BorderPadWidth = 1
-	slist.SetSize(100, 30)
+	slist.InheritHeight=true
 	slist.SetPos(0, 0)
 
 	b := component.NewBox()
@@ -70,7 +70,7 @@ func main() {
 	bt.Text = "123"
 	b.AddChild(bt)
 
-	for i := range 2 {
+	for  range 2 {
 		var box = component.NewBox()
 		box.Width = 10
 		box.Height = 2

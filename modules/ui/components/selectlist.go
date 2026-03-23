@@ -29,7 +29,7 @@ func NewSelectlist() *Selectlist {
 
 			// These keys should exit the program.
 			case "j":
-				s.Cursor = min(s.Cursor+1, len(s.OptionCallbacks))
+				s.Cursor = min(s.Cursor+1, len(s.OptionCallbacks)-1)
 				s.DispatchEvent("onChange")
 
 			case "k":
@@ -40,6 +40,7 @@ func NewSelectlist() *Selectlist {
 				s.OptionCallbacks[s.Cursor]()
 			}
 		}
+		
 	})
 	return s
 }
