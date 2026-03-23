@@ -28,6 +28,7 @@ func NewSwitcher(dashboard *Dashboard) *Switcher {
 		SetCentered(true).
 		SetSize(50, 8).
 		SetBorder(true)
+		
 
 	s.Window.SetTitle("Feed picker")
 	s.Window.SetBorderLabel("BottomRight", "Esc to close")
@@ -100,8 +101,16 @@ func (s *Switcher) InitEvents() {
 		switch msg := msg.(type) {
 		case tea.KeyPressMsg:
 			switch msg.String() {
-			case "tab", "up", "down":
+			case "tab", "down":
 				s.index = (s.index + 1) % 3
+				s.ToggleOption()
+
+			case "up":
+				if s.index == 0 {
+					s.index = 2
+				} else {
+					s.index = (s.index - 1) % 3
+				}
 				s.ToggleOption()
 
 			case "esc":
