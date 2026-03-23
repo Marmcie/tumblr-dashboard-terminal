@@ -861,7 +861,7 @@ func (c *BaseComponent) addBorder(arr [][]string, fg [][]string, bg [][]string) 
 			switch key {
 			case "TopLeft":
 				for i := range min(wid-1, runewidth.StringWidth(str)) {
-					char := title[i]
+					char := str[i]
 					arr[0][i+1] = (string(char))
 					fg[0][i+1] = c.BorderLabelColors[key]
 				}
