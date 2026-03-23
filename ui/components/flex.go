@@ -49,6 +49,14 @@ func (f *Flex) GetProportionSum() int {
 	return res
 }
 
+func (f *Flex) GetFixedSizeSum() int {
+	res := 0
+	for _, p := range f.Descriptors {
+		res += p.FixedSize
+	}
+	return res
+}
+
 func (b *Flex) SetDirection(dir int) *Flex {
 	b.Direction = dir
 	return b
@@ -57,9 +65,10 @@ func (b *Flex) SetDirection(dir int) *Flex {
 func (b *Flex) UpdateChildSize() {
 
 	gapSize := b.Gap * (len(b.GetChildren()) - 1)
+	fixedSize := b.GetFixedSizeSum()
 	if b.Direction == 0 {
 
-		flexH := b.GetInnerHeight() - gapSize
+		flexH := b.GetInnerHeight() - (gapSize + fixedSize)
 
 		// Proportion should  fixed size
 		proportionSum := b.GetProportionSum()
@@ -77,7 +86,7 @@ func (b *Flex) UpdateChildSize() {
 
 		}
 	} else {
-		flexW := b.GetInnerWidth() - gapSize
+		flexW := b.GetInnerWidth() - (gapSize + fixedSize)
 		// Proportion should  fixed size
 
 		proportionSum := b.GetProportionSum()
@@ -89,7 +98,6 @@ func (b *Flex) UpdateChildSize() {
 				ratio := float64(descriptor.Proportion) / float64(proportionSum)
 				childSize := int(float64(flexW) * ratio)
 				child.SetW(childSize)
-
 			} else {
 				child.SetW(descriptor.FixedSize)
 			}
