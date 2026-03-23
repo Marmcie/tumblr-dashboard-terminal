@@ -5,7 +5,7 @@ Your Tumblr dashboard on terminal.
 - Tag search.
 - Posts from a blog.
 ## Screenshot
-![image](https://github.com/RayMatsuo/tumblr-dashboard-terminal/blob/main/preview.png?raw=true)
+![image](https://github.com/RayMatsuo/tumblr-dashboard-terminal/blob/main/preview_01.png?raw=true)
 ## Set up
 1. Register a new application at [Registration page](https://www.tumblr.com/oauth/apps).
 2. Copy the consumer key and secret key.
