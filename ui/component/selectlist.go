@@ -40,12 +40,14 @@ func (s *Selectlist) DecrementCursor() {
 func (s *Selectlist) SetCursor(v int) {
 	prev := s.Cursor
 	children := s.GetChildren()
-	children[prev].ClearBackground()
-	children[prev].ClearForeground()
-	children[v].SetBackground(s.SelectedBG)
-	children[v].SetForeground(s.SelectedFG)
-	s.Cursor = max(min(len(s.OptionCallbacks)-1, v), 0)
-	s.DispatchEvent("onChange")
+	if len(children) > 0 && len(children) > prev && len(children) > v {
+		children[prev].ClearBackground()
+		children[prev].ClearForeground()
+		children[v].SetBackground(s.SelectedBG)
+		children[v].SetForeground(s.SelectedFG)
+		s.Cursor = max(min(len(s.OptionCallbacks)-1, v), 0)
+		s.DispatchEvent("onChange")
+	}
 }
 
 func (s *Selectlist) UpdateOffset() {
@@ -73,7 +75,7 @@ func (s *Selectlist) AddOption(child Component, cb func()) {
 }
 
 func (s *Selectlist) RunSelectedOption() {
-	if len(s.OptionCallbacks) >= s.Cursor {
+	if len(s.OptionCallbacks) > s.Cursor {
 		s.OptionCallbacks[s.Cursor]()
 	}
 }

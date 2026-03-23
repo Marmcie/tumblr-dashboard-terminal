@@ -2,6 +2,7 @@ package ui
 
 import (
 	"runtime"
+	"time"
 	"tumblr-dt/modules"
 	component "tumblr-dt/ui/component"
 
@@ -23,12 +24,20 @@ func NewRootModel() RootModel {
 		isWindows: runtime.GOOS == "windows",
 	}
 }
+func TickCmd() tea.Cmd {
+	return tea.Tick(time.Second, func(t time.Time) tea.Msg {
+		return TickMsg(t.UnixMilli())
+	})
+}
+
+type TickMsg  int64
 
 func (m RootModel) Init() tea.Cmd {
-	return nil
+	return tea.Batch(
+		TickCmd(),
+	)
 }
 func (m RootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-
 	if m.isWindows {
 		var s tsize.Size
 		s, err := tsize.GetSize()
@@ -43,14 +52,11 @@ func (m RootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	}
 	switch msg := msg.(type) {
+	case TickMsg:
+		return m, TickCmd()
 
-	// Is it a key press?
 	case tea.KeyPressMsg:
-
-		// Cool, what was the actual key pressed?
 		switch msg.String() {
-
-		// These keys should exit the program.
 		case "ctrl+c":
 			return m, tea.Quit
 

@@ -39,12 +39,15 @@ func (f *Feed) InitEvents() {
 
 	f.listElem.AddEventListener("onUpdate", func(msg tea.Msg) {
 		switch msg := msg.(type) {
+
 		case tea.KeyPressMsg:
 			switch msg.String() {
 			case "enter", "l":
-				f.showFilteredPost = true
-				f.dashboard.FocusContents()
-				f.listElem.RunSelectedOption()
+				if f.listElem.Cursor < len(f.listElem.GetChildren()) {
+					f.showFilteredPost = true
+					f.dashboard.FocusContents()
+					f.listElem.RunSelectedOption()
+				}
 			case "j":
 				f.showFilteredPost = false
 				f.listElem.IncrementCursor()
@@ -114,7 +117,7 @@ func (f *Feed) AddPosts(posts []*npf.Post) {
 		item.AddChild(blogName)
 		item.AddChild(summary)
 		f.listElem.AddOption(item, func() {
-			f.dashboard.DisplayPost(post,f.showFilteredPost)
+			f.dashboard.DisplayPost(post, f.showFilteredPost)
 		})
 	}
 	f.listElem.SetCursor(f.listElem.Cursor)

@@ -155,7 +155,7 @@ func (d *Dashboard) initEvents() {
 		case tea.KeyMsg:
 			switch msg.String() {
 			case "r":
-				d.LoadPosts()
+				go d.LoadPosts()
 
 			case "q":
 				component.Global.SetCmd(tea.Quit)
@@ -209,7 +209,7 @@ func (d *Dashboard) SwitchMode(mode string, option string) {
 	d.feed.ClearPosts()
 	d.feed.listElem.ClearChildren()
 	d.offset = 0
-	d.LoadPosts()
+	go d.LoadPosts()
 }
 
 func (d *Dashboard) filterPosts(posts []npf.Post) []*npf.Post {
@@ -263,8 +263,9 @@ func (d *Dashboard) LoadPosts() {
 		posts = d.client.GetBlogPosts(int(d.timestamp), d.option)
 	}
 	if len(posts) == 0 {
-		d.SwitchMode("dashboard", "")
-		d.root.SetBorderLabel("BottomLeft", "Could not retrieve posts")
+		defer func() {
+			d.root.SetBorderLabel("BottomLeft", "Could not retrieve posts")
+		}()
 		return
 	}
 
