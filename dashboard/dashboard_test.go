@@ -2,6 +2,7 @@ package dashboard_test
 
 import (
 	"testing"
+	"time"
 	"tumblr-dt/dashboard"
 	"tumblr-dt/modules"
 
@@ -32,6 +33,9 @@ func TestDashboardDisplay(t *testing.T) {
 		ch <- db
 	}(ch)
 	dashboard := <-ch
+	for dashboard.IsLoading {
+		time.Sleep(time.Second / 2)
+	}
 	dashboard.DisplayPost(dashboard.GetSelectedPost(), true)
 }
 
@@ -45,6 +49,9 @@ func BenchmarkDashboardLoad(b *testing.B) {
 		ch <- db
 	}(ch)
 	dashboard := <-ch
+	for dashboard.IsLoading {
+		time.Sleep(time.Second / 2)
+	}
 	for b.Loop() {
 		dashboard.DisplayPost(dashboard.GetSelectedPost(), true)
 	}
