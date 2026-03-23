@@ -2,10 +2,10 @@ package dashboard
 
 import (
 	"tumblr-dt/npf"
+	"tumblr-dt/ui"
 	component "tumblr-dt/ui/components"
 
 	tea "charm.land/bubbletea/v2"
-	"charm.land/lipgloss/v2"
 )
 
 type Feed struct {
@@ -20,8 +20,7 @@ func NewFeed(dashboard *Dashboard) *Feed {
 	f.listElem.SetBorder(true).SetBorderPadding(1).SetBorderCorner(true).SetWidthInherit(true)
 	f.dashboard = dashboard
 	f.listElem.SetBorderLabel("BottomRight", "? For keybind")
-
-	f.listElem.SelectedOptionStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#ffffff"))
+	
 
 	f.InitEvents()
 	return f
@@ -36,7 +35,6 @@ func (f *Feed) InitEvents() {
 			case "enter", "l":
 				f.dashboard.FocusContents()
 				f.listElem.RunSelectedOption()
-
 			case "j":
 				f.listElem.IncrementCursor()
 				f.listElem.RunSelectedOption()
@@ -45,10 +43,6 @@ func (f *Feed) InitEvents() {
 				f.listElem.DecrementCursor()
 				f.listElem.RunSelectedOption()
 				f.UpdateSelectedOptionBorder()
-
-			case "?":
-				f.dashboard.toggleControl()
-
 			}
 		}
 	})
@@ -61,14 +55,17 @@ func (f *Feed) UpdateSelectedOptionBorder() {
 		return
 	}
 	if children[f.listElem.Cursor] != nil {
-		children[f.listElem.Cursor].SetBackground("#131316")
+		children[f.listElem.Cursor].SetBackground(ui.GetColorStr(ui.ColorFocus))
+		children[f.listElem.Cursor].SetForeground(ui.GetColorStr(ui.ColorWhite))
 	}
 	if f.listElem.Cursor > 0 {
 		children[f.listElem.Cursor-1].ClearBackground()
+		children[f.listElem.Cursor-1].ClearForeground()
 	}
 
 	if f.listElem.Cursor < len(children)-1 {
 		children[f.listElem.Cursor+1].ClearBackground()
+		children[f.listElem.Cursor+1].ClearForeground()
 	}
 }
 
@@ -89,7 +86,7 @@ func (f *Feed) AddPosts(posts []npf.Post) {
 		blogName := component.NewLine("User name : " + post.Blog.Name)
 		blogName.SetText(post.Blog.Name)
 		blogName.SetWidthInherit(true)
-		blogName.SetForeground("#90e4fa")
+		blogName.SetForeground(ui.GetColorStr(ui.ColorH1))
 
 		summary := component.NewLine("Post summary")
 		summary.SetText(post.GetSummary())

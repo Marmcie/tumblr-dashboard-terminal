@@ -143,8 +143,12 @@ func (b *Flex) PrepareFrame() {
 				posY := ind + b.GetY() + childY + top
 				for index, char := range line {
 					result[posY][globalX+index] = char
-					fg[posY][globalX+index] = childFG[ind][index]
-					bg[posY][globalX+index] = childBG[ind][index]
+					if len(childFG[ind][index]) > 0 {
+						fg[posY][globalX+index] = childFG[ind][index]
+					}
+					if len(childBG[ind][index]) > 0 {
+						bg[posY][globalX+index] = childBG[ind][index]
+					}
 				}
 			}
 		} else {

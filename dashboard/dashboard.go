@@ -10,7 +10,6 @@ import (
 	component "tumblr-dt/ui/components"
 
 	tea "charm.land/bubbletea/v2"
-	"charm.land/lipgloss/v2"
 	tsize "github.com/kopoli/go-terminal-size"
 )
 
@@ -45,12 +44,12 @@ func NewDashboard() *Dashboard {
 	d.root.SetDirection(1)
 	d.root.SetSize(s.Width, s.Height)
 	d.root.SetBorder(true).SetBorderPadding(1)
-	d.root.SetBackground("#060616")
+	d.root.SetBackground(ui.GetColorStr(ui.ColorBG))
 
 	d.left = component.NewFlex("Left")
 	d.left.SetHeightInherit(true)
 	d.left.Direction = 0
-
+	
 	d.right = component.NewFlex("Right")
 	d.right.SetHeightInherit(true)
 	d.right.Direction = 0
@@ -66,9 +65,7 @@ func NewDashboard() *Dashboard {
 		SetPos(0, 0).
 		SetVisibility(false).
 		SetAbsolute(true).
-		SetCentered(true).
-		SetStyle(lipgloss.NewStyle().Background(lipgloss.Color("#303030"))).
-		SetBorderStyle(lipgloss.NewStyle().Background(lipgloss.Color("#303030")))
+		SetCentered(true)
 
 	d.feed = NewFeed(d)
 	d.contents = NewContents(d)
@@ -109,6 +106,8 @@ func (d *Dashboard) initEvents() {
 				post := d.feed.GetSelectedPost()
 				modules.OpenInBrowser(post.Short_url)
 				component.Global.SetCmd(tea.ClearScreen)
+			case "?":
+				d.toggleControl()
 			}
 
 		}

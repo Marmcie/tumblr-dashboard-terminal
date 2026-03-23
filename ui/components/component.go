@@ -9,7 +9,6 @@ import (
 	"tumblr-dt/ui/helper"
 
 	tea "charm.land/bubbletea/v2"
-	"charm.land/lipgloss/v2"
 	"github.com/google/uuid"
 	"github.com/mattn/go-runewidth"
 )
@@ -20,9 +19,6 @@ type Component interface {
 	GetBorderPadding() int
 	SetBorderPadding(int) *ComponentState
 	GetBorderPaddings() (int, int, int, int)
-	GetBorderStyle() lipgloss.Style
-	SetBorderStyle(lipgloss.Style) *ComponentState
-	ResetBorderStyle() *ComponentState
 	SetBorders(bool, bool, bool, bool) *ComponentState
 	GetCanvas() ([][]string, [][]string, [][]string)
 	SetCanvas([][]string, [][]string, [][]string)
@@ -53,8 +49,6 @@ type Component interface {
 	GetRect() (int, int, int, int)
 	GetSiblings() []Component
 	SetSize(int, int) *ComponentState
-	GetStyle() lipgloss.Style
-	SetStyle(lipgloss.Style) *ComponentState
 	SetBackgroundGradient([]color.Color) *ComponentState
 	SetForegroundGradient([]color.Color) *ComponentState
 	GetBackgroundGradient() []color.Color
@@ -75,7 +69,6 @@ type Component interface {
 	GetY() int
 	SetY(int) *ComponentState
 	ClearChildren()
-	ClearStyle()
 	Update()
 	IsAbsolute() bool
 	Trace([]string) []string
@@ -97,7 +90,6 @@ type Component interface {
 	SetAbsolute(bool) *ComponentState
 	SetCentered(bool) *ComponentState
 	GetCentered() bool
-	ApplyStyle(string) string
 	SetForeground(string)
 	SetBackground(string)
 	ClearForeground()
@@ -137,7 +129,6 @@ type ComponentState struct {
 	EventCallbacks   map[string]map[string]func(tea.Msg, int)
 	Absolute         bool
 	Overflow         bool
-	Style            lipgloss.Style
 	ShowTopBorder    bool
 	ShowBottomBorder bool
 	ShowLeftBorder   bool
@@ -146,7 +137,6 @@ type ComponentState struct {
 	IsFlexItem       bool
 	Title            string
 	TitleAlignment   string
-	BorderStyle      lipgloss.Style
 	ShowDoubleBorder bool
 	Visibility       bool
 	BorderLabels     map[string]string
@@ -154,7 +144,6 @@ type ComponentState struct {
 	GlobalIndex        int
 	BackgroundGradient []color.Color
 	ForegroundGradient []color.Color
-	styleActive        bool
 	Background         string
 	Foreground         string
 }
@@ -197,11 +186,8 @@ func (c *ComponentState) Initialize(name string) {
 		"BottomLeft":  "",
 	}
 
-	c.ResetBorderStyle()
-	c.ClearStyle()
 	c.SetVisibility(true)
 
-	c.styleActive = false
 	c.ShowDoubleBorder = false
 	c.GlobalIndex = Global.AddElement(c)
 }
@@ -655,6 +641,14 @@ func (b *ComponentState) PrepareFrame() {
 				posY := ind + b.GetY() + childY + top
 				for index, char := range line {
 					result[posY][globalX+index] = char
+					
+					if len(childFG[posY][index]) > 0 {
+						fg[posY][globalX+index] = childFG[posY][index]
+					}
+					
+					if len(childBG[posY][index]) > 0 {
+						bg[posY][globalX+index] = childBG[posY][index]
+					}
 				}
 			}
 		} else {
@@ -869,23 +863,6 @@ func (c *ComponentState) addBorder(arr [][]string) [][]string {
 	return arr
 }
 
-// Set the lipgloss style for a component
-func (c *ComponentState) SetStyle(s lipgloss.Style) *ComponentState {
-	c.styleActive = true
-	c.Style = s
-	return c
-}
-
-// Clear the lipgloss style of a component
-func (c *ComponentState) ClearStyle() {
-	c.Style = lipgloss.NewStyle()
-	c.styleActive = false
-}
-
-// Get the lipgloss style of a component
-func (c *ComponentState) GetStyle() lipgloss.Style {
-	return c.Style
-}
 
 // Set if border should be visible
 func (c *ComponentState) SetBorder(show bool) *ComponentState {
@@ -893,23 +870,6 @@ func (c *ComponentState) SetBorder(show bool) *ComponentState {
 	if show && c.BorderPadWidth == 0 {
 		c.SetBorderPadding(1)
 	}
-	return c
-}
-
-// Set lipgloss style for the border
-func (c *ComponentState) SetBorderStyle(style lipgloss.Style) *ComponentState {
-	c.BorderStyle = style
-	return c
-}
-
-// Get lipgloss style for the border
-func (c *ComponentState) GetBorderStyle() lipgloss.Style {
-	return c.BorderStyle
-}
-
-// Remove lipgloss style for the border
-func (c *ComponentState) ResetBorderStyle() *ComponentState {
-	c.BorderStyle = lipgloss.NewStyle()
 	return c
 }
 
@@ -984,14 +944,6 @@ func (c *ComponentState) UpdateVisibility(ytop int, hei int) {
 			hidden++
 		}
 		top += childHeight
-	}
-}
-
-func (c *ComponentState) ApplyStyle(str string) string {
-	if c.styleActive {
-		return c.GetStyle().Render(str)
-	} else {
-		return str
 	}
 }
 

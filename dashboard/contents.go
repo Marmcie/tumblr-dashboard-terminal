@@ -7,7 +7,6 @@ import (
 	component "tumblr-dt/ui/components"
 
 	tea "charm.land/bubbletea/v2"
-	"charm.land/lipgloss/v2"
 	"github.com/mattn/go-runewidth"
 )
 
@@ -23,14 +22,6 @@ func NewContents(dashboard *Dashboard) *Contents {
 	f.contentElem.SetBorder(true).SetBorderPadding(1).SetBorderCorner(true).SetWidthInherit(true)
 	f.dashboard = dashboard
 
-	f.contentElem.AddEventListener("onFocusChange", func(m tea.Msg, i int) {
-		if f.contentElem.GetFocusState() {
-			f.contentElem.SetStyle(lipgloss.NewStyle().Foreground(ui.GetColor("ColorWhite")))
-		} else {
-			f.contentElem.ClearStyle()
-		}
-	})
-	// f.contentElem.SelectBgStyle = lipgloss.NewStyle()
 	f.InitEvents()
 
 	return f
@@ -69,7 +60,6 @@ func (f *Contents) DisplayPost(post npf.Post) {
 		f.contentElem.AddChild(box)
 		innerWidth := box.GetInnerWidth()
 		str := ""
-		style := lipgloss.NewStyle()
 
 		//INFO: Array of each lines
 		parts := []string{}
@@ -83,23 +73,18 @@ func (f *Contents) DisplayPost(post npf.Post) {
 			//INFO: Change text color based on content type
 			switch contentType {
 			case "Heading1":
-				style = style.Foreground(ui.GetColor("ColorH1"))
-				col = "#00a000"
+				col = ui.GetColorStr(ui.ColorH1)
+
 			case "Image":
-				style = style.Foreground(ui.GetColor("ColorImage"))
-				col = "#00a000"
-				
+				col = ui.GetColorStr(ui.ColorImage)
+
 			case "Video":
-				style = style.Foreground(ui.GetColor("ColorImage"))
-				col = "#00a000"
+				col = ui.GetColorStr(ui.ColorImage)
 			case "Heading2":
-				style = style.Foreground(ui.GetColor("ColorH2"))
-				col = "#00a000"
+				col = ui.GetColorStr(ui.ColorH2)
 			case "Quote":
-				style = style.Foreground(ui.GetColor("ColorQuote"))
-				col = "#00a000"
+				col = ui.GetColorStr(ui.ColorQuote)
 			default:
-				style = lipgloss.NewStyle()
 				col = " "
 			}
 
