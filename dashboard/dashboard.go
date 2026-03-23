@@ -150,6 +150,7 @@ func (d *Dashboard) SwitchMode(mode string, option string) {
 	d.switcher.Window.SetVisibility(false)
 	d.feed.listElem.Focus()
 	d.mode = mode
+	d.timestamp = time.Now().Local().UnixMilli() / 1000
 	switch d.mode {
 	case "dashboard":
 		d.feed.listElem.SetTitle("Dashboard")
