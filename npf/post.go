@@ -85,7 +85,7 @@ type SortPostById []Post
 
 func (t SortPostById) Len() int               { return len(t) }
 func (t SortPostById) Swap(i int, j int)      { t[i], t[j] = t[j], t[i] }
-func (t SortPostById) Less(i int, j int) bool { return t[i].Id < t[j].Id }
+func (t SortPostById) Less(i int, j int) bool { return t[i].Id > t[j].Id }
 
 type sortById []TrailData
 
