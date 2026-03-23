@@ -15,7 +15,7 @@ func GetConfig() Config {
 
 	dir, _ := os.UserHomeDir()
 
-	path := dir + "\\.config\\tumblr-terminal.json"
+	path := dir + "\\.config\\tumblr-term-dash.json"
 
 	configBytes, err := os.ReadFile(path)
 	if err != nil {

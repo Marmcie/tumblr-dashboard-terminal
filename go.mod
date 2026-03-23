@@ -1,4 +1,4 @@
-module tumblr-terminal
+module tumblr-dt
 
 go 1.24.0
 
