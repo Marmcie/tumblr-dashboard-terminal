@@ -11,6 +11,10 @@ import (
 type Content struct {
 	Type                        string
 	Text                        string
+	Title                       string
+	Link                        string
+	Url                         string
+	Uisplay_url                 string
 	Width                       int64
 	Height                      int64
 	Original_dimensions_missing bool
@@ -125,6 +129,8 @@ func (c *Content) RenderWithData() ContentData {
 		}
 		str.WriteString(c.Text)
 		cType = "Poll"
+	case "link":
+		str.WriteString(c.Title + "(" + c.Url + ")")
 
 	default:
 		str.WriteString(c.Text)
@@ -132,8 +138,8 @@ func (c *Content) RenderWithData() ContentData {
 
 	postStr := RenderUnicode(str.String())
 
-	return  ContentData{
+	return ContentData{
 		ContentType: cType,
-		Str: postStr,
+		Str:         postStr,
 	}
 }
