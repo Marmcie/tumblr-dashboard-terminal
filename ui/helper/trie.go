@@ -17,6 +17,9 @@ func NewTrie() *Trie {
 }
 
 func (t *Trie) Insert(str string) {
+	if t.Items.Contains(str) {
+		return
+	}
 	pt := t
 	for _, r := range str {
 		pt.Items.Add(str)
