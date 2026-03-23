@@ -20,6 +20,7 @@ func NewFeed(dashboard *Dashboard) *Feed {
 	f.listElem = component.NewSelectlist("Feed")
 	f.listElem.SetBorder(true).SetBorderPadding(1).SetBorderCorner(true).SetWidthInherit(true)
 	f.dashboard = dashboard
+	f.listElem.SetBorderLabel("BottomRight","? For keybind")
 
 	f.listElem.SelectedOptionStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#ffffff"))
 
@@ -45,6 +46,9 @@ func (f *Feed) InitEvents() {
 				f.listElem.DecrementCursor()
 				f.listElem.RunSelectedOption()
 				f.UpdateSelectedOptionBorder()
+				
+			case "?":
+			f.dashboard.toggleControl()
 
 			}
 		}

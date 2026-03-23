@@ -10,6 +10,7 @@ import (
 	component "tumblr-dt/ui/components"
 
 	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 	tsize "github.com/kopoli/go-terminal-size"
 )
 
@@ -57,20 +58,28 @@ func NewDashboard() *Dashboard {
 	d.info.SetWidthInherit(true).SetBorder(true).SetBorderPadding(1)
 
 	d.control = component.NewText("Control")
-	d.control.SetWidthInherit(true).SetBorder(true).SetBorderPadding(1)
+	d.control.SetBorder(true).
+		SetBorderPadding(1).
+		SetSize(40, 8).
+		SetTitle("Control").
+		SetPos(0, 0).
+		SetVisibility(false).
+		SetAbsolute(true).
+		SetCentered(true).
+		SetStyle(lipgloss.NewStyle().Background(lipgloss.Color("#303030"))).
+		SetBorderStyle(lipgloss.NewStyle().Background(lipgloss.Color("#303030")))
 
 	d.feed = NewFeed(d)
 	d.contents = NewContents(d)
 
-
 	d.left.AddItem(d.feed.listElem, component.NewFlexDescriptor(0, 1))
-	// d.left.AddItem(d.control, component.NewFlexDescriptor(9, 0))
 
 	d.right.AddItem(d.contents.contentElem, component.NewFlexDescriptor(0, 1))
 	d.right.AddItem(d.info, component.NewFlexDescriptor(9, 0))
 
-	d.root.AddItem(d.left, component.NewFlexDescriptor(0,1))
+	d.root.AddItem(d.left, component.NewFlexDescriptor(0, 1))
 	d.root.AddItem(d.right, component.NewFlexDescriptor(0, 3))
+	d.root.AddItem(d.control, component.NewFlexDescriptor(0, 3))
 
 	d.feed.listElem.Focus()
 	d.core.App.SetRoot(d.root)
@@ -82,6 +91,9 @@ func NewDashboard() *Dashboard {
 	d.UpdateControlText()
 
 	return d
+}
+func (d *Dashboard) toggleControl() {
+	d.control.SetVisibility(!d.control.Visibility)
 }
 
 func (d *Dashboard) initEvents() {
@@ -97,7 +109,7 @@ func (d *Dashboard) initEvents() {
 				modules.OpenInBrowser(post.Short_url)
 				component.Global.SetCmd(tea.ClearScreen)
 			}
-			
+
 		}
 	})
 }

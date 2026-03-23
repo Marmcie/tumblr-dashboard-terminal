@@ -134,6 +134,9 @@ func (b *Flex) PrepareFrame() {
 		c.PrepareFrame()
 		output := c.GetCanvas()
 		if c.IsAbsolute() == true {
+			if !c.GetVisibility() {
+				continue
+			}
 			childX, childY := c.GetPos()
 			globalX := left + childX
 

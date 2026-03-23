@@ -52,21 +52,27 @@ func (t *Text) GetStringArray() [][]string {
 
 // Returns Text per line contents,x,y
 func (l *Text) PrepareFrame() {
+	if !l.Visibility {
+		l.Canvas = [][]string{{""}}
+		l.DispatchEvent("onRenderReady")
+		return
+	}
 	arr := l.GetStringArray()
-	top, _, left, _ := l.GetBorderPaddings()
+	top, bottom, left, _ := l.GetBorderPaddings()
 
-	innerHeight := l.GetInnerHeight()
 	innerWidth := l.GetInnerWidth()
 	var result = l.CreateCanvas()
-	for i, line := range arr {
-		if i+top >= innerHeight {
-			break
-		}
-		for a, char := range line {
-			if a+left >= innerWidth {
+	style := l.GetStyle()
+	for i := range len(result) - (top + bottom) {
+		for a := range result[i] {
+			if a+left > innerWidth {
 				break
 			}
-			result[i+top][a+left] = char
+			if i >= len(arr) || a >= len(arr[i]) {
+				result[i+top][a+left] = style.Render(" ")
+			} else {
+				result[i+top][a+left] = style.Render(arr[i][a])
+			}
 		}
 	}
 

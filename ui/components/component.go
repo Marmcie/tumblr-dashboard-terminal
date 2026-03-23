@@ -79,37 +79,42 @@ type Component interface {
 	GetDoubleBorder() bool
 	Initialize(string)
 	Focus()
-	SetVisibility(bool)
+	SetVisibility(bool) *ComponentState
+	GetVisibility() bool
 	ToString() string
 	SetBorderLabel(string, string)
 	UpdateVisibility(int, int)
 	Delete()
 	SetGlobalIndex(int)
+	SetAbsolute(bool) *ComponentState
+	SetCentered(bool) *ComponentState
+	GetCentered() bool
 }
 
 // Base class for all components
 type ComponentState struct {
 	// X coordinates
-	x                int
+	x int
 	// Y coordinates
-	y                int
-	UUID             string
-	Width            int
-	Height           int
-	InheritWidth     bool
-	InheritHeight    bool
-	Children         []Component
-	Parent           Component
-	Focused          bool
-	Depth            int
-	FitHeight        bool
-	FitWidth         bool
-	OnRenderReady    ([]func(Component))
-	Canvas           [][]string
-	ShowBorder       bool
-	BorderPadWidth   int
+	y              int
+	Centered       bool
+	UUID           string
+	Width          int
+	Height         int
+	InheritWidth   bool
+	InheritHeight  bool
+	Children       []Component
+	Parent         Component
+	Focused        bool
+	Depth          int
+	FitHeight      bool
+	FitWidth       bool
+	OnRenderReady  ([]func(Component))
+	Canvas         [][]string
+	ShowBorder     bool
+	BorderPadWidth int
 	// Name of an individual component
-	Name             string
+	Name string
 	// Name of a component type
 	ComponentName    string
 	EventCallbacks   map[string]map[string]func(tea.Msg, int)
@@ -136,6 +141,7 @@ type ComponentState struct {
 func (c *ComponentState) Initialize(name string) {
 	c.x = 0
 	c.y = 0
+	c.Centered = false
 	c.InheritWidth = false
 	c.InheritWidth = false
 	c.Focused = false
@@ -254,11 +260,21 @@ func (c *ComponentState) GetRect() (int, int, int, int) {
 
 // Get X coordinates
 func (c *ComponentState) GetX() int {
+	if c.Centered && c.Absolute {
+		pw := c.GetParent().GetInnerWidth()
+		w := c.GetWidth()
+		return (pw - w) / 2
+	}
 	return c.x
 }
 
 // Get Y coordinates
 func (c *ComponentState) GetY() int {
+	if c.Centered && c.Absolute {
+		pw := c.GetParent().GetInnerHeight()
+		w := c.GetHeight()
+		return (pw - w) / 2
+	}
 	return c.y
 }
 
@@ -434,6 +450,20 @@ func (c *ComponentState) GetIsFlexItem() bool {
 	return c.IsFlexItem
 }
 
+func (c *ComponentState) SetAbsolute(v bool) *ComponentState {
+	c.Absolute = v
+	return c
+}
+
+func (c *ComponentState) SetCentered(v bool) *ComponentState {
+	c.Centered = v
+	return c
+}
+
+func (c *ComponentState) GetCentered() bool {
+	return c.Centered
+}
+
 // #endregion Component graphical properties
 
 // #region Event handler
@@ -493,7 +523,7 @@ func (c *ComponentState) GetEventCallbacks(event string) map[string]func(tea.Msg
 
 // #region Component non graphical properties
 
-// Set focus on a component.  
+// Set focus on a component.
 // Only the component with focus receives bubbletea's event.
 func (c *ComponentState) Focus() {
 	Global.BlurAll()
@@ -539,7 +569,7 @@ func (c *ComponentState) SetComponentName(n string) *ComponentState {
 	return c
 }
 
-// Set title of a component. 
+// Set title of a component.
 // Title is displayed at the top of the component with border.
 func (c *ComponentState) SetTitle(str string) *ComponentState {
 	c.Title = str
@@ -550,6 +580,7 @@ func (c *ComponentState) SetTitle(str string) *ComponentState {
 func (c *ComponentState) GetTitle() string {
 	return c.Title
 }
+
 // Get UUID of a component
 func (c *ComponentState) GetUUID() string {
 	return c.UUID
@@ -848,8 +879,13 @@ func (c *ComponentState) GetDoubleBorder() bool {
 }
 
 // Set if a component should be rendered
-func (c *ComponentState) SetVisibility(v bool) {
+func (c *ComponentState) SetVisibility(v bool) *ComponentState {
 	c.Visibility = v
+	return c
+}
+
+func (c *ComponentState) GetVisibility() bool {
+	return c.Visibility
 }
 
 // Set a label to be displayed on corners of the border
