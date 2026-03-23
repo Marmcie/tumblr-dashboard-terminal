@@ -2,23 +2,19 @@ package modules
 
 import (
 	"math/rand/v2"
-	"net/url"
-	"strconv"
 	"strings"
-
-	"github.com/tumblr/tumblr.go"
-	"github.com/tumblr/tumblrclient.go"
 
 	htmltomarkdown "github.com/JohannesKaufmann/html-to-markdown/v2"
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
+	"github.com/tumblr/tumblr.go"
 )
 
 type Dashboard struct {
 	offset        int
 	viewOffset    int
 	selectedIndex int
-	client        *tumblrclient.Client
+	client        *TumblrClient
 
 	Root        *tview.Flex
 	postWrapper *tview.Flex
@@ -42,19 +38,24 @@ func (d *Dashboard) initEvents(app *tview.Application) *Dashboard {
 		if event.Rune() == 'j' {
 			d.selectedIndex = fit(d.selectedIndex+1, len(d.posts))
 			d.UpdateView()
+			d.RenderPost()
 		}
 		if event.Rune() == 'k' {
 			d.selectedIndex = fit(d.selectedIndex-1, len(d.posts))
 			d.UpdateView()
+			d.RenderPost()
 		}
 
 		if event.Key() == tcell.KeyEnter {
-			d.RenderPost()
+			app.SetFocus(d.postContent)
+			d.postContent.SetBorderColor(tcell.ColorBlue)
+			d.postWrapper.SetBorderColor(tcell.ColorWhite)
 		}
 
 		if event.Rune() == 'l' {
-			d.RenderPost()
 			app.SetFocus(d.postContent)
+			d.postContent.SetBorderColor(tcell.ColorBlue)
+			d.postWrapper.SetBorderColor(tcell.ColorWhite)
 		}
 
 		if event.Rune() == 'r' {
@@ -66,8 +67,10 @@ func (d *Dashboard) initEvents(app *tview.Application) *Dashboard {
 	d.postContent.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		if event.Rune() == 'h' {
 			app.SetFocus(d.postWrapper)
+			d.postContent.SetBorderColor(tcell.ColorWhite)
+			d.postWrapper.SetBorderColor(tcell.ColorBlue)
 		}
-		
+
 		return event
 	})
 
@@ -79,7 +82,7 @@ func (d *Dashboard) initEvents(app *tview.Application) *Dashboard {
 		if event.Rune() == 'q' {
 			app.Stop()
 		}
-		
+
 		return event
 	})
 
@@ -93,11 +96,7 @@ func (d *Dashboard) Update() {
 }
 
 func (d *Dashboard) UpdateFeed() {
-	var params = url.Values{}
-	params.Set("offset", strconv.Itoa(d.offset*20))
-	res, err := d.client.GetDashboardWithParams(params)
-	if err != nil {
-	}
+	res := d.client.GetDashboard(d.offset)
 
 	colors := [...]tcell.Color{
 		tcell.ColorYellowGreen,
@@ -105,11 +104,13 @@ func (d *Dashboard) UpdateFeed() {
 		tcell.ColorDarkOrange,
 		tcell.ColorFloralWhite,
 		tcell.ColorAqua,
+		tcell.ColorBlue,
+		tcell.ColorDodgerBlue,
 	}
 
-	for n := range res.Posts {
-		post := res.Posts[n].GetSelf()
-		d.posts = append(d.posts, *post)
+	for n := range res {
+		post := res[n]
+		d.posts = append(d.posts, post)
 
 		blogName := post.BlogName
 		_, ok := d.colors[blogName]
@@ -136,14 +137,17 @@ func (d *Dashboard) UpdateView() {
 
 	_, _, _, h := d.postWrapper.GetInnerRect()
 
-	if d.selectedIndex > h+d.viewOffset-1 {
-		d.viewOffset = d.selectedIndex - h
+	// INFO:Moving the window down by cursor
+	if d.selectedIndex >= h+d.viewOffset {
+		d.viewOffset = d.selectedIndex - h + 1
 	}
 
+	// INFO:Reset the window when cursor is back up
 	if d.selectedIndex <= 0 {
 		d.viewOffset = 0
 	}
 
+	// INFO:Move the window up
 	if d.selectedIndex < d.viewOffset {
 		d.viewOffset = d.selectedIndex
 	}
@@ -192,7 +196,7 @@ func (d *Dashboard) GetSelectedPost() tumblr.Post {
 	return d.posts[d.selectedIndex]
 }
 
-func NewDashboard(client *tumblrclient.Client, app *tview.Application) *Dashboard {
+func NewDashboard(client *TumblrClient, app *tview.Application) *Dashboard {
 	d := Dashboard{}
 	d.offset = 0
 	d.viewOffset = 0
@@ -207,6 +211,7 @@ func NewDashboard(client *tumblrclient.Client, app *tview.Application) *Dashboar
 	d.postWrapper = tview.NewFlex().SetDirection(tview.FlexRow)
 	d.postWrapper.SetTitle("Post list")
 	d.postWrapper.SetBorder(true)
+	d.postWrapper.SetBorderColor(tcell.ColorBlue)
 
 	d.leftSide.AddItem(d.postWrapper, 0, 4, true)
 
@@ -259,8 +264,7 @@ func controlText() string {
 	str := ""
 	str += "j/k      :  Up/Down\n"
 	str += "r        :  Load more posts\n"
-	str += "Enter/l  :  Open post contents\n"
-	str += "l        :  Focus post window\n"
+	str += "Enter/l  :  Focus post window\n"
 	str += "h        :  Focus post list window\n"
 	str += "q        :  Quit\n"
 
