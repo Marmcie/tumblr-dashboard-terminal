@@ -29,8 +29,8 @@ go build .
 ## TODO
 ### High priority
 - [x] Figure out how to display asks.
-- [ ] Fix post count on initial render.
 - [x] Switch to bubletea.
+- [ ] Fix UI breaking when rendering certain emojis.
 ### Continuing
 - [ ] Render various NPF posts.
 - [ ] Update README.md
@@ -40,3 +40,8 @@ go build .
     - Decide on whether to use ASCII image or kitty protocol.
 - [ ] Possibly implement other Tumblr features as well.
     - Make sure it doesn't go against the Tumblr API policies.
+## Known issues
+- Certain full width emojis breaks the UI, especially joined emojis.
+- When loading new posts, sometimes newly loaded posts contains duplicate posts from the list of already loaded posts.
+This happens because dashboard API only allows for offsetting from the latest post on dashboard. 
+So if any new post appeared on dashboard since the last time you loaded posts, newly loaded posts contains already loaded posts.
