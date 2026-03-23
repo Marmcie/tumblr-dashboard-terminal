@@ -1,7 +1,7 @@
 package npf
 type TrailPost struct {
 	Post struct {
-		Id            int64
+		Id            string
 		Timestamp     int64
 		Is_commercial bool
 	}

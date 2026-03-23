@@ -1,5 +1,10 @@
 package npf
 
+import (
+	"sort"
+	"strconv"
+)
+
 type Post struct {
 	Type                       string
 	Original_type              string
@@ -68,7 +73,14 @@ type TrailData struct {
 	Contents []ContentData
 	Blog     Blog
 	Layout   []Layout
+	ID       int64
 }
+
+type sortById []TrailData
+
+func (t sortById) Len() int               { return len(t) }
+func (t sortById) Swap(i int, j int)      { t[i], t[j] = t[j], t[i] }
+func (t sortById) Less(i int, j int) bool { return t[i].ID < t[j].ID }
 
 func (p *Post) Render() []TrailData {
 	if renderResults == nil {
@@ -92,6 +104,7 @@ func (p *Post) Render() []TrailData {
 			Contents: res,
 			Blog:     p.Blog,
 			Layout:   p.Layout,
+			ID:       p.Id,
 		})
 	}
 	for _, t := range p.Trail {
@@ -104,12 +117,15 @@ func (p *Post) Render() []TrailData {
 				Str:         data.Str,
 			})
 		}
+		tID, _ := strconv.ParseInt(t.Post.Id, 10, 64)
 		result = append(result, TrailData{
 			Contents: res,
 			Blog:     t.Blog,
 			Layout:   t.Layout,
+			ID:       tID,
 		})
 	}
+	sort.Sort(sortById(result))
 	renderResults[p.Id_string] = result
 	return renderResults[p.Id_string]
 }
