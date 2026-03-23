@@ -11,8 +11,12 @@ import (
 func TestDashboardLoad(t *testing.T) {
 	config := modules.Config{}
 	config.Testing = true
-	dash := dashboard.NewDashboard(config)
-	if dash == nil {
+	ch := make(chan *dashboard.Dashboard)
+	go func(ch chan *dashboard.Dashboard) {
+		ch <- dashboard.NewDashboard(config)
+	}(ch)
+	dashboard := <-ch
+	if dashboard == nil {
 		t.Errorf("a")
 	}
 }
@@ -20,22 +24,41 @@ func TestDashboardLoad(t *testing.T) {
 func TestDashboardDisplay(t *testing.T) {
 	config := modules.Config{}
 	config.Testing = true
-	dash := dashboard.NewDashboard(config)
-	dash.DisplayPost(dash.GetSelectedPost(),true)
+
+	ch := make(chan *dashboard.Dashboard)
+	go func(ch chan *dashboard.Dashboard) {
+		db := dashboard.NewDashboard(config)
+		db.LoadPosts()
+		ch <- db
+	}(ch)
+	dashboard := <-ch
+	dashboard.DisplayPost(dashboard.GetSelectedPost(), true)
 }
 
 func BenchmarkDashboardLoad(b *testing.B) {
 	config := modules.Config{}
 	config.Testing = true
-	dashboard := dashboard.NewDashboard(config)
+	ch := make(chan *dashboard.Dashboard)
+	go func(ch chan *dashboard.Dashboard) {
+		db := dashboard.NewDashboard(config)
+		db.LoadPosts()
+		ch <- db
+	}(ch)
+	dashboard := <-ch
 	for b.Loop() {
-		dashboard.DisplayPost(dashboard.GetSelectedPost(),true)
+		dashboard.DisplayPost(dashboard.GetSelectedPost(), true)
 	}
 }
 func BenchmarkDashboardUpdate(b *testing.B) {
 	config := modules.Config{}
 	config.Testing = true
-	dashboard := dashboard.NewDashboard(config)
+
+	ch := make(chan *dashboard.Dashboard)
+	go func(ch chan *dashboard.Dashboard) {
+		ch <- dashboard.NewDashboard(config)
+	}(ch)
+	dashboard := <-ch
+
 	msg := tea.KeyPressMsg{}
 	for b.Loop() {
 		dashboard.GetRootModel().Update(msg)

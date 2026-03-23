@@ -213,39 +213,32 @@ func (d *Dashboard) SwitchMode(mode string, option string) {
 }
 
 func (d *Dashboard) filterPosts(posts []npf.Post) []*npf.Post {
-
 	result := []*npf.Post{}
-	for _, po := range posts {
-		p := &po
-		result = append(result, p)
-		for _, t := range p.Tags {
-			if d.FilteredTags.Contains(t) {
-				p.IsFiltered = true
-				break
-			}
-		}
-		if p.IsFiltered {
+	filteredContents := d.FilteredContents.ToSlice()
+	for _, postObject := range posts {
+		post := &postObject
+		result = append(result, post)
+
+		if len(post.Tags) > 0 && d.FilteredTags.ContainsAny(post.Tags...) {
+			post.IsFiltered = true
 			continue
 		}
-
-		for _, r := range p.Render() {
-			for _, f := range d.FilteredContents.ToSlice() {
-				if strings.Contains(r.Blog.Name, f) {
-					p.IsFiltered = true
+		reblogs := post.Render()
+		for i := 0; i < len(reblogs) && !post.IsFiltered; i++ {
+			reblog := reblogs[i]
+			for a := 0; a < len(filteredContents) && !post.IsFiltered; a++ {
+				filteredWord := filteredContents[a]
+				if strings.Contains(reblog.Blog.Name, filteredWord) {
+					post.IsFiltered = true
 					break
 				}
-				for _, c := range r.Contents {
-					if strings.Contains(c.Str, f) {
-						p.IsFiltered = true
+				for b := 0; b < len(reblog.Contents) && !post.IsFiltered; b++ {
+					content := reblog.Contents[b]
+					if strings.Contains(content.Str, filteredWord) {
+						post.IsFiltered = true
 						break
 					}
 				}
-				if p.IsFiltered {
-					break
-				}
-			}
-			if p.IsFiltered {
-				break
 			}
 		}
 	}

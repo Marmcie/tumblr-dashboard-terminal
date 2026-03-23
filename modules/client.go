@@ -81,6 +81,7 @@ func (c *TumblrClient) GetDashboard(offset int) []npf.Post {
 	u.RawQuery = q.Encode()
 
 	resp, _ := c.Client.Get(u.String())
+	defer resp.Body.Close()
 	bytes, _ := io.ReadAll(resp.Body)
 
 	dash := dashboardResponse{}
@@ -111,6 +112,7 @@ func (c *TumblrClient) GetTaggedPosts(before int, tag string) []npf.Post {
 	u.RawQuery = q.Encode()
 
 	resp, _ := c.Client.Get(u.String())
+	defer resp.Body.Close()
 	bytes, _ := io.ReadAll(resp.Body)
 
 	dash := taggedResponse{}
@@ -140,6 +142,7 @@ func (c *TumblrClient) GetBlogPosts(before int, blogName string) []npf.Post {
 	u.RawQuery = q.Encode()
 
 	resp, _ := c.Client.Get(u.String())
+	defer resp.Body.Close()
 	bytes, _ := io.ReadAll(resp.Body)
 
 	dash := dashboardResponse{}
@@ -164,6 +167,7 @@ func (c *TumblrClient) GetFilteredTags(ch chan []string) {
 	u, _ := url.Parse("https://api.tumblr.com/v2/user/filtered_tags")
 
 	resp, _ := c.Client.Get(u.String())
+	defer resp.Body.Close()
 	bytes, _ := io.ReadAll(resp.Body)
 
 	dash := filteredTagsResponse{}
@@ -188,6 +192,7 @@ func (c *TumblrClient) GetFilteredContents(ch chan []string) {
 	u, _ := url.Parse("https://api.tumblr.com/v2/user/filtered_content")
 
 	resp, _ := c.Client.Get(u.String())
+	defer resp.Body.Close()
 	bytes, _ := io.ReadAll(resp.Body)
 
 	dash := filteredContentsResponse{}
