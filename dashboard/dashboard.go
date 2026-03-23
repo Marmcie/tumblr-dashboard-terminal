@@ -60,7 +60,6 @@ func NewDashboard(config modules.Config) *Dashboard {
 	d.TagTrie = helper.NewTrie()
 	d.BlogTrie = helper.NewTrie()
 
-
 	d.initComponents(d.config)
 	d.initEvents()
 	d.UpdateControlText()
