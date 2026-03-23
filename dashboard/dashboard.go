@@ -14,18 +14,20 @@ import (
 )
 
 type Dashboard struct {
-	core     ui.RootModel
-	root     *component.Flex
-	left     *component.Flex
-	right    *component.Flex
-	feed     *Feed
-	info     *component.Text
-	control  *component.Text
-	contents *Contents
-
-	client modules.TumblrClient
-
-	offset int
+	core      ui.RootModel
+	root      *component.Flex
+	left      *component.Flex
+	right     *component.Flex
+	switcher  *Switcher
+	feed      *Feed
+	info      *component.Text
+	control   *component.Text
+	contents  *Contents
+	mode      string
+	client    modules.TumblrClient
+	offset    int
+	timestamp int64
+	tag       string
 }
 
 func NewDashboard() *Dashboard {
@@ -39,6 +41,7 @@ func NewDashboard() *Dashboard {
 	}
 
 	d.core = ui.NewRootModel()
+	d.timestamp = time.Now().Local().UnixMilli() / 1000
 
 	d.root = component.NewFlex("Root")
 	d.root.SetDirection(1)
@@ -49,7 +52,7 @@ func NewDashboard() *Dashboard {
 	d.left = component.NewFlex("Left")
 	d.left.SetHeightInherit(true)
 	d.left.Direction = 0
-	
+
 	d.right = component.NewFlex("Right")
 	d.right.SetHeightInherit(true)
 	d.right.Direction = 0
@@ -67,6 +70,8 @@ func NewDashboard() *Dashboard {
 		SetAbsolute(true).
 		SetCentered(true)
 
+	d.switcher = NewSwitcher(d)
+
 	d.feed = NewFeed(d)
 	d.contents = NewContents(d)
 
@@ -78,20 +83,31 @@ func NewDashboard() *Dashboard {
 	d.root.AddItem(d.left, component.NewFlexDescriptor(0, 1))
 	d.root.AddItem(d.right, component.NewFlexDescriptor(0, 3))
 	d.root.AddItem(d.control, component.NewFlexDescriptor(0, 3))
+	d.root.AddItem(d.switcher.Window, component.NewFlexDescriptor(0, 3))
 
 	d.feed.listElem.Focus()
+	d.switcher.Window.Focus()
 	d.core.App.SetRoot(d.root)
 
 	d.client = modules.NewTumblrClient()
 	d.offset = 0
 	d.initEvents()
-	d.LoadPosts()
+	d.SwitchMode("dashboard","")
 	d.UpdateControlText()
 
 	return d
 }
 func (d *Dashboard) toggleControl() {
 	d.control.SetVisibility(!d.control.Visibility)
+}
+func (d *Dashboard) toggleSwitcher() {
+	state := !d.switcher.Window.GetVisibility()
+	d.switcher.Window.SetVisibility(state)
+	if state {
+		d.switcher.DashOption.Focus()
+	} else {
+		d.feed.listElem.Focus()
+	}
 }
 
 func (d *Dashboard) initEvents() {
@@ -106,16 +122,48 @@ func (d *Dashboard) initEvents() {
 				post := d.feed.GetSelectedPost()
 				modules.OpenInBrowser(post.Short_url)
 				component.Global.SetCmd(tea.ClearScreen)
+
+			case "]":
+				d.toggleSwitcher()
+
 			case "?":
 				d.toggleControl()
 			}
 
 		}
-	})
+	}, true)
+}
+
+func (d *Dashboard) SwitchMode(mode string, tag string) {
+	d.switcher.Window.SetVisibility(false)
+	d.feed.listElem.Focus()
+	d.mode = mode
+	switch d.mode {
+	case "dashboard":
+		d.feed.listElem.SetTitle("Dashboard")
+	case "tag":
+		d.tag = tag
+		d.feed.listElem.SetTitle("Tagged posts : " + d.tag)
+	}
+
+	d.feed.ClearPosts()
+	d.feed.listElem.ClearChildren()
+	d.LoadPosts()
 }
 
 func (d *Dashboard) LoadPosts() {
-	posts := d.client.GetDashboard(d.offset)
+	var posts []npf.Post
+	switch d.mode {
+	case "dashboard":
+		posts = d.client.GetDashboard(d.offset)
+	case "tag":
+		posts = d.client.GetTaggedPosts(int(d.timestamp), d.tag)
+		if len(posts) == 0 {
+			d.SwitchMode("dashboard", "")
+			return
+		}
+		d.timestamp = posts[len(posts)-1].Timestamp
+	}
 	d.feed.AddPosts(posts)
 	d.offset++
 

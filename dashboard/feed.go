@@ -20,7 +20,6 @@ func NewFeed(dashboard *Dashboard) *Feed {
 	f.listElem.SetBorder(true).SetBorderPadding(1).SetBorderCorner(true).SetWidthInherit(true)
 	f.dashboard = dashboard
 	f.listElem.SetBorderLabel("BottomRight", "? For keybind")
-	
 
 	f.InitEvents()
 	return f
@@ -45,7 +44,7 @@ func (f *Feed) InitEvents() {
 				f.UpdateSelectedOptionBorder()
 			}
 		}
-	})
+	},true)
 
 }
 
@@ -71,6 +70,10 @@ func (f *Feed) UpdateSelectedOptionBorder() {
 
 func (f *Feed) GetSelectedPost() npf.Post {
 	return f.posts[f.listElem.Cursor]
+}
+
+func (f *Feed) ClearPosts() {
+	f.posts = []npf.Post{}
 }
 
 func (f *Feed) AddPosts(posts []npf.Post) {

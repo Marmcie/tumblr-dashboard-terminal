@@ -48,7 +48,7 @@ func (f *Contents) InitEvents() {
 			}
 			f.prev = msg.String()
 		}
-	})
+	},true)
 }
 
 func (f *Contents) DisplayPost(post npf.Post) {

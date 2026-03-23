@@ -32,7 +32,7 @@ func NewScrollable(name string) *Scrollable {
 		w, h := flex.GetContentsSize()
 		flex.InnerHeight = h
 		flex.InnerWidth = w
-	})
+	},true)
 
 	return flex
 }

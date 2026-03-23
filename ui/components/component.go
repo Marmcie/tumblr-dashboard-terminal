@@ -29,8 +29,8 @@ type Component interface {
 	GetContentsHeight() int
 	GetContentsSize() (int, int)
 	SetDepth(int) *ComponentState
-	GetEventCallbacks(string) map[string]func(tea.Msg, int)
-	AddEventListener(string, func(tea.Msg, int))
+	GetEventCallbacks(string) map[string]EventCb
+	AddEventListener(string, func(tea.Msg, int), bool)
 	GetFocusState() bool
 	SetH(int) *ComponentState
 	GetHeight() int
@@ -125,7 +125,7 @@ type ComponentState struct {
 	Name string
 	// Name of a component type
 	ComponentName    string
-	EventCallbacks   map[string]map[string]func(tea.Msg, int)
+	EventCallbacks   map[string]map[string]EventCb
 	Absolute         bool
 	Overflow         bool
 	ShowTopBorder    bool
@@ -145,6 +145,11 @@ type ComponentState struct {
 	ForegroundGradient []color.Color
 	Background         string
 	Foreground         string
+}
+
+type EventCb struct {
+	Cb     func(tea.Msg, int)
+	Bubble bool
 }
 
 // Initialized all shared values
@@ -171,7 +176,7 @@ func (c *ComponentState) Initialize(name string) {
 	c.ShowBorderCorner = true
 	c.IsFlexItem = false
 	c.UUID = uuid.New().String()
-	c.EventCallbacks = map[string]map[string]func(tea.Msg, int){}
+	c.EventCallbacks = map[string]map[string]EventCb{}
 	c.TitleAlignment = "center"
 	c.Foreground = ""
 	c.Background = ""
@@ -490,16 +495,18 @@ func (c *ComponentState) Update() {
 }
 
 // Hook a callback to a specific event
-func (c *ComponentState) AddEventListener(event string, cb func(tea.Msg, int)) {
+func (c *ComponentState) AddEventListener(event string, cb func(tea.Msg, int), bubble bool) {
 	list := c.GetEventCallbacks(event)
-	list[uuid.New().String()] = cb
+	list[uuid.New().String()] = EventCb{
+		Cb:     cb,
+		Bubble: bubble,
+	}
 	c.EventCallbacks[event] = list
 }
 
 // Queue all functions hooked to an event to be executed at the end of the frame
 func (c *ComponentState) DispatchEvent(event string) {
 	var bubble []Component
-	bubble = append(bubble, c)
 	pt := c.GetParent()
 
 	for pt != nil {
@@ -509,8 +516,14 @@ func (c *ComponentState) DispatchEvent(event string) {
 
 	for _, element := range bubble {
 		for callbackUUID, cb := range element.GetEventCallbacks(event) {
-			Global.AddEventCallback(event, element.GetUUID(), callbackUUID, cb)
+			if cb.Bubble {
+				Global.AddEventCallback(event, element.GetUUID(), callbackUUID, cb.Cb)
+			}
 		}
+	}
+
+	for callbackUUID, cb := range c.GetEventCallbacks(event) {
+		Global.AddEventCallback(event, c.GetUUID(), callbackUUID, cb.Cb)
 	}
 }
 
@@ -522,9 +535,9 @@ func (c *ComponentState) Propagate() {
 }
 
 // Get a list of callbacks hooked to a specific event
-func (c *ComponentState) GetEventCallbacks(event string) map[string]func(tea.Msg, int) {
+func (c *ComponentState) GetEventCallbacks(event string) map[string]EventCb {
 	if c.EventCallbacks[event] == nil {
-		c.EventCallbacks[event] = map[string]func(tea.Msg, int){}
+		c.EventCallbacks[event] = map[string]EventCb{}
 	}
 	return c.EventCallbacks[event]
 }

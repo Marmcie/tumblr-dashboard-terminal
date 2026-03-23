@@ -75,6 +75,7 @@ func (s *Selectlist) Propagate() {
 }
 
 func (c *Selectlist) ClearChildren() {
-	c.Children = []Component{}
+	c.ComponentState.ClearChildren()
 	c.OptionCallbacks = []func(){}
+	c.Cursor=0
 }
