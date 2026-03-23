@@ -131,6 +131,7 @@ type Component interface {
 	GetDoubleBorder() bool
 	Initialize(string)
 	Focus()
+	SetVisibility(bool)
 }
 
 type ComponentState struct {
@@ -167,6 +168,7 @@ type ComponentState struct {
 	TitleAlignment   string
 	BorderStyle      lipgloss.Style
 	ShowDoubleBorder bool
+	Visibility           bool
 }
 
 func (c *ComponentState) Initialize(name string) {
@@ -196,6 +198,7 @@ func (c *ComponentState) Initialize(name string) {
 
 	c.ResetBorderStyle()
 	c.ClearStyle()
+	c.SetVisibility(true)
 
 	c.ShowDoubleBorder = false
 	Global.Elements = append(Global.Elements, c)
@@ -347,6 +350,10 @@ func (c *ComponentState) GetFocusState() bool {
 
 func (b *ComponentState) PrepareFrame() {
 	var result = b.CreateCanvas()
+	if !b.Visibility {
+		b.Canvas = result
+		return
+	}
 
 	top, _, left, _ := b.GetBorderPaddings()
 	cursor := top
@@ -756,4 +763,8 @@ func (c *ComponentState) SetDoubleBorder(v bool) *ComponentState {
 
 func (c *ComponentState) GetDoubleBorder() bool {
 	return c.ShowDoubleBorder
+}
+
+func (c *ComponentState) SetVisibility(v bool) {
+	c.Visibility = v
 }

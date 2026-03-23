@@ -68,7 +68,7 @@ func (b *Scrollable) PrepareFrame() {
 	var output = b.GetCanvas()
 	boxHeight := b.GetInnerHeight()
 	boxWidth := b.GetInnerWidth()
-	style:=b.GetStyle()
+	style := b.GetStyle()
 
 	b.findBottom(output)
 	for lineY, line := range output {
@@ -93,4 +93,30 @@ func (b *Scrollable) PrepareFrame() {
 
 	b.Canvas = result
 	b.DispatchEvent("onRenderReady")
+}
+
+func (c *Scrollable) UpdateVisibility() {
+	top := 0
+	y := c.OffsetY
+	h := c.GetInnerHeight()
+	for _, child := range c.GetChildren() {
+		childHeight := child.GetHeight()
+		if top+childHeight < y {
+			child.SetVisibility(false)
+		} else {
+
+			if top > y+h {
+				child.SetVisibility(false)
+			} else {
+				child.SetVisibility(true)
+			}
+		}
+		top += childHeight
+
+	}
+}
+
+func (c *Scrollable) Propagate() {
+	c.UpdateVisibility()
+	c.ComponentState.Propagate()
 }
