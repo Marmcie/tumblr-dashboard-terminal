@@ -5,6 +5,7 @@ import (
 	component "tumblr-dt/ui/component"
 
 	tea "charm.land/bubbletea/v2"
+	uv "github.com/charmbracelet/ultraviolet"
 )
 
 type Switcher struct {
@@ -151,7 +152,11 @@ func (s *Switcher) InitEvents() {
 			default:
 				str := string(msg.Code)
 				if len(str) == 1 {
-					s.TagInput.AppendChar(msg.String())
+					if msg.Key().Mod.Contains(uv.ModShift) {
+						s.TagInput.AppendChar(string(msg.ShiftedCode))
+					}else{
+						s.TagInput.AppendChar(string(msg.Code))
+					}
 				}
 			}
 		}
@@ -175,7 +180,11 @@ func (s *Switcher) InitEvents() {
 			default:
 				str := string(msg.Code)
 				if len(str) == 1 {
-					s.BlogInput.AppendChar(msg.String())
+					if msg.Key().Mod.Contains(uv.ModShift) {
+						s.BlogInput.AppendChar(string(msg.ShiftedCode))
+					}else{
+						s.BlogInput.AppendChar(string(msg.Code))
+					}
 				}
 			}
 		}
