@@ -2,6 +2,7 @@ package component
 
 import tea "charm.land/bubbletea/v2"
 
+// This class is there to keep track of the state information that should be accessible globally.
 type GlobalValues struct {
 	Msg             tea.Msg
 	Time            int
@@ -15,16 +16,20 @@ var Global = &GlobalValues{
 	Elements: []Component{},
 }
 
+// Add a component to the global list of all components
 func (g *GlobalValues) AddElement(c Component) int {
 	g.Elements = append(g.Elements, c)
 	return len(g.Elements) - 1
 }
+
+// Remove a component from the global list of all components
 func (g *GlobalValues) DeleteElement(i int) {
 	g.Elements[i] = g.Elements[len(g.Elements)-1]
 	g.Elements[i].SetGlobalIndex(i)
 	g.Elements = g.Elements[:len(g.Elements)-1]
 }
 
+// Print all logs from callbacks subscribed to the global logger.
 func (g *GlobalValues) PrintLog() {
 	f, _ := tea.LogToFile("debug.log", "debug")
 	for _, cb := range g.Logger {
@@ -33,20 +38,24 @@ func (g *GlobalValues) PrintLog() {
 	f.Close()
 }
 
+// Subscribe a callbacks to be outputted to the log file on command.
 func (g *GlobalValues) SubscribeLogger(cb func() string) {
 	g.Logger = append(g.Logger, cb)
 }
 
+// Remove focus from all components
 func (g *GlobalValues) BlurAll() {
 	for _, v := range g.Elements {
 		v.Blur()
 	}
 }
 
+// Set the tea.Cmd to be returned to the tea application
 func (g *GlobalValues) SetCmd(cmd tea.Cmd) {
 	g.Command = cmd
 }
 
+// Add a callback to a queue to be executed later in batch.
 func (g *GlobalValues) AddEventCallback(event string, uuid string, callbackUUID string, cb func(tea.Msg, int)) {
 	if g.EventDispatches == nil {
 		g.EventDispatches = map[string]map[string]map[string]func(tea.Msg, int){}
@@ -61,6 +70,7 @@ func (g *GlobalValues) AddEventCallback(event string, uuid string, callbackUUID 
 	g.EventDispatches[event][uuid][callbackUUID] = cb
 }
 
+// Execute all event callbacks
 func (g *GlobalValues) CallEvents() {
 	for _, v := range g.EventDispatches {
 		for _, cbs := range v {
@@ -72,6 +82,7 @@ func (g *GlobalValues) CallEvents() {
 	g.EventDispatches = map[string]map[string]map[string]func(tea.Msg, int){}
 }
 
+// Update globally accessible values
 func UpdateGlobalValues(msg tea.Msg, time int) {
 	Global.Msg = msg
 	Global.Time = time

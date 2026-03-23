@@ -1,5 +1,6 @@
 package component
 
+// Flex box component
 type Flex struct {
 	ComponentState
 	Direction   int

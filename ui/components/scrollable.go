@@ -6,6 +6,7 @@ import (
 	tea "charm.land/bubbletea/v2"
 )
 
+// Component that can scroll to show child elements
 type Scrollable struct {
 	ComponentState
 	OffsetY     int

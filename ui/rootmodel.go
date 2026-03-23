@@ -1,6 +1,8 @@
 package ui
 
 import (
+	"runtime"
+	"strconv"
 	"time"
 	"tumblr-dt/modules"
 	component "tumblr-dt/ui/components"
@@ -10,7 +12,8 @@ import (
 )
 
 type RootModel struct {
-	App *App
+	App       *App
+	isWindows bool
 }
 
 func TickCmd() tea.Cmd {
@@ -27,19 +30,11 @@ type TickMsg struct {
 
 func NewRootModel() RootModel {
 
-	var s tsize.Size
-
-	s, err := tsize.GetSize()
-	if err != nil {
-		panic(err)
-	}
-
 	app := NewApp()
-	app.Width = s.Width
-	app.Height = s.Height
 
 	return RootModel{
-		App: app,
+		App:       app,
+		isWindows: runtime.GOOS == "windows",
 	}
 }
 
@@ -49,17 +44,6 @@ func (m RootModel) Init() tea.Cmd {
 	)
 }
 func (m RootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-
-	var s tsize.Size
-
-	s, err := tsize.GetSize()
-	if err != nil {
-		panic(err)
-	}
-	m.App.Width = s.Width
-	m.App.Height = s.Height
-
-	(*m.App.root).SetSize(s.Width, s.Height)
 
 	switch msg := msg.(type) {
 
@@ -84,7 +68,22 @@ func (m RootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		return m, m.App.Update(msg)
 	case tea.WindowSizeMsg:
-		m.App.UpdateSize(msg.Width, msg.Height)
+		m.App.UpdateSize(msg.Width, msg.Height-1)
+		return m, tea.ClearScreen
+	}
+
+	if m.isWindows {
+		var s tsize.Size
+		s, err := tsize.GetSize()
+		if err != nil {
+			println("Could not determine the size of the terminal window")
+			panic(err)
+		}
+		w, h := (*m.App).GetSize()
+		if w != s.Width || h != s.Height-1 {
+			(*m.App).UpdateSize(s.Width, s.Height-1)
+			return m, tea.ClearScreen
+		}
 	}
 	return m, nil
 

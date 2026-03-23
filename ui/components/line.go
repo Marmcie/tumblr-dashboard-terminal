@@ -6,6 +6,7 @@ import (
 	"github.com/mattn/go-runewidth"
 )
 
+// Component that displays a single line of text
 type Line struct {
 	ComponentState
 	Text string

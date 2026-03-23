@@ -1,6 +1,7 @@
 package component
 
 
+// Basic component that displays its child.
 type Box struct {
 	ComponentState
 }

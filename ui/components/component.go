@@ -31,7 +31,6 @@ type Component interface {
 	SetComponentName(string) *ComponentState
 	GetContentsHeight() int
 	GetContentsSize() (int, int)
-	GetContentsWidth() int
 	SetDepth(int) *ComponentState
 	GetEventCallbacks(string) map[string]func(tea.Msg, int)
 	AddEventListener(string, func(tea.Msg, int))
@@ -88,8 +87,11 @@ type Component interface {
 	SetGlobalIndex(int)
 }
 
+// Base class for all components
 type ComponentState struct {
+	// X coordinates
 	x                int
+	// Y coordinates
 	y                int
 	UUID             string
 	Width            int
@@ -106,7 +108,9 @@ type ComponentState struct {
 	Canvas           [][]string
 	ShowBorder       bool
 	BorderPadWidth   int
+	// Name of an individual component
 	Name             string
+	// Name of a component type
 	ComponentName    string
 	EventCallbacks   map[string]map[string]func(tea.Msg, int)
 	Absolute         bool
@@ -124,9 +128,11 @@ type ComponentState struct {
 	ShowDoubleBorder bool
 	Visibility       bool
 	BorderLabels     map[string]string
-	GlobalIndex      int
+	//Index of the component within global element list
+	GlobalIndex int
 }
 
+// Initialized all shared values
 func (c *ComponentState) Initialize(name string) {
 	c.x = 0
 	c.y = 0
@@ -171,7 +177,7 @@ func (c *ComponentState) Initialize(name string) {
 
 // #region Component relation
 
-//Adds a child to an component
+// Adds a child to an component
 func (c *ComponentState) AddChild(child Component) {
 	child.SetDepth(c.Depth + 1)
 	child.SetParent(c)
@@ -179,17 +185,18 @@ func (c *ComponentState) AddChild(child Component) {
 	c.DispatchEvent("onAddChild")
 }
 
-//Set parent of a component
+// Set parent of a component
 func (c *ComponentState) SetParent(parent *ComponentState) *ComponentState {
 	c.Parent = parent
 	return c
 }
 
-//Get array of child components
+// Get array of child components
 func (c *ComponentState) GetChildren() []Component {
 	return c.Children
 }
 
+// Get array of child components belonging to the parent component
 func (c *ComponentState) GetSiblings() []Component {
 	if c.GetParent() != nil {
 		return c.GetParent().GetChildren()
@@ -198,13 +205,17 @@ func (c *ComponentState) GetSiblings() []Component {
 	return []Component{}
 }
 
+// Get parent component
 func (c *ComponentState) GetParent() Component {
 	return c.Parent
 }
 
+// Get root component
 func (c *ComponentState) GetComponent() Component {
 	return c
 }
+
+// Remove all children
 func (c *ComponentState) ClearChildren() {
 	for _, child := range c.GetChildren() {
 		child.Delete()
@@ -212,6 +223,8 @@ func (c *ComponentState) ClearChildren() {
 
 	c.Children = []Component{}
 }
+
+// Perform cleanup on elements and its children
 func (c *ComponentState) Delete() {
 	for _, child := range c.GetChildren() {
 		child.Delete()
@@ -219,6 +232,7 @@ func (c *ComponentState) Delete() {
 	Global.DeleteElement(c.GlobalIndex)
 }
 
+// Set the global index for the component
 func (c *ComponentState) SetGlobalIndex(i int) {
 	c.GlobalIndex = i
 }
@@ -226,69 +240,84 @@ func (c *ComponentState) SetGlobalIndex(i int) {
 //#endregion Component relation
 
 // #region Component graphical properties
+
+// Set the nest depth of a component
 func (c *ComponentState) SetDepth(v int) *ComponentState {
 	c.Depth = v
 	return c
 }
 
+// Get the rect of the component. (X,Y,Width,Height)
 func (c *ComponentState) GetRect() (int, int, int, int) {
 	return c.GetX(), c.GetY(), c.GetWidth(), c.GetHeight()
 }
 
+// Get X coordinates
 func (c *ComponentState) GetX() int {
 	return c.x
 }
 
+// Get Y coordinates
 func (c *ComponentState) GetY() int {
 	return c.y
 }
 
+// Get coordinates of the component. (X,Y)
 func (c *ComponentState) GetPos() (int, int) {
 	return c.GetX(), c.GetY()
 }
 
+// Set X coordinate of the component
 func (c *ComponentState) SetX(v int) *ComponentState {
 	c.x = v
 	return c
 }
 
+// Set Y coordinate of the component
 func (c *ComponentState) SetY(v int) *ComponentState {
 	c.y = v
 	return c
 }
 
+// Set coordinates of the component
 func (c *ComponentState) SetPos(x int, y int) *ComponentState {
 	c.SetX(x)
 	c.SetY(y)
 	return c
 }
 
+// Set width of the component
 func (c *ComponentState) SetW(v int) *ComponentState {
 	c.Width = v
 	return c
 }
 
+// Set height of the component
 func (c *ComponentState) SetH(v int) *ComponentState {
 	c.Height = v
 	return c
 }
 
+// Set if component's height should be equal to the parent's inner height
 func (c *ComponentState) SetHeightInherit(v bool) *ComponentState {
 	c.InheritHeight = v
 	return c
 }
 
+// Set if component's width should be equal to the parent's inner width
 func (c *ComponentState) SetWidthInherit(v bool) *ComponentState {
 	c.InheritWidth = v
 	return c
 }
 
+// Set size of the component
 func (c *ComponentState) SetSize(w int, h int) *ComponentState {
 	c.SetW(w)
 	c.SetH(h)
 	return c
 }
 
+// Get width of a component. if InheritWidth is true, retrieve parent's inner width
 func (c *ComponentState) GetWidth() int {
 	if c.InheritWidth == true && c.GetParent() != nil {
 		return c.GetParent().GetInnerWidth()
@@ -296,6 +325,7 @@ func (c *ComponentState) GetWidth() int {
 	return c.Width
 }
 
+// Get height of a component. if InheritHeight is true, retrieve parent's inner height
 func (c *ComponentState) GetHeight() int {
 	if c.InheritHeight == true && c.GetParent() != nil {
 		return c.GetParent().GetInnerHeight()
@@ -303,6 +333,7 @@ func (c *ComponentState) GetHeight() int {
 	return c.Height
 }
 
+// Get inner width of a component. (width - side paddings).
 func (c *ComponentState) GetInnerWidth() int {
 	if c.ShowBorder {
 		_, _, l, r := c.GetBorderPaddings()
@@ -311,6 +342,7 @@ func (c *ComponentState) GetInnerWidth() int {
 	return c.GetWidth()
 }
 
+// Get inner height of a component. (height - top and bottom paddings)
 func (c *ComponentState) GetInnerHeight() int {
 	if c.ShowBorder {
 		t, b, _, _ := c.GetBorderPaddings()
@@ -319,10 +351,12 @@ func (c *ComponentState) GetInnerHeight() int {
 	return c.GetHeight()
 }
 
+// Check if element's position should be dictated by parent element
 func (c *ComponentState) IsAbsolute() bool {
 	return c.Absolute
 }
 
+// Get smallest area that can fit all children. (width,height)
 func (c *ComponentState) GetContentsSize() (int, int) {
 	w := 0
 	h := 0
@@ -339,6 +373,7 @@ func (c *ComponentState) GetContentsSize() (int, int) {
 	return max(w, c.GetWidth()), max(h, c.GetHeight())
 }
 
+// Get smallest height that can fit all children.
 func (c *ComponentState) GetContentsHeight() int {
 	h := 0
 	for _, child := range c.GetChildren() {
@@ -352,11 +387,7 @@ func (c *ComponentState) GetContentsHeight() int {
 	return max(h, c.GetHeight())
 }
 
-func (c *ComponentState) GetContentsWidth() int {
-	w, _ := c.GetContentsSize()
-	return w
-}
-
+// Get the width of the padding
 func (c *ComponentState) GetBorderPadding() int {
 	if c.ShowBorder {
 		return c.BorderPadWidth
@@ -364,6 +395,7 @@ func (c *ComponentState) GetBorderPadding() int {
 	return 0
 }
 
+// Get the width of the padding for each sides. (top,bottom,left,right)
 func (c *ComponentState) GetBorderPaddings() (int, int, int, int) {
 	if c.ShowBorder {
 		pad := c.GetBorderPadding()
@@ -391,11 +423,13 @@ func (c *ComponentState) GetBorderPaddings() (int, int, int, int) {
 	return 0, 0, 0, 0
 }
 
+// Set a flag to check if a component is a child of a flex component
 func (c *ComponentState) SetIsFlexItem(flex bool) *ComponentState {
 	c.IsFlexItem = flex
 	return c
 }
 
+// Check if a component is a child of a flex component
 func (c *ComponentState) GetIsFlexItem() bool {
 	return c.IsFlexItem
 }
@@ -403,6 +437,8 @@ func (c *ComponentState) GetIsFlexItem() bool {
 // #endregion Component graphical properties
 
 // #region Event handler
+
+// Perform bubbletea's update event on all elements that has focus
 func (c *ComponentState) Update() {
 	for _, child := range c.GetChildren() {
 		child.Update()
@@ -413,12 +449,14 @@ func (c *ComponentState) Update() {
 	}
 }
 
+// Hook a callback to a specific event
 func (c *ComponentState) AddEventListener(event string, cb func(tea.Msg, int)) {
 	list := c.GetEventCallbacks(event)
 	list[uuid.New().String()] = cb
 	c.EventCallbacks[event] = list
 }
 
+// Queue all functions hooked to an event to be executed at the end of the frame
 func (c *ComponentState) DispatchEvent(event string) {
 	var bubble []Component
 	bubble = append(bubble, c)
@@ -435,11 +473,15 @@ func (c *ComponentState) DispatchEvent(event string) {
 		}
 	}
 }
+
+// Called on all function right before rendering
 func (c *ComponentState) Propagate() {
 	for _, c := range c.GetChildren() {
 		c.Propagate()
 	}
 }
+
+// Get a list of callbacks hooked to a specific event
 func (c *ComponentState) GetEventCallbacks(event string) map[string]func(tea.Msg, int) {
 	if c.EventCallbacks[event] == nil {
 		c.EventCallbacks[event] = map[string]func(tea.Msg, int){}
@@ -450,6 +492,9 @@ func (c *ComponentState) GetEventCallbacks(event string) map[string]func(tea.Msg
 //#endregion Event handler
 
 // #region Component non graphical properties
+
+// Set focus on a component.  
+// Only the component with focus receives bubbletea's event.
 func (c *ComponentState) Focus() {
 	Global.BlurAll()
 	c.Focused = true
@@ -457,6 +502,7 @@ func (c *ComponentState) Focus() {
 	c.DispatchEvent("onFocusChange")
 }
 
+// Remove focus from a component
 func (c *ComponentState) Blur() {
 	for _, child := range c.GetChildren() {
 		child.Blur()
@@ -466,36 +512,45 @@ func (c *ComponentState) Blur() {
 	c.DispatchEvent("onFocusChange")
 }
 
+// Check if a component is focused
 func (c *ComponentState) GetFocusState() bool {
 	return c.Focused
 }
 
+// Get a name of an individual component
 func (c *ComponentState) GetName() string {
 	return c.Name
 }
 
+// Get a name of the component type
 func (c *ComponentState) GetComponentName() string {
 	return c.ComponentName
 }
 
+// Set name of a component
 func (c *ComponentState) SetName(n string) *ComponentState {
 	c.Name = n
 	return c
 }
 
+// Set name of a component type
 func (c *ComponentState) SetComponentName(n string) *ComponentState {
 	c.ComponentName = n
 	return c
 }
 
+// Set title of a component. 
+// Title is displayed at the top of the component with border.
 func (c *ComponentState) SetTitle(str string) *ComponentState {
 	c.Title = str
 	return c
 }
 
+// Get the title of a component
 func (c *ComponentState) GetTitle() string {
 	return c.Title
 }
+// Get UUID of a component
 func (c *ComponentState) GetUUID() string {
 	return c.UUID
 }
@@ -503,6 +558,9 @@ func (c *ComponentState) GetUUID() string {
 // #endregion Component non graphical properties
 
 // #region Rendering
+
+// Perform rendering for a component and all its child components.
+// Rendered result is written to the Canvas property
 func (b *ComponentState) PrepareFrame() {
 	var result = b.CreateCanvas()
 	if !b.Visibility {
@@ -553,6 +611,7 @@ func (b *ComponentState) PrepareFrame() {
 	b.DispatchEvent("onRenderReady")
 }
 
+// Create a 2D array of string the size of component
 func (c *ComponentState) CreateCanvas() [][]string {
 	var arr [][]string
 	height := c.GetContentsHeight() + 1
@@ -567,10 +626,12 @@ func (c *ComponentState) CreateCanvas() [][]string {
 	return arr
 }
 
+// Get the rendered canvas
 func (c *ComponentState) GetCanvas() [][]string {
 	return c.Canvas
 }
 
+// Add border to a component if applicable
 func (c *ComponentState) addBorder(arr [][]string) [][]string {
 	if !c.ShowBorder || c.GetBorderPadding() == 0 || len(arr) < 3 || len(arr[0]) < 3 {
 		return arr
@@ -701,19 +762,23 @@ func (c *ComponentState) addBorder(arr [][]string) [][]string {
 	return arr
 }
 
+// Set the lipgloss style for a component
 func (c *ComponentState) SetStyle(s lipgloss.Style) *ComponentState {
 	c.Style = s
 	return c
 }
 
+// Clear the lipgloss style of a component
 func (c *ComponentState) ClearStyle() {
 	c.Style = lipgloss.NewStyle()
 }
 
+// Get the lipgloss style of a component
 func (c *ComponentState) GetStyle() lipgloss.Style {
 	return c.Style
 }
 
+// Set if border should be visible
 func (c *ComponentState) SetBorder(show bool) *ComponentState {
 	c.ShowBorder = show
 	if show && c.BorderPadWidth == 0 {
@@ -722,28 +787,35 @@ func (c *ComponentState) SetBorder(show bool) *ComponentState {
 	return c
 }
 
+// Set lipgloss style for the border
 func (c *ComponentState) SetBorderStyle(style lipgloss.Style) *ComponentState {
 	c.BorderStyle = style
 	return c
 }
 
+// Get lipgloss style for the border
 func (c *ComponentState) GetBorderStyle() lipgloss.Style {
 	return c.BorderStyle
 }
+
+// Remove lipgloss style for the border
 func (c *ComponentState) ResetBorderStyle() *ComponentState {
 	c.BorderStyle = lipgloss.NewStyle()
 	return c
 }
 
+// Set where should the title be rendered
 func (c *ComponentState) SetTitleAlignment(str string) *ComponentState {
 	c.Title = str
 	return c
 }
 
+// Get where should the title be rendered
 func (c *ComponentState) GetTitleAlignment() string {
 	return c.TitleAlignment
 }
 
+// Set Visibility for each border edges
 func (c *ComponentState) SetBorders(top bool, bottom bool, left bool, right bool) *ComponentState {
 	c.ShowTopBorder = top
 	c.ShowBottomBorder = bottom
@@ -752,31 +824,40 @@ func (c *ComponentState) SetBorders(top bool, bottom bool, left bool, right bool
 	return c
 }
 
+// Set if rounded border corder should be rendered
 func (c *ComponentState) SetBorderCorner(show bool) *ComponentState {
 	c.ShowBorderCorner = show
 	return c
 }
 
+// Set padding width of the border
 func (c *ComponentState) SetBorderPadding(v int) *ComponentState {
 	c.BorderPadWidth = v
 	return c
 }
+
+// Set if rendered border should be double border
 func (c *ComponentState) SetDoubleBorder(v bool) *ComponentState {
 	c.ShowDoubleBorder = v
 	return c
 }
 
+// Get if rendered border should be double border
 func (c *ComponentState) GetDoubleBorder() bool {
 	return c.ShowDoubleBorder
 }
 
+// Set if a component should be rendered
 func (c *ComponentState) SetVisibility(v bool) {
 	c.Visibility = v
 }
 
+// Set a label to be displayed on corners of the border
 func (c *ComponentState) SetBorderLabel(key string, str string) {
 	c.BorderLabels[key] = str
 }
+
+// Recursively hide all elements invisible to the parent element
 func (c *ComponentState) UpdateVisibility(ytop int, hei int) {
 	top := 0
 	y := ytop
@@ -791,6 +872,8 @@ func (c *ComponentState) UpdateVisibility(ytop int, hei int) {
 //#endregion Rendering
 
 // #region Debugging
+
+// Retrieve the list of parents
 func (c *ComponentState) Trace(list []string) []string {
 
 	if c.GetParent() != nil {
@@ -801,10 +884,12 @@ func (c *ComponentState) Trace(list []string) []string {
 	return list
 }
 
+// Retrieve the list of parents
 func (c *ComponentState) GetTrace() []string {
 	return c.Trace([]string{})
 }
 
+// String representation of a component for debugging purpose.
 func (c *ComponentState) ToString() string {
 	var res bytes.Buffer
 

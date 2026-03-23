@@ -4,6 +4,7 @@ import (
 	"charm.land/lipgloss/v2"
 )
 
+// Component that displays a list of elements that can be selected and has a corresponding callbacks.
 type Selectlist struct {
 	Scrollable
 

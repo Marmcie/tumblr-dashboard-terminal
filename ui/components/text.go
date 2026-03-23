@@ -5,6 +5,7 @@ import (
 	"strings"
 )
 
+// Component that displays multi line text
 type Text struct {
 	ComponentState
 	Text string

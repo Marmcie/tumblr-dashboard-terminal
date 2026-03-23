@@ -49,6 +49,7 @@ func (f *Feed) InitEvents() {
 			case "o":
 				post := f.GetSelectedPost()
 				modules.OpenInBrowser(post.Short_url)
+				component.Global.SetCmd(tea.ClearScreen)
 			}
 		}
 	})
