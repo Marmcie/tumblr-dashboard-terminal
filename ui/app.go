@@ -62,5 +62,7 @@ func (m *App) Update(msg tea.Msg) tea.Cmd {
 	(*m.root).Update()
 	component.Global.CallEvents()
 	m.Time++
-	return nil
+	cmd := component.Global.Command
+	component.Global.Command = nil
+	return cmd
 }

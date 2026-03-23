@@ -30,10 +30,9 @@ func (f *Feed) InitEvents() {
 		switch msg := msg.(type) {
 		case tea.KeyMsg:
 			switch msg.String() {
-			case "l":
+			case "enter", "l":
 				f.dashboard.FocusContents()
-			case "enter":
-				f.dashboard.FocusContents()
+				f.listElem.RunSelectedOption()
 
 			case "j":
 				f.listElem.IncrementCursor()

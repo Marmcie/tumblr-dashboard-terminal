@@ -15,6 +15,7 @@ type GlobalValues struct {
 	Time            int
 	Elements        []Component
 	EventDispatches map[string]map[string][]func(tea.Msg, int)
+	Command         tea.Cmd
 }
 
 var Global = &GlobalValues{}
@@ -25,6 +26,13 @@ func (g *GlobalValues) BlurAll() {
 	}
 }
 
+func (g *GlobalValues) SetCmd(cmd tea.Cmd) {
+	g.Command = cmd
+}
+
+func (g *GlobalValues) Log(args ...interface{}) {
+	g.Command = tea.Println(args...)
+}
 func (g *GlobalValues) AddEventCallback(event string, uuid string, cb func(tea.Msg, int)) {
 	if g.EventDispatches == nil {
 		g.EventDispatches = map[string]map[string][]func(tea.Msg, int){}
@@ -456,7 +464,7 @@ func (c *ComponentState) addBorder(arr [][]string) [][]string {
 	bl := style.Render(helper.Dictionary(helper.BorderBottomLeft))
 	br := style.Render(helper.Dictionary(helper.BorderBottomRight))
 
-	if c.GetFocusState()||c.GetDoubleBorder() {
+	if c.GetFocusState() || c.GetDoubleBorder() {
 		side = style.Render(helper.Dictionary(helper.BorderSideDouble))
 		top = style.Render(helper.Dictionary(helper.BorderTopDouble))
 		tl = style.Render(helper.Dictionary(helper.BorderTopLeftDouble))
