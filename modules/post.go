@@ -171,10 +171,13 @@ type Badge struct {
 	Destination_url string
 }
 
+var orderedListIndex = 1
+
 func (p *Post) Render() []string {
 	var result []string
 	if len(p.Content) > 0 {
 		str := ""
+		orderedListIndex = 1
 		for _, c := range p.Content {
 			str += c.Render()
 			str += "\n"
@@ -183,6 +186,7 @@ func (p *Post) Render() []string {
 	}
 	for _, t := range p.Trail {
 		str := ""
+		orderedListIndex = 1
 		for _, c := range t.Content {
 			str += c.Render()
 			str += "\n"
@@ -234,7 +238,6 @@ func (p *Post) RenderString() string {
 
 func (c *Content) Render() string {
 	var str = ""
-	var index = 0
 
 	switch c.Type {
 	case "image":
@@ -253,9 +256,9 @@ func (c *Content) Render() string {
 			str += "## " + c.Text
 
 		case "ordered-list-item":
-			str += strconv.Itoa(index) + ". "
+			str += strconv.Itoa(orderedListIndex) + ". "
 			str += c.Text
-			index = index + 1
+			orderedListIndex = orderedListIndex + 1
 
 		case "unordered-list-item":
 			str += "- "
@@ -266,7 +269,7 @@ func (c *Content) Render() string {
 		}
 
 		if c.Subtype != "ordered-list-item" {
-			index = 0
+			orderedListIndex = 1
 		}
 
 	case "poll":
