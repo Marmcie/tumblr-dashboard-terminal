@@ -52,76 +52,70 @@ func UpdateGlobalValues(msg tea.Msg, time int) {
 }
 
 type Component interface {
-	Initialize(string)
-	//X,Y,Width,Height
-	GetRect() (int, int, int, int)
-	PrepareFrame()
-	GetPos() (int, int)
-	GetX() int
-	GetY() int
-	GetWidth() int
-	GetHeight() int
-	GetInnerWidth() int
-	GetInnerHeight() int
+	SetBorder(bool) *ComponentState
+	SetBorderCorner(bool) *ComponentState
+	GetBorderPadding() int
+	SetBorderPadding(int) *ComponentState
+	GetBorderPaddings() (int, int, int, int)
+	GetBorderStyle() lipgloss.Style
+	SetBorderStyle(lipgloss.Style) *ComponentState
+	ResetBorderStyle() *ComponentState
+	SetBorders(bool, bool, bool, bool) *ComponentState
+	GetCanvas() [][]string
+	AddChild(Component)
+	GetChildren() []Component
+	GetComponent() Component
+	GetComponentName() string
+	SetComponentName(string) *ComponentState
+	GetContentsHeight() int
 	GetContentsSize() (int, int)
 	GetContentsWidth() int
-	GetContentsHeight() int
-	SetX(int) *ComponentState
-	SetY(int) *ComponentState
-	SetPos(int, int) *ComponentState
-	SetW(int) *ComponentState
-	SetH(int) *ComponentState
-	SetWidthInherit(bool) *ComponentState
-	SetHeightInherit(bool) *ComponentState
-	SetSize(int, int) *ComponentState
-	Update()
-	Focus()
-	Blur()
-	GetFocusState() bool
 	SetDepth(int) *ComponentState
-	SetParent(*ComponentState) *ComponentState
-	GetSiblings() []Component
-	GetChildren() []Component
-	GetParent() Component
-	GetCanvas() [][]string
-	IsAbsolute() bool
-	GetBorderPadding() int
-	Propagate()
-	GetName() string
-	GetComponentName() string
-
-	SetName(string) *ComponentState
-	SetComponentName(string) *ComponentState
-	AddEventListener(string, func(tea.Msg, int))
-	SetStyle(lipgloss.Style) *ComponentState
-	ClearStyle()
-	GetStyle() lipgloss.Style
-
-	ClearChildren()
-
-	SetBorder(bool) *ComponentState
-	SetBorders(bool, bool, bool, bool) *ComponentState
-	SetBorderCorner(bool) *ComponentState
-	SetBorderPadding(int) *ComponentState
-
-	GetBorderPaddings() (int, int, int, int)
-
-	SetTitle(string) *ComponentState
-	GetTitle() string
-	DispatchEvent(string)
-
-	SetIsFlexItem(bool) *ComponentState
-	GetIsFlexItem() bool
-
-	Trace([]string) []string
-	GetTrace() []string
-
 	GetEventCallbacks(string) []func(tea.Msg, int)
-	GetComponent() Component
-	AddChild(Component)
-	GetUUID() string
-	SetTitleAlignment(string) *ComponentState
+	AddEventListener(string, func(tea.Msg, int))
+	GetFocusState() bool
+	SetH(int) *ComponentState
+	GetHeight() int
+	SetHeightInherit(bool) *ComponentState
+	GetInnerHeight() int
+	GetInnerWidth() int
+	GetIsFlexItem() bool
+	SetIsFlexItem(bool) *ComponentState
+	GetName() string
+	SetName(string) *ComponentState
+	GetParent() Component
+	SetParent(*ComponentState) *ComponentState
+	GetPos() (int, int)
+	SetPos(int, int) *ComponentState
+	GetRect() (int, int, int, int)
+	GetSiblings() []Component
+	SetSize(int, int) *ComponentState
+	GetStyle() lipgloss.Style
+	SetStyle(lipgloss.Style) *ComponentState
+	GetTitle() string
+	SetTitle(string) *ComponentState
 	GetTitleAlignment() string
+	SetTitleAlignment(string) *ComponentState
+	GetTrace() []string
+	GetUUID() string
+	SetW(int) *ComponentState
+	GetWidth() int
+	SetWidthInherit(bool) *ComponentState
+	GetX() int
+	SetX(int) *ComponentState
+	GetY() int
+	SetY(int) *ComponentState
+	ClearChildren()
+	ClearStyle()
+	Update()
+	IsAbsolute() bool
+	Trace([]string) []string
+	Propagate()
+	PrepareFrame()
+	DispatchEvent(string)
+	Blur()
+	Initialize(string)
+	Focus()
 }
 
 type ComponentState struct {
@@ -156,6 +150,7 @@ type ComponentState struct {
 	IsFlexItem       bool
 	Title            string
 	TitleAlignment   string
+	BorderStyle      lipgloss.Style
 }
 
 func (c *ComponentState) Initialize(name string) {
@@ -182,6 +177,8 @@ func (c *ComponentState) Initialize(name string) {
 	c.UUID = uuid.New().String()
 	c.EventCallbacks = map[string][]func(tea.Msg, int){}
 	c.TitleAlignment = "center"
+
+	c.BorderStyle = lipgloss.NewStyle()
 
 	Global.Elements = append(Global.Elements, c)
 }
@@ -447,21 +444,21 @@ func (c *ComponentState) addBorder(arr [][]string) [][]string {
 		return arr
 	}
 
-	side := helper.Dictionary(helper.BorderSide)
-	top := helper.Dictionary(helper.BorderTop)
-	tl := helper.Dictionary(helper.BorderTopLeft)
-	tr := helper.Dictionary(helper.BorderTopRight)
-	bl := helper.Dictionary(helper.BorderBottomLeft)
-	br := helper.Dictionary(helper.BorderBottomRight)
+	style := c.GetBorderStyle()
+	side := style.Render(helper.Dictionary(helper.BorderSide))
+	top := style.Render(helper.Dictionary(helper.BorderTop))
+	tl := style.Render(helper.Dictionary(helper.BorderTopLeft))
+	tr := style.Render(helper.Dictionary(helper.BorderTopRight))
+	bl := style.Render(helper.Dictionary(helper.BorderBottomLeft))
+	br := style.Render(helper.Dictionary(helper.BorderBottomRight))
 
 	if c.GetFocusState() {
-		side = helper.Dictionary(helper.BorderSideDouble)
-		top = helper.Dictionary(helper.BorderTopDouble)
-		tl = helper.Dictionary(helper.BorderTopLeftDouble)
-		tr = helper.Dictionary(helper.BorderTopRightDouble)
-		bl = helper.Dictionary(helper.BorderBottomLeftDouble)
-		br = helper.Dictionary(helper.BorderBottomRightDouble)
-
+		side = style.Render(helper.Dictionary(helper.BorderSideDouble))
+		top = style.Render(helper.Dictionary(helper.BorderTopDouble))
+		tl = style.Render(helper.Dictionary(helper.BorderTopLeftDouble))
+		tr = style.Render(helper.Dictionary(helper.BorderTopRightDouble))
+		bl = style.Render(helper.Dictionary(helper.BorderBottomLeftDouble))
+		br = style.Render(helper.Dictionary(helper.BorderBottomRightDouble))
 	}
 
 	wid := c.GetWidth()
@@ -499,14 +496,20 @@ func (c *ComponentState) addBorder(arr [][]string) [][]string {
 		case "left":
 			for i := range min(wid-1, len(title)) {
 				char := title[i]
-				arr[0][i+1] = string(char)
+				arr[0][i+1] = style.Render(string(char))
 			}
 
 		case "center":
 			length := len(title)
 			for i := range min(wid-1, len(title)) {
 				char := title[i]
-				arr[0][i+max(1, (wid-length)/2)] = string(char)
+				arr[0][i+max(1, (wid-length)/2)] = style.Render(string(char))
+			}
+
+		case "right":
+			for i := range min(wid-1, len(title)) {
+				char := title[len(title)-(i+1)]
+				arr[0][(wid-2)-i] = style.Render(string(char))
 			}
 		}
 
@@ -629,6 +632,19 @@ func (c *ComponentState) SetBorder(show bool) *ComponentState {
 	if show && c.BorderPadWidth == 0 {
 		c.SetBorderPadding(1)
 	}
+	return c
+}
+
+func (c *ComponentState) SetBorderStyle(style lipgloss.Style) *ComponentState {
+	c.BorderStyle = style
+	return c
+}
+
+func (c *ComponentState) GetBorderStyle() lipgloss.Style {
+	return c.BorderStyle
+}
+func (c *ComponentState) ResetBorderStyle() *ComponentState {
+	c.BorderStyle = lipgloss.NewStyle()
 	return c
 }
 
