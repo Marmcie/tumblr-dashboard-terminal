@@ -52,8 +52,8 @@ func (m RootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			panic(err)
 		}
 		w, h := (*m.App).GetSize()
-		if w != s.Width || h != s.Height-1 {
-			(*m.App).UpdateSize(s.Width, s.Height-1)
+		if w != s.Width || h != s.Height {
+			(*m.App).UpdateSize(s.Width, s.Height)
 			return m, tea.ClearScreen
 		}
 	}
@@ -80,7 +80,7 @@ func (m RootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		return m, m.App.Update(msg)
 	case tea.WindowSizeMsg:
-		m.App.UpdateSize(msg.Width, msg.Height-1)
+		m.App.UpdateSize(msg.Width, msg.Height)
 		return m, tea.ClearScreen
 	}
 
