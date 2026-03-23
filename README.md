@@ -12,5 +12,14 @@
 ```
 5. Launch the program.
 6. Authenticate the client using the URL provided in the terminal.
+## Building
+Run the following command to build the program.
+```sh
+git clone git@github.com:RayMatsuo/tumblr-dashboard-terminal.git
+
+cd tumblr-dashboard-terminal
+
+go build .
+```
 ## TODO
 - Update README.md
