@@ -1,4 +1,6 @@
 # Tumblr dashboard on terminal
+Your Tumblr dashboard on terminal.
+![./preview.png]
 ## Set up
 1. Register a new application at [Registration page](https://www.tumblr.com/oauth/apps).
 2. Copy the consumer key and secret key.
@@ -12,7 +14,10 @@
 ```
 5. Launch the program.
 6. Authenticate the client using the URL provided in the terminal.
-## Building
+## Build form source
+### Prerequisites
+- Install Go
+### Steps
 Run the following command to build the program.
 ```sh
 git clone git@github.com:RayMatsuo/tumblr-dashboard-terminal.git
@@ -23,3 +28,7 @@ go build .
 ```
 ## TODO
 - Update README.md
+- Possibly implement image viewer feature.
+    - Decide on whether to use ASCII image or kitty protocol.
+- Possibly implement other Tumblr features as well.
+    - Make sure it doesn't go against the Tumblr API policies.

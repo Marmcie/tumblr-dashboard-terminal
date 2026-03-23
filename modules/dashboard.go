@@ -266,6 +266,7 @@ func controlText() string {
 	str += "r        :  Load more posts\n"
 	str += "Enter/l  :  Focus post window\n"
 	str += "h        :  Focus post list window\n"
+	str += "o        :  Open the focused post\n"
 	str += "q        :  Quit\n"
 
 	return str

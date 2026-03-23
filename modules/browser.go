@@ -15,7 +15,7 @@ func openInBrowser(url string) error {
 	switch runtime.GOOS {
 	case "windows":
 		cmd = "cmd"
-		args = []string{"/c", "start"}
+		args = []string{"/c", "start", url}
 	case "darwin":
 		cmd = "open"
 		args = []string{url}
@@ -40,9 +40,9 @@ func openInBrowser(url string) error {
 
 // isWSL checks if the Go program is running inside Windows Subsystem for Linux
 func isWSL() bool {
-    releaseData, err := exec.Command("uname", "-r").Output()
-    if err != nil {
-        return false
-    }
-    return strings.Contains(strings.ToLower(string(releaseData)), "microsoft")
+	releaseData, err := exec.Command("uname", "-r").Output()
+	if err != nil {
+		return false
+	}
+	return strings.Contains(strings.ToLower(string(releaseData)), "microsoft")
 }
