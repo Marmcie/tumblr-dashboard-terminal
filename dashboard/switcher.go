@@ -54,8 +54,8 @@ func NewSwitcher(dashboard *Dashboard) *Switcher {
 	s.TagInput = component.NewInput("Tag input")
 	s.TagInput.SetPlaceholder("Input tag here").SetWidthInherit(true).SetBackground(ui.GetColorStr(ui.ColorFocus))
 
-	s.TagOption.AddItem(tagLabel, component.NewFlexDescriptor(0, 1))
-	s.TagOption.AddItem(s.TagInput, component.NewFlexDescriptor(0, 3))
+	s.TagOption.AddItem(tagLabel, 0, 1)
+	s.TagOption.AddItem(s.TagInput, 0, 3)
 
 	blogLabel := component.NewLine("Blog label")
 	blogLabel.SetText("Blog name : ")
@@ -66,12 +66,12 @@ func NewSwitcher(dashboard *Dashboard) *Switcher {
 	s.BlogInput = component.NewInput("Blog input")
 	s.BlogInput.SetPlaceholder("Input blog name here").SetWidthInherit(true).SetBackground(ui.GetColorStr(ui.ColorFocus))
 
-	s.BlogOption.AddItem(blogLabel, component.NewFlexDescriptor(0, 1))
-	s.BlogOption.AddItem(s.BlogInput, component.NewFlexDescriptor(0, 3))
+	s.BlogOption.AddItem(blogLabel, 0, 1)
+	s.BlogOption.AddItem(s.BlogInput, 0, 3)
 
-	s.Window.AddItem(s.DashOption, component.NewFlexDescriptor(1, 0))
-	s.Window.AddItem(s.TagOption, component.NewFlexDescriptor(1, 0))
-	s.Window.AddItem(s.BlogOption, component.NewFlexDescriptor(1, 0))
+	s.Window.AddItem(s.DashOption, 1, 0)
+	s.Window.AddItem(s.TagOption, 1, 0)
+	s.Window.AddItem(s.BlogOption, 1, 0)
 	s.index = 0
 	s.InitEvents()
 

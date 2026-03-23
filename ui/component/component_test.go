@@ -50,7 +50,7 @@ func BenchmarkFlexRenderChildren(b *testing.B) {
 		line := component.NewText("t")
 		line.SetWidthInherit(true)
 		line.SetText("1")
-		flex.AddItem(line, component.NewFlexDescriptor(0, 1))
+		flex.AddItem(line, 0, 1)
 	}
 	for b.Loop() {
 		flex.RenderToCanvas()

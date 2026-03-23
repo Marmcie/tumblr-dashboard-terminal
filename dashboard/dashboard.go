@@ -106,15 +106,15 @@ func NewDashboard(config modules.Config) *Dashboard {
 	d.feed = NewFeed(d)
 	d.contents = NewContents(d)
 
-	d.left.AddItem(d.feed.listElem, component.NewFlexDescriptor(0, 1))
+	d.left.AddItem(d.feed.listElem, 0, 1)
 
-	d.right.AddItem(d.contents.contentElem, component.NewFlexDescriptor(0, 1))
-	d.right.AddItem(d.info, component.NewFlexDescriptor(9, 0))
+	d.right.AddItem(d.contents.contentElem, 0, 1)
+	d.right.AddItem(d.info, 9, 0)
 
-	d.root.AddItem(d.left, component.NewFlexDescriptor(0, 1))
-	d.root.AddItem(d.right, component.NewFlexDescriptor(0, 3))
-	d.root.AddItem(d.control, component.NewFlexDescriptor(0, 3))
-	d.root.AddItem(d.switcher.Window, component.NewFlexDescriptor(0, 3))
+	d.root.AddItem(d.left, 0, 1)
+	d.root.AddItem(d.right, 0, 3)
+	d.root.AddItem(d.control, 0, 3)
+	d.root.AddItem(d.switcher.Window, 0, 3)
 
 	d.feed.listElem.Focus()
 	d.switcher.Window.Focus()
@@ -153,6 +153,11 @@ func (d *Dashboard) toggleSwitcher() {
 
 func (d *Dashboard) initEvents() {
 	d.root.AddEventListener("onUpdate", func(msg tea.Msg) {
+		if component.Global.IsSmall {
+			d.left.SetFlexProportion(2)
+		} else {
+			d.left.SetFlexProportion(1)
+		}
 		switch msg := msg.(type) {
 		case tea.KeyMsg:
 			switch msg.String() {
@@ -257,7 +262,7 @@ func (d *Dashboard) LoadPosts() {
 	if d.IsLoading {
 		return
 	}
-	d.feed.listElem.SetBorderLabel("Bottom","Loading...")
+	d.feed.listElem.SetBorderLabel("Bottom", "Loading...")
 	d.IsLoading = true
 	component.Global.TickInterval = time.Second / 60
 	var posts []npf.Post
@@ -298,8 +303,8 @@ func (d *Dashboard) LoadPosts() {
 	}
 	d.IsLoading = false
 	component.Global.TickInterval = time.Second
-	
-	d.feed.listElem.SetBorderLabel("Bottom","")
+
+	d.feed.listElem.SetBorderLabel("Bottom", "")
 }
 
 func (d *Dashboard) GetRootModel() ui.RootModel {

@@ -15,11 +15,13 @@ type GlobalValues struct {
 	Command         tea.Cmd
 	Logger          []func() string
 	TickInterval    time.Duration
+	IsSmall         bool
 }
 
 var Global = &GlobalValues{
 	Elements:     []Component{},
 	TickInterval: time.Second,
+	IsSmall:      false,
 }
 
 // Add a component to the global list of all components

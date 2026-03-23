@@ -5,20 +5,7 @@ type Flex struct {
 	BaseComponent
 	Direction   int
 	InnerHeight int
-	Descriptors []FlexDescriptor
 	Gap         int
-}
-
-type FlexDescriptor struct {
-	Proportion int
-	FixedSize  int
-}
-
-func NewFlexDescriptor(fixedsize int, proportion int) FlexDescriptor {
-	return FlexDescriptor{
-		FixedSize:  fixedsize,
-		Proportion: proportion,
-	}
 }
 
 func NewFlex(name string) *Flex {
@@ -32,24 +19,28 @@ func NewFlex(name string) *Flex {
 
 func (c *Flex) AddChild(child Component) {
 	child.SetIsFlexItem(true)
+	child.SetFlexProportion(1)
+	child.SetMinHeight(1)
+	child.SetMinWidth(1)
 	c.BaseComponent.AddChild(child)
-	c.Descriptors = append(c.Descriptors, NewFlexDescriptor(1, 1))
 }
 
-func (c *Flex) AddItem(child Component, desc FlexDescriptor) {
+func (c *Flex) AddItem(child Component, minSize int, proportion int) {
 	child.SetIsFlexItem(true)
+	child.SetFlexProportion(proportion)
+	child.SetMinHeight(minSize)
+	child.SetMinWidth(minSize)
 	c.BaseComponent.AddChild(child)
-	c.Descriptors = append(c.Descriptors, desc)
 }
 
 func (f *Flex) GetProportionSum() int {
 	res := 0
 	children := f.GetChildren()
-	for i := 0; i < len(f.Descriptors); i++ {
-		if children[i].IsAbsolute() || !children[i].GetVisibility() {
+	for _, child := range children {
+		if child.IsAbsolute() || !child.GetVisibility() {
 			continue
 		}
-		res += f.Descriptors[i].Proportion
+		res += child.GetFlexProportion()
 	}
 	return res
 }
@@ -57,9 +48,13 @@ func (f *Flex) GetProportionSum() int {
 func (f *Flex) GetFixedSizeSum() int {
 	res := 0
 	children := f.GetChildren()
-	for i, p := range f.Descriptors {
-		if children[i].GetVisibility() {
-			res += p.FixedSize
+	for _, p := range children {
+		if p.GetVisibility() {
+			if f.Direction == 0 {
+				res += p.GetMinHeight()
+			} else {
+				res += p.GetMinWidth()
+			}
 		}
 	}
 	return res
@@ -81,18 +76,18 @@ func (b *Flex) UpdateChildSize() {
 		// Proportion should  fixed size
 		proportionSum := b.GetProportionSum()
 
-		for i, child := range b.GetChildren() {
+		for _, child := range b.GetChildren() {
 			if child.IsAbsolute() || !child.GetVisibility() {
 				continue
 			}
-			descriptor := b.Descriptors[i]
+			proportion := child.GetFlexProportion()
 
-			if descriptor.Proportion > 0 {
-				ratio := float64(descriptor.Proportion) / float64(proportionSum)
+			if proportion > 0 {
+				ratio := float64(proportion) / float64(proportionSum)
 				childSize := int(float64(flexH) * ratio)
 				child.SetH(childSize)
 			} else {
-				child.SetH(descriptor.FixedSize)
+				child.SetH(child.GetMinHeight())
 			}
 
 		}
@@ -102,19 +97,19 @@ func (b *Flex) UpdateChildSize() {
 
 		proportionSum := b.GetProportionSum()
 
-		for i, child := range b.GetChildren() {
+		for _, child := range b.GetChildren() {
 
 			if child.IsAbsolute() || !child.GetVisibility() {
 				continue
 			}
-			descriptor := b.Descriptors[i]
+			proportion := child.GetFlexProportion()
 
-			if descriptor.Proportion > 0 {
-				ratio := float64(descriptor.Proportion) / float64(proportionSum)
+			if proportion > 0 {
+				ratio := float64(proportion) / float64(proportionSum)
 				childSize := int(float64(flexW) * ratio)
 				child.SetW(childSize)
 			} else {
-				child.SetW(descriptor.FixedSize)
+				child.SetW(child.GetMinWidth())
 			}
 		}
 	}

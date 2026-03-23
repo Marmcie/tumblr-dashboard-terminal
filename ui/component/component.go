@@ -100,6 +100,12 @@ type Component interface {
 	ClearBackground()
 	GetForeground() string
 	GetBackground() string
+	SetFlexProportion(int) *BaseComponent
+	GetFlexProportion() int
+	SetMinWidth(int) *BaseComponent
+	GetMinWidth() int
+	SetMinHeight(int) *BaseComponent
+	GetMinHeight() int
 }
 
 // Base class for all components
@@ -156,6 +162,9 @@ type BaseComponent struct {
 	Foreground            string
 	BorderForeground      string
 	BorderFocusForeground string
+	FlexProportion        int
+	MinHeight             int
+	MinWidth              int
 }
 
 type EventCb struct {
@@ -210,6 +219,9 @@ func (c *BaseComponent) Initialize(name string) {
 		"Bottom":      "",
 		"BottomLeft":  "",
 	}
+	c.SetFlexProportion(1)
+	c.SetMinHeight(0)
+	c.SetMinWidth(0)
 
 	c.SetVisibility(true)
 
@@ -621,6 +633,28 @@ func (c *BaseComponent) GetTitle() string {
 // Get UUID of a component
 func (c *BaseComponent) GetUUID() string {
 	return c.UUID
+}
+
+func (c *BaseComponent) SetFlexProportion(v int) *BaseComponent {
+	c.FlexProportion = v
+	return c
+}
+func (c *BaseComponent) GetFlexProportion() int {
+	return c.FlexProportion
+}
+func (c *BaseComponent) SetMinWidth(v int) *BaseComponent {
+	c.MinWidth = v
+	return c
+}
+func (c *BaseComponent) GetMinWidth() int {
+	return c.MinWidth
+}
+func (c *BaseComponent) SetMinHeight(v int) *BaseComponent {
+	c.MinHeight = v
+	return c
+}
+func (c *BaseComponent) GetMinHeight() int {
+	return c.MinHeight
 }
 
 // #endregion Component non graphical properties

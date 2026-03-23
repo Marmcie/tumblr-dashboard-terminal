@@ -22,7 +22,9 @@ func (m *App) UpdateSize(w int, h int) {
 	m.Width = w
 	m.Height = h
 	(*m.root).SetSize(w, h)
+	component.Global.IsSmall = w < 80
 }
+
 func (m *App) GetSize() (int, int) {
 	return m.Width, m.Height
 }
