@@ -2,6 +2,7 @@ package npf
 
 import (
 	"bytes"
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -61,16 +62,46 @@ func (c *Content) RenderWithData() ContentData {
 		if runewidth.StringWidth(alt) == 0 {
 			alt = "No alt"
 		}
-		str.WriteString("[Image : " + alt + "]")
+		imageUrl := ""
+		if len(c.Media) > 0 {
+			imageUrl = c.Media[0].Url
+		}
+
+		str.WriteString(fmt.Sprintf("[Image : %s](%s)", alt, imageUrl))
+		if len(c.Caption) > 0 {
+			str.WriteString(fmt.Sprintf("\n%s", c.Caption))
+		}
 		cType = "Image"
 
 	case "video":
-		alt := c.Alt_text
-		if runewidth.StringWidth(alt) == 0 {
-			alt = "No alt"
-		}
-		str.WriteString("[Video : " + alt + "]")
+		str.WriteString("[Video]" + "(" + c.Url + ")")
 		cType = "Video"
+
+	case "audio":
+		audioTitle := c.Title
+		audioArtist := c.Artist
+		audioAlbum := c.Album
+		audioUrl := c.Url
+		if len(audioTitle) == 0 {
+			audioTitle = "Unknown audio"
+		}
+
+		if len(audioArtist) == 0 {
+			audioArtist = "Unknown artist"
+		}
+
+		if len(audioAlbum) == 0 {
+			audioAlbum = "Unknown album"
+		}
+
+		if len(audioUrl) == 0 {
+			if len(c.Media) > 0 {
+				audioUrl = c.Media[0].Url
+			}
+		}
+		str.WriteString(fmt.Sprintf("[Audio : %s By %s, From %s](%s)", audioTitle, audioArtist, audioAlbum, c.Url))
+		cType = "Audio"
+
 	case "text":
 		text := c.Text
 		offset := 0
