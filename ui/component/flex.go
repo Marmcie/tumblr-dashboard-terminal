@@ -25,7 +25,7 @@ func (c *Flex) AddChild(child Component) {
 	c.BaseComponent.AddChild(child)
 }
 
-func (c *Flex) AddItem(child Component, minSize int, proportion int) {
+func (c *Flex) AddItem(child Component, minSize int, proportion float32) {
 	child.SetIsFlexItem(true)
 	child.SetFlexProportion(proportion)
 	child.SetMinHeight(minSize)
@@ -33,8 +33,8 @@ func (c *Flex) AddItem(child Component, minSize int, proportion int) {
 	c.BaseComponent.AddChild(child)
 }
 
-func (f *Flex) GetProportionSum() int {
-	res := 0
+func (f *Flex) GetProportionSum() float32 {
+	res := float32(0)
 	children := f.GetChildren()
 	for _, child := range children {
 		if child.IsAbsolute() || !child.GetVisibility() {
@@ -83,8 +83,8 @@ func (b *Flex) UpdateChildSize() {
 			proportion := child.GetFlexProportion()
 
 			if proportion > 0 {
-				ratio := float64(proportion) / float64(proportionSum)
-				childSize := int(float64(flexH) * ratio)
+				ratio := float32(proportion) / float32(proportionSum)
+				childSize := int(float32(flexH) * ratio)
 				child.SetH(childSize)
 			} else {
 				child.SetH(child.GetMinHeight())
@@ -105,8 +105,8 @@ func (b *Flex) UpdateChildSize() {
 			proportion := child.GetFlexProportion()
 
 			if proportion > 0 {
-				ratio := float64(proportion) / float64(proportionSum)
-				childSize := int(float64(flexW) * ratio)
+				ratio := float32(proportion) / float32(proportionSum)
+				childSize := int(float32(flexW) * ratio)
 				child.SetW(childSize)
 			} else {
 				child.SetW(child.GetMinWidth())

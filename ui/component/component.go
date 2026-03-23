@@ -100,8 +100,8 @@ type Component interface {
 	ClearBackground()
 	GetForeground() string
 	GetBackground() string
-	SetFlexProportion(int) *BaseComponent
-	GetFlexProportion() int
+	SetFlexProportion(float32) *BaseComponent
+	GetFlexProportion() float32
 	SetMinWidth(int) *BaseComponent
 	GetMinWidth() int
 	SetMinHeight(int) *BaseComponent
@@ -162,7 +162,7 @@ type BaseComponent struct {
 	Foreground            string
 	BorderForeground      string
 	BorderFocusForeground string
-	FlexProportion        int
+	FlexProportion        float32
 	MinHeight             int
 	MinWidth              int
 }
@@ -635,11 +635,11 @@ func (c *BaseComponent) GetUUID() string {
 	return c.UUID
 }
 
-func (c *BaseComponent) SetFlexProportion(v int) *BaseComponent {
+func (c *BaseComponent) SetFlexProportion(v float32) *BaseComponent {
 	c.FlexProportion = v
 	return c
 }
-func (c *BaseComponent) GetFlexProportion() int {
+func (c *BaseComponent) GetFlexProportion() float32 {
 	return c.FlexProportion
 }
 func (c *BaseComponent) SetMinWidth(v int) *BaseComponent {

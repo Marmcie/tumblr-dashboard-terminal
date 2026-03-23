@@ -93,7 +93,7 @@ func NewDashboard(config modules.Config) *Dashboard {
 
 	d.control = component.NewText("Control")
 	d.control.SetBorder(true).
-		SetSize(40, 10).
+		SetSize(40, 11).
 		SetTitle("Control").
 		SetPos(0, 0).
 		SetVisibility(false).
@@ -154,16 +154,18 @@ func (d *Dashboard) toggleSwitcher() {
 
 func (d *Dashboard) initEvents() {
 	d.root.AddEventListener("onUpdate", func(msg tea.Msg) {
-		if component.Global.IsSmall {
-			d.left.SetFlexProportion(2)
-		} else {
-			d.left.SetFlexProportion(1)
-		}
 		switch msg := msg.(type) {
 		case tea.KeyMsg:
 			switch msg.String() {
 			case "r":
 				go d.LoadPosts()
+
+			case "right":
+				d.left.SetFlexProportion(d.left.GetFlexProportion() + 0.1)
+
+			case "left":
+				proportion := d.left.GetFlexProportion()
+				d.left.SetFlexProportion(max(0.1, proportion-0.1))
 
 			case "q":
 				component.Global.SetCmd(tea.Quit)
@@ -338,6 +340,7 @@ func (d *Dashboard) UpdateControlText() {
 		str += "]        :  Open feed switcher    \n"
 		str += "b        :  Open blog feed    \n"
 		str += "o        :  Open post in browser    \n"
+		str += "->/<-    :  Adjust feed width    \n"
 		str += "Ctrl+c   :  Exit the program  \n"
 		str += "Ctrl+d   :  Log out of the account  \n"
 	} else {
@@ -347,6 +350,7 @@ func (d *Dashboard) UpdateControlText() {
 		str += "]        :  Open feed switcher    \n"
 		str += "b        :  Open blog feed    \n"
 		str += "o        :  Open post in browser    \n"
+		str += "->/<-    :  Adjust feed width    \n"
 		str += "Ctrl+c   :  Exit the program   \n"
 		str += "Ctrl+d   :  Log out of the account  \n"
 	}
