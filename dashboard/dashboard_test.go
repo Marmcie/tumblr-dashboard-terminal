@@ -31,7 +31,6 @@ func TestDashboardDisplay(t *testing.T) {
 	ch := make(chan *dashboard.Dashboard)
 	go func(ch chan *dashboard.Dashboard) {
 		db := dashboard.NewDashboard(config)
-		db.LoadPosts()
 		ch <- db
 	}(ch)
 	dashboard := <-ch
@@ -48,7 +47,6 @@ func BenchmarkDashboardLoad(b *testing.B) {
 	ch := make(chan *dashboard.Dashboard)
 	go func(ch chan *dashboard.Dashboard) {
 		db := dashboard.NewDashboard(config)
-		db.LoadPosts()
 		ch <- db
 	}(ch)
 	dashboard := <-ch

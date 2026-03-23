@@ -174,14 +174,17 @@ func (d *Dashboard) initEvents() {
 		case tea.KeyMsg:
 			switch msg.String() {
 			case "r":
-				go d.LoadPosts()
+				done := make(chan bool)
+				go d.LoadPosts(done)
 
 			case "right":
 				d.left.SetFlexProportion(d.left.GetFlexProportion() + 0.1)
+				d.feed.listElem.RunSelectedOption()
 
 			case "left":
 				proportion := d.left.GetFlexProportion()
 				d.left.SetFlexProportion(max(0.1, proportion-0.1))
+				d.feed.listElem.RunSelectedOption()
 
 			case "q":
 				component.Global.SetCmd(tea.Quit)
@@ -238,7 +241,9 @@ func (d *Dashboard) SwitchMode(mode string, option string) {
 	d.feed.listElem.ClearChildren()
 	d.offset = 0
 	d.contents.contentElem.OffsetY = 0
-	go d.LoadPosts()
+	done := make(chan bool)
+	go d.LoadPosts(done)
+	<-done
 }
 
 func (d *Dashboard) filterPosts(posts []npf.Post) []*npf.Post {
@@ -280,7 +285,9 @@ func (d *Dashboard) filterPosts(posts []npf.Post) []*npf.Post {
 	return result
 }
 
-func (d *Dashboard) LoadPosts() {
+func (d *Dashboard) LoadPosts(ch chan bool) {
+	defer func() { ch <- true }()
+
 	if d.IsLoading {
 		return
 	}

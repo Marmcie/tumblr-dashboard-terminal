@@ -51,7 +51,8 @@ func (f *Feed) InitEvents() {
 				}
 			case "j":
 				if f.listElem.Cursor == len(f.listElem.GetChildren())-1 {
-					go f.dashboard.LoadPosts()
+					done := make(chan bool)
+					go f.dashboard.LoadPosts(done)
 				}
 				f.showFilteredPost = false
 				f.listElem.IncrementCursor()
