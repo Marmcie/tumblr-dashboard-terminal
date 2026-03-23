@@ -77,24 +77,24 @@ func (d *Dashboard) initEvents(app *tview.Application) *Dashboard {
 			d.postWrapper.SetBorderColor(tcell.ColorBlue)
 		}
 
-		if event.Rune() == 'j' {
-			if event.Modifiers() == tcell.ModCtrl {
-				d.selectedOffset += 1
-				d.RenderPost()
-			} else {
-				d.selectedReblog = Fit(d.selectedReblog+1, len(d.renders))
-				d.RenderPost()
-			}
+		switch event.Name() {
+		case "Rune[j]":
+			d.selectedReblog = Fit(d.selectedReblog+1, len(d.renders))
+			d.RenderPost()
+
+		case "Rune[k]":
+			d.selectedReblog = Fit(d.selectedReblog-1, len(d.renders))
+			d.RenderPost()
+
+		case "Ctrl+Rune[j]":
+			d.selectedOffset += 1
+			d.RenderPost()
+
+		case "Ctrl+Rune[k]":
+			d.selectedOffset -= 1
+			d.RenderPost()
 		}
-		if event.Rune() == 'k' {
-			if event.Modifiers() == tcell.ModCtrl {
-				d.selectedOffset -= 1
-				d.RenderPost()
-			} else {
-				d.selectedReblog = Fit(d.selectedReblog-1, len(d.renders))
-				d.RenderPost()
-			}
-		}
+
 
 		return event
 	})
@@ -313,4 +313,3 @@ func controlText() string {
 
 	return str
 }
-
