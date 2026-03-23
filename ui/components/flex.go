@@ -108,11 +108,6 @@ func (b *Flex) PrepareFrame() {
 	cursor := top
 	sideOffset := left
 
-	// Row
-	if b.Direction == 1 {
-		// cursor = 0
-	}
-
 	for _, c := range b.GetChildren() {
 		c.PrepareFrame()
 		output := c.GetCanvas()
@@ -129,12 +124,12 @@ func (b *Flex) PrepareFrame() {
 			}
 		} else {
 			for _, line := range output {
-				if cursor > b.GetInnerHeight() {
+				if cursor >= len(result) {
 					break
 				}
 				for i, char := range line {
 					index := i
-					if index > b.GetInnerWidth() {
+					if index >= len(result[cursor]) {
 						break
 					}
 					result[cursor][index+sideOffset] = style.Render(char)

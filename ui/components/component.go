@@ -324,8 +324,8 @@ func (b *ComponentState) PrepareFrame() {
 	top, _, left, _ := b.GetBorderPaddings()
 	cursor := top
 
-	innerWidth := b.GetInnerWidth()
-	innerHeight := b.GetInnerHeight()
+	innerWidth := b.GetInnerWidth() + 1
+	// innerHeight := b.GetInnerHeight()
 
 	style := b.GetStyle()
 	for _, c := range b.GetChildren() {
@@ -343,16 +343,26 @@ func (b *ComponentState) PrepareFrame() {
 				}
 			}
 		} else {
-			for _, line := range output {
-				if cursor > innerHeight {
+			// Loop through lines
+			for y := range c.GetHeight() {
+				line := output[y]
+				// If the vertical cursor is larger than the provided canvas, break
+				if cursor >= len(result) {
 					break
 				}
-				for i, char := range line {
-					index := i
+				// Loop through characters
+				for x := range c.GetWidth() {
+					// If canvas is smaller than the horizontal pointer, break
+					if x >= len(line) {
+						break
+					}
+					char := line[x]
+					index := x + left
+					// Check if the character is over the drawable area
 					if index >= innerWidth {
 						break
 					}
-					result[cursor][index+left] = style.Render(char)
+					result[cursor][index] = style.Render(char)
 				}
 				cursor++
 			}
@@ -381,9 +391,10 @@ func (c *ComponentState) GetParent() Component {
 
 func (c *ComponentState) CreateCanvas() [][]string {
 	var arr [][]string
-	// width, height := c.GetContentsSize()
+	height := c.GetContentsHeight() + 1
 	width := c.GetWidth()
-	height := c.GetHeight()
+
+	// height := c.GetHeight()
 
 	for range height {
 		arr = append(arr, strings.Split(strings.Repeat(" ", width), ""))
@@ -475,14 +486,10 @@ func (c *ComponentState) addBorder(arr [][]string) [][]string {
 			arr[hei-1][wid-1] = br
 		}
 
-		title := c.GetName()
-		for i := range min(wid-1,len(title)) {
-			char:=title[i]
+		title := c.GetTitle()
+		for i := range min(wid-1, len(title)) {
+			char := title[i]
 			arr[0][i+1] = string(char)
-		}
-
-		if c.GetFocusState() {
-			arr[0][0] = "!"
 		}
 
 	}
@@ -510,14 +517,22 @@ func (c *ComponentState) GetContentsSize() (int, int) {
 	return max(w, c.GetWidth()), max(h, c.GetHeight())
 }
 
+func (c *ComponentState) GetContentsHeight() int {
+	h := 0
+	for _, child := range c.GetChildren() {
+		_, cy, _, ch := child.GetRect()
+		if child.IsAbsolute() {
+			h = max(cy+ch, h)
+		} else {
+			h = h + ch
+		}
+	}
+	return max(h, c.GetHeight())
+}
+
 func (c *ComponentState) GetContentsWidth() int {
 	w, _ := c.GetContentsSize()
 	return w
-}
-
-func (c *ComponentState) GetContentsHeight() int {
-	_, h := c.GetContentsSize()
-	return h
 }
 
 func (c *ComponentState) GetBorderPadding() int {

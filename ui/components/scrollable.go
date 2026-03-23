@@ -40,36 +40,43 @@ func NewScrollable(name string) *Scrollable {
 		flex.InnerWidth = w
 	})
 
+
 	return flex
 }
+
 
 // Returns Line per line contents,x,y
 func (b *Scrollable) PrepareFrame() {
 
 	var result = b.CreateCanvas()
+	
 	b.ComponentState.PrepareFrame()
+	
 	var output = b.GetCanvas()
+	
+	boxHeight:=b.GetInnerHeight()
+	boxWidth:=b.GetInnerWidth()
 
 	for lineY, line := range output {
-		if lineY >= b.OffsetY {
-			if lineY-b.OffsetY >= b.GetHeight()-1 {
+		if lineY < b.OffsetY {
+			continue
+		}
+		if lineY-b.OffsetY > boxHeight {
+			break
+		}
+		for lineX, char := range line {
+			if lineX-b.OffsetX > boxWidth {
 				break
 			}
-			for lineX, char := range line {
-				if lineX-b.OffsetX >= b.GetWidth()-1 {
-					break
-				}
 
-				if lineX >= b.OffsetX {
-					result[lineY-b.OffsetY][lineX-b.OffsetX] = char
-				}
+			if lineX >= b.OffsetX {
+				result[lineY-b.OffsetY][lineX-b.OffsetX] = char
 			}
 		}
 	}
 
-	result = b.addBorder(result)
+	result=b.addBorder(result)	
 
 	b.Canvas = result
 	b.DispatchEvent("onRenderReady")
-
 }

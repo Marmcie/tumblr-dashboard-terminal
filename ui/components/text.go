@@ -1,7 +1,6 @@
 package component
 
 import (
-	"strconv"
 	"strings"
 )
 
@@ -52,7 +51,6 @@ func (t *Text) GetStringArray() [][]string {
 // Returns Text per line contents,x,y
 func (l *Text) PrepareFrame() {
 
-	l.Title = strconv.Itoa(l.GetHeight())
 	arr := l.GetStringArray()
 	top, bottom, left, _ := l.GetBorderPaddings()
 	l.SetH(len(arr) + top + bottom)

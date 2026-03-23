@@ -40,10 +40,14 @@ func NewSelectlist(name string) *Selectlist {
 				s.DispatchEvent("onChange")
 
 			case "l":
-				s.OptionCallbacks[s.Cursor]()
+				if len(s.OptionCallbacks) > 0 {
+					s.OptionCallbacks[s.Cursor]()
+				}
 
 			case "enter":
-				s.OptionCallbacks[s.Cursor]()
+				if len(s.OptionCallbacks) > 0 {
+					s.OptionCallbacks[s.Cursor]()
+				}
 			}
 		}
 
@@ -53,12 +57,17 @@ func NewSelectlist(name string) *Selectlist {
 }
 
 func (s *Selectlist) UpdateOffset() {
-	intended := s.SizeList[s.Cursor]
-
-	if intended > s.OffsetY+s.GetInnerHeight() {
-		s.OffsetY = s.GetInnerHeight() - intended
+	if len(s.SizeList) > 1 {
+		intended := s.SizeList[s.Cursor+1]
+		innerHeight := s.GetInnerHeight()
+		if intended > s.OffsetY+innerHeight {
+			s.OffsetY = intended - innerHeight
+		} else {
+			if intended < s.OffsetY {
+				s.OffsetY = intended
+			}
+		}
 	}
-
 }
 
 func (c *Selectlist) AddOption(child Component, cb func()) {

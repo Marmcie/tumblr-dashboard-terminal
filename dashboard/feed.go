@@ -15,7 +15,7 @@ type Feed struct {
 func NewFeed() Feed {
 	f := Feed{}
 	f.listElem = component.NewSelectlist("Feed")
-	f.listElem.SetBorder(true).SetBorderPadding(1).SetBorderCorner(true).SetHeightInherit(true).SetWidthInherit(true)
+	f.listElem.SetBorder(true).SetBorderPadding(1).SetBorderCorner(true).SetWidthInherit(true)
 
 	return f
 }

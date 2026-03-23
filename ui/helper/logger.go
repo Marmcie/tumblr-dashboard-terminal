@@ -11,7 +11,7 @@ func Log(text string) {
 
 	defer f.Close()
 
-	if _, err = f.WriteString(text); err != nil {
+	if _, err = f.WriteString(text+"\n"); err != nil {
 		panic(err)
 	}
 }

@@ -43,6 +43,7 @@ func NewDashboard() *Dashboard {
 	d.left.SetHeightInherit(true)
 	d.left.Direction = 0
 
+
 	d.right = component.NewFlex("Right")
 	d.right.SetHeightInherit(true)
 	d.right.Direction = 0
@@ -50,10 +51,9 @@ func NewDashboard() *Dashboard {
 	d.feed = NewFeed()
 	d.contents = NewContents()
 
-	d.contents.contentElem.SetText("aaa")
 	d.feed.contents = *d.contents
 
-	d.left.AddItem(d.feed.listElem, component.NewFlexDescriptor(0, 1))
+	d.left.AddItem(d.feed.listElem, component.NewFlexDescriptor(0, 3))
 	d.right.AddItem(d.contents.contentElem, component.NewFlexDescriptor(0, 1))
 
 	d.root.AddItem(d.left, component.NewFlexDescriptor(0, 1))
