@@ -237,6 +237,7 @@ func (d *Dashboard) SwitchMode(mode string, option string) {
 	d.feed.ClearPosts()
 	d.feed.listElem.ClearChildren()
 	d.offset = 0
+	d.contents.contentElem.OffsetY = 0
 	go d.LoadPosts()
 }
 
