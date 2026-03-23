@@ -1,32 +1,23 @@
 package main
 
 import (
-	"os"
-	"tumblr2/modules"
-
-	"github.com/joho/godotenv"
-	"github.com/tumblr/tumblrclient.go"
-
 	"github.com/rivo/tview"
+	"github.com/tumblr/tumblrclient.go"
+	"tumblr2/modules"
 )
 
 func main() {
+	config := modules.GetConfig()
 
-	godotenv.Load("D:/Active projects/tumblr2/.env")
-	var consumerkey = os.Getenv("consumer_key")
-	var secretkey = os.Getenv("secret_key")
-	var oauthtoken = os.Getenv("oauth_token")
-	var oauthsecret = os.Getenv("oauth_secret")
-	client := tumblrclient.NewClientWithToken(consumerkey, secretkey, oauthtoken, oauthsecret)
+	client := tumblrclient.NewClientWithToken(config.Consumer_key, config.Secret_key, config.Oauth_token, config.Oauth_secret)
+
 	app := tview.NewApplication()
 
 	dashboard := modules.NewDashboard(client, app)
 
-	dashboard.UpdateFeed()
-	dashboard.AddPostsToList()
-	dashboard.UpdateView()
+	dashboard.Update()
 
-	if err := app.SetRoot(dashboard.Flex, true).Run(); err != nil {
+	if err := app.SetRoot(dashboard.Root, true).Run(); err != nil {
 		panic(err)
 	}
 }

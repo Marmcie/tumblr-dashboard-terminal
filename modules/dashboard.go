@@ -4,6 +4,7 @@ import (
 	"math/rand/v2"
 	"net/url"
 	"strconv"
+	"strings"
 
 	"github.com/tumblr/tumblr.go"
 	"github.com/tumblr/tumblrclient.go"
@@ -19,17 +20,21 @@ type Dashboard struct {
 	selectedIndex int
 	client        *tumblrclient.Client
 
-	Flex        *tview.Flex
+	Root        *tview.Flex
 	postWrapper *tview.Flex
 	postContent *tview.TextView
 
+	leftSide  *tview.Flex
+	rightSide *tview.Flex
+
+	control  *tview.TextView
+	postInfo *tview.TextView
+
 	rows  []*tview.TextView
-	posts []tumblr.PostInterface
+	posts []tumblr.Post
 
 	colors map[string]tcell.Color
 }
-
-
 
 func (d *Dashboard) initEvents(app *tview.Application) *Dashboard {
 
@@ -53,12 +58,7 @@ func (d *Dashboard) initEvents(app *tview.Application) *Dashboard {
 		}
 
 		if event.Rune() == 'r' {
-			d.UpdateFeed()
-			d.AddPostsToList()
-			d.offset = d.offset + 1
-		}
-		if event.Rune() == 'q' {
-			app.Stop()
+			d.Update()
 		}
 		return event
 	})
@@ -67,10 +67,29 @@ func (d *Dashboard) initEvents(app *tview.Application) *Dashboard {
 		if event.Rune() == 'h' {
 			app.SetFocus(d.postWrapper)
 		}
+		
+		return event
+	})
+
+	d.Root.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		if event.Rune() == 'o' {
+			post := d.GetSelectedPost()
+			openInBrowser(post.ShortUrl)
+		}
+		if event.Rune() == 'q' {
+			app.Stop()
+		}
+		
 		return event
 	})
 
 	return d
+}
+
+func (d *Dashboard) Update() {
+	d.UpdateFeed()
+	d.UpdateView()
+	d.offset++
 }
 
 func (d *Dashboard) UpdateFeed() {
@@ -82,44 +101,35 @@ func (d *Dashboard) UpdateFeed() {
 
 	colors := [...]tcell.Color{
 		tcell.ColorYellowGreen,
-		tcell.ColorBlueViolet,
 		tcell.ColorLawnGreen,
 		tcell.ColorDarkOrange,
 		tcell.ColorFloralWhite,
+		tcell.ColorAqua,
 	}
 
 	for n := range res.Posts {
-		post := res.Posts[n]
-		d.posts = append(d.posts, post)
+		post := res.Posts[n].GetSelf()
+		d.posts = append(d.posts, *post)
 
-		blogName := post.GetSelf().BlogName
+		blogName := post.BlogName
 		_, ok := d.colors[blogName]
 
 		if !ok {
 			d.colors[blogName] = colors[rand.Int()%len(colors)]
 		}
 
-	}
-}
-
-func (d *Dashboard) AddPostsToList() {
-	for i := range 20 {
-		index := (d.offset * 20) + i
-		post := d.posts[index]
-
-		contents, err := htmltomarkdown.ConvertString(post.GetSelf().Body)
+		contents, err := htmltomarkdown.ConvertString(post.Body)
 		length := min(len(contents), 120)
 		postName := contents[:length]
-		blogName := post.GetSelf().GetSelf().BlogName
 		if err != nil {
 		}
 		row := tview.NewTextView().SetText(blogName + ":" + postName)
 		row.SetTextColor(d.colors[blogName])
 		d.rows = append(d.rows, row)
-		d.postWrapper.AddItem(row, 1, 0, false)
 	}
 }
 
+// Render the post list window
 func (d *Dashboard) UpdateView() {
 
 	count := len(d.rows)
@@ -144,8 +154,8 @@ func (d *Dashboard) UpdateView() {
 		d.postWrapper.AddItem(d.rows[v+d.viewOffset], 1, 0, false)
 	}
 
-	prevColor := d.colors[d.posts[fit(d.selectedIndex-1, count)].GetSelf().BlogName]
-	nextColor := d.colors[d.posts[fit(d.selectedIndex+1, count)].GetSelf().BlogName]
+	prevColor := d.colors[d.posts[fit(d.selectedIndex-1, count)].BlogName]
+	nextColor := d.colors[d.posts[fit(d.selectedIndex+1, count)].BlogName]
 
 	d.rows[d.selectedIndex].SetBackgroundColor(tcell.ColorWhiteSmoke)
 	d.rows[d.selectedIndex].SetTextColor(tcell.ColorBlack)
@@ -155,12 +165,78 @@ func (d *Dashboard) UpdateView() {
 	d.rows[fit(d.selectedIndex-1, count)].SetTextColor(prevColor)
 }
 
+// Render the selected post into the post window
 func (d *Dashboard) RenderPost() {
-
-	contents, err := htmltomarkdown.ConvertString(d.posts[d.selectedIndex].GetSelf().Body)
-	if err != nil {
+	post := d.posts[d.selectedIndex]
+	contents := post.Body
+	if post.Format == "html" {
+		contents, _ = htmltomarkdown.ConvertString(post.Body)
 	}
+
 	d.postContent.SetText(contents)
+
+	info := ""
+	info += "Date      :  " + post.Date + "\n"
+	info += "URL       :  " + post.ShortUrl + "\n"
+	info += "Blog name :  " + post.BlogName + "\n"
+	info += "Tags      :  "
+	if len(post.Tags) > 0 {
+		info += "#"
+		info += strings.Join(post.Tags, " #")
+	}
+
+	d.postInfo.SetText(info)
+}
+
+func (d *Dashboard) GetSelectedPost() tumblr.Post {
+	return d.posts[d.selectedIndex]
+}
+
+func NewDashboard(client *tumblrclient.Client, app *tview.Application) *Dashboard {
+	d := Dashboard{}
+	d.offset = 0
+	d.viewOffset = 0
+	d.selectedIndex = 0
+	d.client = client
+
+	d.Root = tview.NewFlex()
+
+	//INFO: Left side
+	d.leftSide = tview.NewFlex().SetDirection(tview.FlexRow)
+
+	d.postWrapper = tview.NewFlex().SetDirection(tview.FlexRow)
+	d.postWrapper.SetTitle("Post list")
+	d.postWrapper.SetBorder(true)
+
+	d.leftSide.AddItem(d.postWrapper, 0, 4, true)
+
+	d.control = tview.NewTextView()
+	d.control.SetBorder(true)
+	d.control.SetTitle("Control")
+	d.control.SetTextColor(tcell.ColorDarkOrange)
+	d.control.SetText(controlText())
+
+	d.leftSide.AddItem(d.control, 0, 1, false)
+
+	//INFO: Right side
+	d.rightSide = tview.NewFlex().SetDirection(tview.FlexRow)
+
+	d.postContent = tview.NewTextView().SetScrollable(true)
+	d.postContent.SetBorder(true)
+	d.postContent.SetTitle("Post")
+	d.rightSide.AddItem(d.postContent, 0, 4, false)
+
+	d.postInfo = tview.NewTextView()
+	d.postInfo.SetTitle("Post information")
+	d.postInfo.SetBorder(true)
+	d.rightSide.AddItem(d.postInfo, 0, 1, false)
+
+	d.Root.AddItem(d.leftSide, 0, 1, true)
+	d.Root.AddItem(d.rightSide, 0, 3, false)
+
+	d.colors = map[string]tcell.Color{}
+	d.initEvents(app)
+	return &d
 }
 
 func abs(val int) int {
@@ -179,24 +255,14 @@ func fit(val int, limit int) int {
 	}
 }
 
-func NewDashboard(client *tumblrclient.Client, app *tview.Application) *Dashboard {
-	d := Dashboard{}
-	d.offset = 0
-	d.viewOffset = 0
-	d.selectedIndex = 0
-	d.client = client
+func controlText() string {
+	str := ""
+	str += "j/k      :  Up/Down\n"
+	str += "r        :  Load more posts\n"
+	str += "Enter/l  :  Open post contents\n"
+	str += "l        :  Focus post window\n"
+	str += "h        :  Focus post list window\n"
+	str += "q        :  Quit\n"
 
-	d.Flex = tview.NewFlex()
-	d.postWrapper = tview.NewFlex().SetDirection(tview.FlexRow)
-	d.postContent = tview.NewTextView().SetScrollable(true)
-
-	d.postWrapper.SetBorder(true)
-	d.postContent.SetBorder(true)
-
-	d.Flex.AddItem(d.postWrapper, 0, 1, true)
-	d.Flex.AddItem(d.postContent, 0, 3, false)
-
-	d.colors = map[string]tcell.Color{}
-	d.initEvents(app)
-	return &d
+	return str
 }
