@@ -7,6 +7,14 @@ const BorderTopLeft string = "borderTopLeft"
 const BorderBottomLeft string = "borderBottomLeft"
 const BorderBottomRight string = "borderBottomRight"
 
+const BorderSideDouble string = "borderSideDouble"
+const BorderTopDouble string = "borderTopDouble"
+const BorderTopRightDouble string = "borderTopRightDouble"
+const BorderTopLeftDouble string = "borderTopLeftDouble"
+const BorderBottomLeftDouble string = "borderBottomLeftDouble"
+const BorderBottomRightDouble string = "borderBottomRightDouble"
+
+// INFO:Reference : https://en.wikipedia.org/wiki/Box-drawing_characters
 // borderchars = { "─", "│", "─", "│", "╭", "╮", "╯", "╰" },
 func Dictionary(key string) string {
 	return map[string]string{
@@ -16,6 +24,13 @@ func Dictionary(key string) string {
 		"borderTopRight":    "╮",
 		"borderBottomLeft":  "╰",
 		"borderBottomRight": "╯",
+
+		"borderSideDouble":        "║",
+		"borderTopDouble":         "═",
+		"borderTopLeftDouble":     "╔",
+		"borderTopRightDouble":    "╗",
+		"borderBottomLeftDouble":  "╚",
+		"borderBottomRightDouble": "╝",
 	}[key]
 }
 

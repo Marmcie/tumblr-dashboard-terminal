@@ -430,6 +430,20 @@ func (c *ComponentState) addBorder(arr [][]string) [][]string {
 
 	side := helper.Dictionary(helper.BorderSide)
 	top := helper.Dictionary(helper.BorderTop)
+	tl := helper.Dictionary(helper.BorderTopLeft)
+	tr := helper.Dictionary(helper.BorderTopRight)
+	bl := helper.Dictionary(helper.BorderBottomLeft)
+	br := helper.Dictionary(helper.BorderBottomRight)
+
+	if c.GetFocusState() {
+		side = helper.Dictionary(helper.BorderSideDouble)
+		top = helper.Dictionary(helper.BorderTopDouble)
+		tl = helper.Dictionary(helper.BorderTopLeftDouble)
+		tr = helper.Dictionary(helper.BorderTopRightDouble)
+		bl = helper.Dictionary(helper.BorderBottomLeftDouble)
+		br = helper.Dictionary(helper.BorderBottomRightDouble)
+
+	}
 
 	wid := c.GetWidth()
 	hei := c.GetHeight()
@@ -454,11 +468,11 @@ func (c *ComponentState) addBorder(arr [][]string) [][]string {
 			}
 		}
 		if c.ShowBorderCorner {
-			arr[0][0] = helper.Dictionary(helper.BorderTopLeft)
-			arr[0][wid-1] = helper.Dictionary(helper.BorderTopRight)
+			arr[0][0] = tl
+			arr[0][wid-1] = tr
 
-			arr[hei-1][0] = helper.Dictionary(helper.BorderBottomLeft)
-			arr[hei-1][wid-1] = helper.Dictionary(helper.BorderBottomRight)
+			arr[hei-1][0] = bl
+			arr[hei-1][wid-1] = br
 		}
 
 		title := c.GetName()
