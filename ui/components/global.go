@@ -11,7 +11,19 @@ type GlobalValues struct {
 	Logger          []func() string
 }
 
-var Global = &GlobalValues{}
+var Global = &GlobalValues{
+	Elements: []Component{},
+}
+
+func (g *GlobalValues) AddElement(c Component) int {
+	g.Elements = append(g.Elements, c)
+	return len(g.Elements) - 1
+}
+func (g *GlobalValues) DeleteElement(i int) {
+	g.Elements[i] = g.Elements[len(g.Elements)-1]
+	g.Elements[i].SetGlobalIndex(i)
+	g.Elements = g.Elements[:len(g.Elements)-1]
+}
 
 func (g *GlobalValues) PrintLog() {
 	f, _ := tea.LogToFile("debug.log", "debug")
@@ -35,9 +47,6 @@ func (g *GlobalValues) SetCmd(cmd tea.Cmd) {
 	g.Command = cmd
 }
 
-func (g *GlobalValues) Log(args ...any) {
-	g.Command = tea.Println(args...)
-}
 func (g *GlobalValues) AddEventCallback(event string, uuid string, callbackUUID string, cb func(tea.Msg, int)) {
 	if g.EventDispatches == nil {
 		g.EventDispatches = map[string]map[string]map[string]func(tea.Msg, int){}

@@ -24,7 +24,6 @@ func NewFeed(dashboard *Dashboard) *Feed {
 	f.listElem.SelectedOptionStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#ffffff"))
 
 	f.InitEvents()
-	component.Global.SubscribeLogger(f.listElem.ToString)
 	return f
 }
 
@@ -107,6 +106,7 @@ func (f *Feed) AddPosts(posts []npf.Post) {
 	}
 	f.UpdateSelectedOptionBorder()
 }
+
 func (f *Feed) Focus() {
 	f.listElem.Focus()
 }
