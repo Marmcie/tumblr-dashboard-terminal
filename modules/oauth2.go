@@ -3,6 +3,7 @@ package modules
 import (
 	"bytes"
 	"context"
+	"crypto/rand"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -88,12 +89,18 @@ func Auth(ctx context.Context) *oauth2.Token {
 
 	verifier := oauth2.GenerateVerifier()
 
-	requestUrl := conf.AuthCodeURL("state", oauth2.AccessTypeOffline, oauth2.S256ChallengeOption(verifier))
+	state := rand.Text()
+
+	requestUrl := conf.AuthCodeURL(state, oauth2.AccessTypeOffline, oauth2.S256ChallengeOption(verifier))
 
 	fmt.Printf("Visit the URL for the auth dialog: %v", requestUrl)
 	srv := &http.Server{Addr: ":" + config.Redirect_port}
 	var token *oauth2.Token
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		returnedState := r.URL.Query().Get("state")
+		if state != returnedState {
+			panic("Error")
+		}
 		code := r.URL.Query().Get("code")
 		if len(code) > 0 {
 			tok, err := conf.Exchange(ctx, code, oauth2.VerifierOption(verifier))
