@@ -1,9 +1,10 @@
 # Tumblr dashboard on terminal
-Your Tumblr dashboard on terminal.
-## Post sources
-- Your dashboard.
-- Tag search.
-- Posts from a blog.
+Your Tumblr dashboard on terminal!
+## Features
+With this project you can:
+- Look at posts from your dashboard.
+- Read posts from any blog.
+- Search for posts with specific tag.
 ## Screenshot
 ![image](https://github.com/RayMatsuo/tumblr-dashboard-terminal/blob/main/doc/preview_01.png?raw=true)
 ## Set up
