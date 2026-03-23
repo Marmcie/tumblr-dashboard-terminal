@@ -86,6 +86,11 @@ func (f *Feed) GetSelectedPost() *npf.Post {
 }
 
 func (f *Feed) ClearPosts() {
+
+	for _, p := range f.posts {
+		p.RemoveRenderResult()
+	}
+
 	f.posts = []*npf.Post{}
 }
 

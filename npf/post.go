@@ -144,3 +144,7 @@ func (p *Post) Render() []TrailData {
 func (p *Post) GetSummary() string {
 	return RenderUnicode(p.Summary)
 }
+
+func (p *Post) RemoveRenderResult() {
+	delete(renderResults,p.Id_string)
+}
