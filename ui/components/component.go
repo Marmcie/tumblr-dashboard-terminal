@@ -194,7 +194,8 @@ func (c *ComponentState) Initialize(name string) {
 	c.EventCallbacks = map[string]map[string]func(tea.Msg, int){}
 	c.TitleAlignment = "center"
 
-	c.BorderStyle = lipgloss.NewStyle()
+	c.ResetBorderStyle()
+	c.ClearStyle()
 
 	c.ShowDoubleBorder = false
 	Global.Elements = append(Global.Elements, c)
