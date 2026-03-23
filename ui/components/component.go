@@ -114,6 +114,8 @@ type Component interface {
 	PrepareFrame()
 	DispatchEvent(string)
 	Blur()
+	SetDoubleBorder(bool) *ComponentState
+	GetDoubleBorder() bool
 	Initialize(string)
 	Focus()
 }
@@ -151,6 +153,7 @@ type ComponentState struct {
 	Title            string
 	TitleAlignment   string
 	BorderStyle      lipgloss.Style
+	ShowDoubleBorder bool
 }
 
 func (c *ComponentState) Initialize(name string) {
@@ -180,6 +183,7 @@ func (c *ComponentState) Initialize(name string) {
 
 	c.BorderStyle = lipgloss.NewStyle()
 
+	c.ShowDoubleBorder = false
 	Global.Elements = append(Global.Elements, c)
 }
 
@@ -452,7 +456,7 @@ func (c *ComponentState) addBorder(arr [][]string) [][]string {
 	bl := style.Render(helper.Dictionary(helper.BorderBottomLeft))
 	br := style.Render(helper.Dictionary(helper.BorderBottomRight))
 
-	if c.GetFocusState() {
+	if c.GetFocusState()||c.GetDoubleBorder() {
 		side = style.Render(helper.Dictionary(helper.BorderSideDouble))
 		top = style.Render(helper.Dictionary(helper.BorderTopDouble))
 		tl = style.Render(helper.Dictionary(helper.BorderTopLeftDouble))
@@ -721,4 +725,13 @@ func (c *ComponentState) GetUUID() string {
 
 func (c *ComponentState) ClearChildren() {
 	c.Children = []Component{}
+}
+
+func (c *ComponentState) SetDoubleBorder(v bool) *ComponentState {
+	c.ShowDoubleBorder = v
+	return c
+}
+
+func (c *ComponentState) GetDoubleBorder() bool {
+	return c.ShowDoubleBorder
 }

@@ -38,12 +38,14 @@ func (f *Feed) InitEvents() {
 			case "j":
 				f.listElem.IncrementCursor()
 				f.listElem.RunSelectedOption()
+				f.UpdateSelectedOptionBorder()
 			case "k":
 				f.listElem.DecrementCursor()
 				f.listElem.RunSelectedOption()
+				f.UpdateSelectedOptionBorder()
 
 			case "o":
-				post:=f.GetSelectedPost()
+				post := f.GetSelectedPost()
 				modules.OpenInBrowser(post.Short_url)
 			}
 		}
@@ -51,7 +53,28 @@ func (f *Feed) InitEvents() {
 
 }
 
-func (f *Feed) GetSelectedPost() modules.Post{
+func (f *Feed) UpdateSelectedOptionBorder() {
+	children := f.listElem.GetChildren()
+	if len(children) == 0 {
+		return
+	}
+	if children[f.listElem.Cursor] != nil {
+		style := lipgloss.NewStyle().Foreground(lipgloss.Color("#00aaaa"))
+		children[f.listElem.Cursor].SetBorderStyle(style)
+		children[f.listElem.Cursor].SetDoubleBorder(true)
+	}
+	if f.listElem.Cursor > 0 {
+		children[f.listElem.Cursor-1].ResetBorderStyle()
+		children[f.listElem.Cursor-1].SetDoubleBorder(false)
+	}
+
+	if f.listElem.Cursor < len(children)-1 {
+		children[f.listElem.Cursor+1].ResetBorderStyle()
+		children[f.listElem.Cursor+1].SetDoubleBorder(false)
+	}
+}
+
+func (f *Feed) GetSelectedPost() modules.Post {
 	return f.posts[f.listElem.Cursor]
 }
 
@@ -80,6 +103,7 @@ func (f *Feed) AddPosts(posts []modules.Post) {
 			f.dashboard.DisplayPost(post)
 		})
 	}
+	f.UpdateSelectedOptionBorder()
 }
 func (f *Feed) Focus() {
 	f.listElem.Focus()

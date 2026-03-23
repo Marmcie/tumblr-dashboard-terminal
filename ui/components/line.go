@@ -35,14 +35,23 @@ func (l *Line) PrepareFrame() {
 	innerWidth := l.GetInnerWidth()
 
 	str = strings.ReplaceAll(str, "\n", "")
+	str = strings.ReplaceAll(str, ".", "")
+	str = strings.ReplaceAll(str, ",", "")
+	str = strings.ReplaceAll(str, "\"", "")
+	str = strings.ReplaceAll(str, "'", "")
 
 	var res []string
 	style := l.GetStyle()
-	for i, c := range str {
-		if i >= innerWidth {
+	ct := 0
+	for _, c := range str {
+		if ct >= innerWidth {
 			break
 		}
+		if c == '\u200b' {
+			innerWidth--
+		}
 		res = append(res, style.Render(string(c)))
+		ct++
 	}
 	result = append(result, res)
 

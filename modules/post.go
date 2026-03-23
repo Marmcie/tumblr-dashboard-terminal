@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/mattn/go-runewidth"
+	"golang.org/x/text/width"
 )
 
 type Post struct {
@@ -328,10 +329,16 @@ func (c *Content) RenderWithData() struct {
 		StrictEmojiNeutral: false,
 	}
 	for _, v := range str.String() {
-		width := con.RuneWidth(v)
-		for range width - 1 {
-			// INFO: Output 0 width character to account for full width chars
-			result.WriteRune('\u200b')
+		info := width.LookupRune(v)
+		runeWidth := con.RuneWidth(v)
+
+		if info.Kind() == width.EastAsianFullwidth || info.Kind() == width.EastAsianWide {
+			for range runeWidth - 1 {
+				// INFO: Output 0 width character to account for full width chars
+				result.WriteRune('\u200b')
+				// result.WriteString(strconv.Itoa(runeWidth))
+				// result.WriteRune('#')
+			}
 		}
 		result.WriteRune(v)
 	}
@@ -352,10 +359,15 @@ func (p *Post) GetSummary() string {
 	}
 	var result bytes.Buffer
 	for _, v := range p.Summary {
-		width := con.RuneWidth(v)
-		for range width - 1 {
-			// INFO: Output 0 width character to account for full width chars
-			result.WriteRune('\u200b')
+		info := width.LookupRune(v)
+		runeWidth := con.RuneWidth(v)
+
+		if info.Kind() == width.EastAsianFullwidth || info.Kind() == width.EastAsianWide {
+			for range runeWidth - 1 {
+				// INFO: Output 0 width character to account for full width chars
+				result.WriteRune('\u200b')
+				// result.WriteRune('#')
+			}
 		}
 		result.WriteRune(v)
 	}

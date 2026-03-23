@@ -62,14 +62,18 @@ func (f *Contents) DisplayPost(post modules.Post) {
 		str := ""
 		style := lipgloss.NewStyle()
 
+		//INFO: Array of each lines
 		parts := []string{}
+		//INFO: Array of styles for each lines
 		styles := []lipgloss.Style{}
+
+		// INFO: Loop through rendered NPF content blocks
 		for _, contents := range reblog.Contents {
 			contentType := contents.ContentType
+			//INFO: Change text color based on content type
 			switch contentType {
 			case "Heading1":
 				style = style.Foreground(lipgloss.Color("#40f0f0"))
-
 			case "Image":
 				style = style.Foreground(lipgloss.Color("#40a0f0"))
 			case "Heading2":
@@ -79,6 +83,7 @@ func (f *Contents) DisplayPost(post modules.Post) {
 				style = style.Foreground(lipgloss.Color("#ffffff"))
 			}
 
+			//INFO: Divide the text into lines, while preventing word break
 			for lines := range strings.SplitSeq(contents.Str, "\n") {
 				for word := range strings.SplitSeq(lines, " ") {
 					if len(str)+len(word)+1 >= innerWidth {
@@ -97,6 +102,7 @@ func (f *Contents) DisplayPost(post modules.Post) {
 		styles = append(styles, style)
 		parts = append(parts, str)
 
+		//INFO: Convert each line into Line object, then apply corresponding style
 		for i, line := range parts {
 			style := styles[i]
 			l := component.NewLine("Post text")
