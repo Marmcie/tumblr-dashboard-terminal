@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"image/color"
 	"strconv"
-	"strings"
 	"tumblr-dt/ui/helper"
 
 	tea "charm.land/bubbletea/v2"
@@ -103,23 +102,23 @@ type ComponentState struct {
 	// X coordinates
 	x int
 	// Y coordinates
-	y              int
-	Centered       bool
-	UUID           string
-	Width          int
-	Height         int
-	InheritWidth   bool
-	InheritHeight  bool
-	Children       []Component
-	Parent         Component
-	Focused        bool
-	Depth          int
-	FitHeight      bool
-	FitWidth       bool
-	Canvas         [][]string
-	BGSheet        [][]string
-	FGSheet        [][]string
-	
+	y             int
+	Centered      bool
+	UUID          string
+	Width         int
+	Height        int
+	InheritWidth  bool
+	InheritHeight bool
+	Children      []Component
+	Parent        Component
+	Focused       bool
+	Depth         int
+	FitHeight     bool
+	FitWidth      bool
+	Canvas        [][]string
+	BGSheet       [][]string
+	FGSheet       [][]string
+
 	ShowBorder     bool
 	BorderPadWidth int
 	// Name of an individual component
@@ -641,11 +640,11 @@ func (b *ComponentState) PrepareFrame() {
 				posY := ind + b.GetY() + childY + top
 				for index, char := range line {
 					result[posY][globalX+index] = char
-					
+
 					if len(childFG[posY][index]) > 0 {
 						fg[posY][globalX+index] = childFG[posY][index]
 					}
-					
+
 					if len(childBG[posY][index]) > 0 {
 						bg[posY][globalX+index] = childBG[posY][index]
 					}
@@ -676,43 +675,31 @@ func (b *ComponentState) PrepareFrame() {
 	}
 
 	b.SetCanvas(result, fg, bg)
+
 	// end := time.Now().UnixMilli()
-	// b.SetBorderLabel("BottomRight", strconv.Itoa(int(end-start))+"ms")
+	// b.SetBorderLabel("Top", strconv.Itoa(int(end-start)))
 }
 
 // Create a 2D array of string the size of component
 func (c *ComponentState) CreateCanvas() ([][]string, [][]string, [][]string) {
-	var arr [][]string
-	var fg [][]string
-	var bg [][]string
 	height := c.GetContentsHeight() + 1
 	width := c.GetWidth()
 
-	// height := c.GetHeight()
+	var arr [][]string = make([][]string, height)
+	var fg [][]string = make([][]string, height)
+	var bg [][]string = make([][]string, height)
 
-	for range height {
-		arr = append(arr, strings.Split(strings.Repeat(" ", width), ""))
-		fg = append(fg, strings.Split(strings.Repeat(c.Foreground+",", width), ","))
-		bg = append(bg, strings.Split(strings.Repeat(c.Background+",", width), ","))
+	for i := range height {
+		arr[i] = make([]string, width)
+		fg[i] = make([]string, width)
+		bg[i] = make([]string, width)
+		for a := range width {
+			arr[i][a] = " "
+			fg[i][a] = c.Foreground
+			bg[i][a] = c.Background
+		}
 	}
 
-	// blend := lipgloss.Blend2D(width, height, float64(Global.Time%359), lipgloss.Color("#060616"), lipgloss.Color("#663626"))
-	// for y := range height {
-	// 	for x := range width {
-	// 		index := (y * (len(fg[0]) - 1)) + x
-	// 		if index >= len(blend) {
-	// 			break
-	// 		}
-	// 		red, green, blue, _ := blend[index].RGBA()
-	// 		div := float64(65535)
-	// 		r := int(float64(float64(red)/div) * 255)
-	// 		g := int(float64(float64(green)/div) * 255)
-	// 		b := int(float64(float64(blue)/div) * 255)
-	//
-	// 		bg[y][x] = fmt.Sprintf("#%02x%02x%02x", r, g, b)
-	// 	}
-	// }
-	//
 	return arr, fg, bg
 }
 
@@ -738,7 +725,6 @@ func (c *ComponentState) addBorder(arr [][]string) [][]string {
 		return arr
 	}
 
-	// style := c.GetBorderStyle()
 	side := (helper.Dictionary(helper.BorderSide))
 	top := (helper.Dictionary(helper.BorderTop))
 	tl := (helper.Dictionary(helper.BorderTopLeft))
@@ -862,7 +848,6 @@ func (c *ComponentState) addBorder(arr [][]string) [][]string {
 
 	return arr
 }
-
 
 // Set if border should be visible
 func (c *ComponentState) SetBorder(show bool) *ComponentState {

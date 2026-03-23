@@ -1,5 +1,6 @@
 package component
 
+
 // Flex box component
 type Flex struct {
 	ComponentState
@@ -123,6 +124,7 @@ func (c *Flex) Propagate() {
 }
 
 func (b *Flex) PrepareFrame() {
+	// start := time.Now().UnixMilli()
 	var result, fg, bg = b.CreateCanvas()
 
 	top, _, left, _ := b.GetBorderPaddings()
@@ -179,4 +181,7 @@ func (b *Flex) PrepareFrame() {
 
 	result = b.addBorder(result)
 	b.SetCanvas(result, fg, bg)
+	
+	// end := time.Now().UnixMilli()
+	// b.SetBorderLabel("Top", strconv.Itoa(int(end-start)))
 }

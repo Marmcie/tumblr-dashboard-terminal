@@ -1,9 +1,5 @@
 package component
 
-import (
-	"charm.land/lipgloss/v2"
-)
-
 // Component that displays a list of elements that can be selected and has a corresponding callbacks.
 type Selectlist struct {
 	Scrollable
@@ -11,7 +7,6 @@ type Selectlist struct {
 	OptionCallbacks     []func()
 	Cursor              int
 	SizeList            []int
-	SelectedOptionStyle lipgloss.Style
 }
 
 func NewSelectlist(name string) *Selectlist {
@@ -21,7 +16,6 @@ func NewSelectlist(name string) *Selectlist {
 	s.ComponentName = "Selectlist"
 	s.SizeList = append(s.SizeList, 0)
 
-	s.SelectedOptionStyle = lipgloss.NewStyle()
 	return s
 }
 
