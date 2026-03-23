@@ -1,6 +1,7 @@
 package component
 
 import (
+	"time"
 	"tumblr-dt/ui/helper"
 
 	tea "charm.land/bubbletea/v2"
@@ -13,10 +14,12 @@ type GlobalValues struct {
 	EventDispatches map[string]map[string]map[string]func(tea.Msg)
 	Command         tea.Cmd
 	Logger          []func() string
+	TickInterval    time.Duration
 }
 
 var Global = &GlobalValues{
 	Elements: []Component{},
+	TickInterval: time.Second,
 }
 
 // Add a component to the global list of all components

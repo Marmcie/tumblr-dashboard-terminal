@@ -24,8 +24,8 @@ func NewRootModel() RootModel {
 		isWindows: runtime.GOOS == "windows",
 	}
 }
-func TickCmd() tea.Cmd {
-	return tea.Tick(time.Second, func(t time.Time) tea.Msg {
+func TickCmd(duration time.Duration) tea.Cmd {
+	return tea.Tick(duration, func(t time.Time) tea.Msg {
 		return TickMsg(t.UnixMilli())
 	})
 }
@@ -34,7 +34,7 @@ type TickMsg  int64
 
 func (m RootModel) Init() tea.Cmd {
 	return tea.Batch(
-		TickCmd(),
+		TickCmd(component.Global.TickInterval),
 	)
 }
 func (m RootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -53,7 +53,8 @@ func (m RootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 	switch msg := msg.(type) {
 	case TickMsg:
-		return m, TickCmd()
+		m.App.Update(msg)
+		return m, TickCmd(component.Global.TickInterval)
 
 	case tea.KeyPressMsg:
 		switch msg.String() {
