@@ -1,8 +1,10 @@
 package main
 
 import (
-	"github.com/rivo/tview"
+	"os"
 	"tumblr-dt/modules"
+
+	"github.com/rivo/tview"
 )
 
 func main() {
@@ -11,6 +13,9 @@ func main() {
 	app := tview.NewApplication()
 
 	dashboard := modules.NewDashboard(&client, app)
+
+	// Black and white dashboard
+	dashboard.BWMode = os.Args[1] == "BW"
 
 	// Load first sets of posts.
 	dashboard.Update()

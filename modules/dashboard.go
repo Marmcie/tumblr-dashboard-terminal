@@ -34,6 +34,8 @@ type Dashboard struct {
 	selectedReblog int
 
 	colors map[string]tcell.Color
+
+	BWMode bool
 }
 
 func (d *Dashboard) initEvents(app *tview.Application) *Dashboard {
@@ -80,10 +82,12 @@ func (d *Dashboard) initEvents(app *tview.Application) *Dashboard {
 		switch event.Name() {
 		case "Rune[j]":
 			d.selectedReblog = Fit(d.selectedReblog+1, len(d.renders))
+			d.selectedOffset = 0
 			d.RenderPost()
 
 		case "Rune[k]":
 			d.selectedReblog = Fit(d.selectedReblog-1, len(d.renders))
+			d.selectedOffset = 0
 			d.RenderPost()
 
 		case "Ctrl+Rune[j]":
@@ -93,8 +97,15 @@ func (d *Dashboard) initEvents(app *tview.Application) *Dashboard {
 		case "Ctrl+Rune[k]":
 			d.selectedOffset -= 1
 			d.RenderPost()
-		}
 
+		case "Rune[n]":
+			d.selectedOffset += 1
+			d.RenderPost()
+
+		case "Rune[m]":
+			d.selectedOffset -= 1
+			d.RenderPost()
+		}
 
 		return event
 	})
@@ -123,15 +134,21 @@ func (d *Dashboard) Update() {
 
 func (d *Dashboard) FetchMorePosts() {
 	res := d.client.GetDashboard(d.offset)
-
-	colors := [...]tcell.Color{
-		tcell.ColorYellowGreen,
-		tcell.ColorLawnGreen,
-		tcell.ColorDarkOrange,
-		tcell.ColorFloralWhite,
-		tcell.ColorAqua,
-		tcell.ColorBlue,
-		tcell.ColorDodgerBlue,
+	var colors []tcell.Color
+	if d.BWMode != true {
+		colors = []tcell.Color{
+			tcell.ColorYellowGreen,
+			tcell.ColorLawnGreen,
+			tcell.ColorDarkOrange,
+			tcell.ColorFloralWhite,
+			tcell.ColorAqua,
+			tcell.ColorBlue,
+			tcell.ColorDodgerBlue,
+		}
+	} else {
+		colors = []tcell.Color{
+			tcell.ColorWhite,
+		}
 	}
 
 	for n := range res {
