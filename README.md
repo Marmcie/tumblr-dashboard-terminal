@@ -27,9 +27,11 @@ cd tumblr-dashboard-terminal
 go build .
 ```
 ## TODO
+### High priority
+- Figure out how to display asks.
+### Low priority
 - Update README.md
 - Possibly implement image viewer feature.
     - Decide on whether to use ASCII image or kitty protocol.
 - Possibly implement other Tumblr features as well.
     - Make sure it doesn't go against the Tumblr API policies.
-- Refactor everything once I understand how golang work.
