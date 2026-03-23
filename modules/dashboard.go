@@ -89,6 +89,7 @@ func (d *Dashboard) initEvents(app *tview.Application) *Dashboard {
 	return d
 }
 
+// Load more posts from the dashboard.
 func (d *Dashboard) Update() {
 	d.UpdateFeed()
 	d.UpdateView()

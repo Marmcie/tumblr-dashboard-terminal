@@ -12,6 +12,7 @@ func main() {
 
 	dashboard := modules.NewDashboard(&client, app)
 
+	// Load first sets of posts.
 	dashboard.Update()
 
 	if err := app.SetRoot(dashboard.Root, true).Run(); err != nil {

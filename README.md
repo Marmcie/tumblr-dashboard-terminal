@@ -32,3 +32,4 @@ go build .
     - Decide on whether to use ASCII image or kitty protocol.
 - Possibly implement other Tumblr features as well.
     - Make sure it doesn't go against the Tumblr API policies.
+- Refactor everything once I understand how golang work.
