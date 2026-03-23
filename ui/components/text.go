@@ -1,6 +1,7 @@
 package component
 
 import (
+	"bytes"
 	"strings"
 )
 
@@ -25,39 +26,45 @@ func (t *Text) SetText(v string) *Text {
 
 func (t *Text) GetStringArray() [][]string {
 	var res [][]string
-	str := ""
+	var str bytes.Buffer
 	x := 0
 	width := t.GetInnerWidth()
-	for c := range strings.SplitSeq(t.Text, "") {
+	for _, r := range t.Text {
 		x++
-		if c == "\n" {
+		if r == '\n' {
 			x = 0
-			res = append(res, strings.Split(str, ""))
-			str = ""
+			res = append(res, strings.Split(str.String(), ""))
+			str.Reset()
 		} else {
-			str += c
+			str.WriteRune(r)
 			if x >= width {
-				res = append(res, strings.Split(str, ""))
+				res = append(res, strings.Split(str.String(), ""))
 				x = 0
-				str = ""
+				str.Reset()
 			}
 		}
 	}
 
-	res = append(res, strings.Split(str, ""))
+	res = append(res, strings.Split(str.String(), ""))
 	return res
 }
 
 // Returns Text per line contents,x,y
 func (l *Text) PrepareFrame() {
-
 	arr := l.GetStringArray()
-	top, bottom, left, _ := l.GetBorderPaddings()
-	l.SetH(len(arr) + top + bottom)
+	top, _, left, _ := l.GetBorderPaddings()
 
+	innerHeight := l.GetInnerHeight()
+	innerWidth := l.GetInnerWidth()
 	var result = l.CreateCanvas()
 	for i, line := range arr {
+		if i+top >= innerHeight {
+			break
+		}
 		for a, char := range line {
+			if a+left >= innerWidth {
+				break
+			}
 			result[i+top][a+left] = char
 		}
 	}

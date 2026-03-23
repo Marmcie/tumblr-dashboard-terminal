@@ -1,6 +1,8 @@
 package component
 
 import (
+	"strings"
+
 	tea "github.com/charmbracelet/bubbletea"
 )
 
@@ -10,6 +12,9 @@ type Scrollable struct {
 	OffsetX     int
 	InnerHeight int
 	InnerWidth  int
+	ScrollX     bool
+	ScrollY     bool
+	Bottom      int
 }
 
 func NewScrollable(name string) *Scrollable {
@@ -18,45 +23,53 @@ func NewScrollable(name string) *Scrollable {
 	flex.OffsetX = 0
 	flex.OffsetY = 0
 	flex.SetComponentName("Scrollable")
+	flex.ScrollX = false
+	flex.ScrollY = true
+	flex.Bottom = 0
 
-	flex.AddEventListener("onUpdate", func(msg tea.Msg, time int) {
-		switch msg := msg.(type) {
-		case tea.KeyMsg:
-			switch msg.String() {
-			case "j":
-				flex.OffsetY = min(flex.InnerHeight-1, flex.OffsetY+1)
-			case "k":
-				flex.OffsetY = max(0, flex.OffsetY-1)
-			case "l":
-				flex.OffsetX = min(flex.InnerWidth-1, flex.OffsetX+1)
-			case "h":
-				flex.OffsetX = max(0, flex.OffsetX-1)
-			}
-		}
-	})
 	flex.AddEventListener("onAddChild", func(msg tea.Msg, time int) {
 		w, h := flex.GetContentsSize()
 		flex.InnerHeight = h
 		flex.InnerWidth = w
 	})
 
-
 	return flex
 }
 
+func (b *Scrollable) findBottom(canvas [][]string) {
+	for i := len(canvas) - 1; i >= 0; i-- {
+		line := canvas[i]
+		if len(strings.ReplaceAll(strings.Join(line, ""), " ", "")) > 0 {
+			b.Bottom = i
+			return
+		}
+	}
+}
+
+func (c *Scrollable) CreateCanvas() [][]string {
+	var arr [][]string
+	height := c.GetHeight()
+	width := c.GetWidth()
+
+	// height := c.GetHeight()
+
+	for range height {
+		arr = append(arr, strings.Split(strings.Repeat(" ", width), ""))
+	}
+
+	return arr
+}
 
 // Returns Line per line contents,x,y
 func (b *Scrollable) PrepareFrame() {
-
 	var result = b.CreateCanvas()
-	
 	b.ComponentState.PrepareFrame()
-	
-	var output = b.GetCanvas()
-	
-	boxHeight:=b.GetInnerHeight()
-	boxWidth:=b.GetInnerWidth()
 
+	var output = b.GetCanvas()
+	boxHeight := b.GetInnerHeight()
+	boxWidth := b.GetInnerWidth()
+
+	b.findBottom(output)
 	for lineY, line := range output {
 		if lineY < b.OffsetY {
 			continue
@@ -75,7 +88,7 @@ func (b *Scrollable) PrepareFrame() {
 		}
 	}
 
-	result=b.addBorder(result)	
+	result = b.addBorder(result)
 
 	b.Canvas = result
 	b.DispatchEvent("onRenderReady")

@@ -31,12 +31,18 @@ func (l *Line) GetRect() (int, int, int, int) {
 func (l *Line) PrepareFrame() {
 	var result [][]string
 
-	str := l.Text[:min(l.GetInnerWidth(), len(l.Text))]
+	str := l.Text
+	innerWidth := l.GetInnerWidth()
+
 	str = strings.ReplaceAll(str, "\n", "")
+
 	var res []string
 	style := l.GetStyle()
-	for c := range strings.SplitSeq(str, "") {
-		res = append(res, style.Render(c))
+	for i, c := range str {
+		if i >= innerWidth {
+			break
+		}
+		res = append(res, style.Render(string(c)))
 	}
 	result = append(result, res)
 

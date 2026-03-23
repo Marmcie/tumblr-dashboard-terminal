@@ -1,6 +1,7 @@
 package dashboard
 
 import (
+	"strings"
 	"tumblr-dt/modules"
 	"tumblr-dt/ui"
 	component "tumblr-dt/ui/components"
@@ -15,6 +16,8 @@ type Dashboard struct {
 	left     *component.Flex
 	right    *component.Flex
 	feed     *Feed
+	info     *component.Text
+	control  *component.Text
 	contents *Contents
 
 	client modules.TumblrClient
@@ -47,11 +50,20 @@ func NewDashboard() *Dashboard {
 	d.right.SetHeightInherit(true)
 	d.right.Direction = 0
 
+	d.info = component.NewText("Info")
+	d.info.SetWidthInherit(true).SetBorder(true).SetBorderPadding(1)
+
+	d.control = component.NewText("Control")
+	d.control.SetWidthInherit(true).SetBorder(true).SetBorderPadding(1)
+
 	d.feed = NewFeed(d)
 	d.contents = NewContents(d)
 
-	d.left.AddItem(d.feed.listElem, component.NewFlexDescriptor(0, 3))
-	d.right.AddItem(d.contents.contentElem, component.NewFlexDescriptor(0, 1))
+	d.left.AddItem(d.feed.listElem, component.NewFlexDescriptor(0, 5))
+	d.left.AddItem(d.control, component.NewFlexDescriptor(0, 1))
+
+	d.right.AddItem(d.contents.contentElem, component.NewFlexDescriptor(0, 5))
+	d.right.AddItem(d.info, component.NewFlexDescriptor(0, 1))
 
 	d.root.AddItem(d.left, component.NewFlexDescriptor(0, 1))
 	d.root.AddItem(d.right, component.NewFlexDescriptor(0, 3))
@@ -62,7 +74,9 @@ func NewDashboard() *Dashboard {
 	d.client = modules.NewTumblrClient()
 	d.offset = 0
 	d.initEvents()
-
+	d.LoadPosts()
+	d.UpdateControlText()
+	
 	return d
 }
 
@@ -72,27 +86,70 @@ func (d *Dashboard) initEvents() {
 		case tea.KeyMsg:
 			switch msg.String() {
 			case "r":
-				posts := d.client.GetDashboard(d.offset)
-				d.feed.AddPosts(posts)
-				d.offset++
+				d.LoadPosts()
 			}
 		}
 	})
+}
+
+func (d *Dashboard) LoadPosts() {
+	posts := d.client.GetDashboard(d.offset)
+	d.feed.AddPosts(posts)
+	d.offset++
+
 }
 
 func (d *Dashboard) GetCore() ui.RootModel {
 	return d.core
 }
 
+
+func (d *Dashboard) GetSelectedPost() modules.Post {
+	return d.feed.GetSelectedPost()
+}
+
 func (d *Dashboard) FocusContents() {
 	d.contents.Focus()
+	d.UpdateControlText()
 }
 
 func (d *Dashboard) FocusFeed() {
-	d.contents.contentElem.Cursor = 0
+	d.contents.contentElem.OffsetY = 0
 	d.feed.Focus()
+	d.UpdateControlText()
+}
+
+func (d *Dashboard) UpdateControlText() {
+	str := ""
+	if d.feed.listElem.GetFocusState() {
+		str += "j/k      :  Scroll post on feed  \n"
+		str += "l/Enter  :  Focus post window   \n"
+		str += "r        :  Load more posts    \n"
+		str += "o        :  Open post in browser    \n"
+		str += "Ctrl+c   :  Exit the program  \n"
+	} else {
+		str += "j/k      :  Scroll post contents  \n"
+		str += "h        :  Focus feed  \n"
+		str += "r        :  Load more posts     \n"
+		str += "o        :  Open post in browser    \n"
+		str += "Ctrl+c   :  Exit the program   \n"
+	}
+
+	d.control.SetText(str)
 }
 
 func (d *Dashboard) DisplayPost(post modules.Post) {
 	d.contents.DisplayPost(post)
+	str := ""
+	str += "Date      :  " + post.Date + "\n"
+	str += "URL       :  " + post.Short_url + "\n"
+	str += "Blog name :  " + post.Blog_name + "\n"
+	str += "Tags      :  "
+
+	if len(post.Tags) > 0 {
+		str += "#"
+		str += strings.Join(post.Tags, " #")
+	}
+
+	d.info.SetText(str)
 }

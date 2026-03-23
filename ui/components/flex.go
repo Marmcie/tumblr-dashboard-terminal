@@ -60,8 +60,8 @@ func (b *Flex) UpdateChildSize() {
 	if b.Direction == 0 {
 
 		flexH := b.GetInnerHeight() - gapSize
-		// Proportion should  fixed size
 
+		// Proportion should  fixed size
 		proportionSum := b.GetProportionSum()
 
 		for i, child := range b.GetChildren() {
@@ -74,6 +74,7 @@ func (b *Flex) UpdateChildSize() {
 			} else {
 				child.SetH(descriptor.FixedSize)
 			}
+
 		}
 	} else {
 		flexW := b.GetInnerWidth() - gapSize
