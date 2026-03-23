@@ -2,6 +2,7 @@ package dashboard
 
 import (
 	"tumblr-dt/npf"
+	"tumblr-dt/ui"
 	component "tumblr-dt/ui/components"
 
 	tea "charm.land/bubbletea/v2"
@@ -57,7 +58,7 @@ func (f *Feed) UpdateSelectedOptionBorder() {
 		return
 	}
 	if children[f.listElem.Cursor] != nil {
-		children[f.listElem.Cursor].SetBorderStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("#00aaaa")))
+		children[f.listElem.Cursor].SetBorderStyle(lipgloss.NewStyle().Foreground(ui.GetColor("ColorFocus")))
 		children[f.listElem.Cursor].SetDoubleBorder(true)
 	}
 	if f.listElem.Cursor > 0 {
@@ -88,7 +89,7 @@ func (f *Feed) AddPosts(posts []npf.Post) {
 		blogName := component.NewLine("User name : " + post.Blog.Name)
 		blogName.SetText(post.Blog.Name)
 		blogName.SetWidthInherit(true)
-		blogName.SetStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("#a0a4fa")))
+		blogName.SetStyle(lipgloss.NewStyle().Foreground(ui.GetColor("ColorFocus")))
 
 		summary := component.NewLine("Post summary")
 		summary.SetText(post.GetSummary())

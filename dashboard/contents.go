@@ -3,6 +3,7 @@ package dashboard
 import (
 	"strings"
 	"tumblr-dt/npf"
+	"tumblr-dt/ui"
 	component "tumblr-dt/ui/components"
 
 	tea "charm.land/bubbletea/v2"
@@ -24,7 +25,7 @@ func NewContents(dashboard *Dashboard) *Contents {
 
 	f.contentElem.AddEventListener("onFocusChange", func(m tea.Msg, i int) {
 		if f.contentElem.GetFocusState() {
-			f.contentElem.SetStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("#ffffff")))
+			f.contentElem.SetStyle(lipgloss.NewStyle().Foreground(ui.GetColor("ColorWhite")))
 		} else {
 			f.contentElem.ClearStyle()
 		}
@@ -81,13 +82,13 @@ func (f *Contents) DisplayPost(post npf.Post) {
 			//INFO: Change text color based on content type
 			switch contentType {
 			case "Heading1":
-				style = style.Foreground(lipgloss.Color("#40f0f0"))
+				style = style.Foreground(ui.GetColor("ColorH1"))
 			case "Image":
-				style = style.Foreground(lipgloss.Color("#40a0f0"))
+				style = style.Foreground(ui.GetColor("ColorImage"))
 			case "Heading2":
-				style = style.Foreground(lipgloss.Color("#a0f000"))
+				style = style.Foreground(ui.GetColor("ColorH2"))
 			case "Quote":
-				style = style.Foreground(lipgloss.Color("#f0f000"))
+				style = style.Foreground(ui.GetColor("ColorQuote"))
 			default:
 				style = lipgloss.NewStyle()
 			}
