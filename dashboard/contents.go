@@ -91,12 +91,12 @@ func (f *Contents) DisplayPost(post npf.Post) {
 				if askLayout.Attribution != nil {
 					blogName = askLayout.Attribution.Blog.GetName()
 				}
-				contentStr = fmt.Sprintf("Ask by %s :\n %s", blogName, contentStr)
+				contentStr = fmt.Sprintf("%s asked :\n %s", blogName, contentStr)
 			}
 
 			if i == askEnd+1 {
 				isAsk = false
-				contentStr = fmt.Sprintf("Answer by %s :\n %s", reblog.Blog.GetName(), contentStr)
+				contentStr = fmt.Sprintf("%s answered :\n %s", reblog.Blog.GetName(), contentStr)
 			}
 
 			contentType := contents.ContentType
