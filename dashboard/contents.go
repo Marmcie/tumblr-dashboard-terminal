@@ -19,7 +19,8 @@ type Contents struct {
 func NewContents(dashboard *Dashboard) *Contents {
 	f := &Contents{}
 	f.contentElem = component.NewScrollable("Contents")
-	f.contentElem.SetBorder(true).SetBorderPadding(1).SetBorderCorner(true).SetWidthInherit(true)
+	f.contentElem.SetBorder(true).SetWidthInherit(true)
+	f.contentElem.SetForeground(ui.GetColorStr(ui.ColorWhite))
 	f.dashboard = dashboard
 
 	f.InitEvents()
@@ -85,7 +86,7 @@ func (f *Contents) DisplayPost(post npf.Post) {
 			case "Quote":
 				col = ui.GetColorStr(ui.ColorQuote)
 			default:
-				col = " "
+				col = ""
 			}
 
 			//INFO: Divide the text into lines, while preventing word break
@@ -141,7 +142,9 @@ func (f *Contents) DisplayPost(post npf.Post) {
 			col := colors[i]
 			l := component.NewLine("Post text")
 			l.SetText(line)
-			l.SetForeground(col)
+			if col != "" {
+				l.SetForeground(col)
+			}
 			l.SetWidthInherit(true)
 			box.AddChild(l)
 		}

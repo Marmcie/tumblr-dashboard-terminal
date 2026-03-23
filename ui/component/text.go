@@ -53,7 +53,7 @@ func (t *Text) GetStringArray() [][]string {
 // Returns Text per line contents,x,y
 func (l *Text) PrepareFrame() {
 	if !l.Visibility {
-		l.SetCanvas([][]string{{""}},[][]string{{""}},[][]string{{""}})
+		l.SetCanvas([][]string{{""}}, [][]string{{""}}, [][]string{{""}})
 		l.DispatchEvent("onRenderReady")
 		return
 	}
@@ -68,15 +68,17 @@ func (l *Text) PrepareFrame() {
 				break
 			}
 			if i >= len(arr) || a >= len(arr[i]) {
-				result[i+top][a+left] =  " "
+				result[i+top][a+left] = " "
 			} else {
 				result[i+top][a+left] = arr[i][a]
+				fg[i+top][a+left] = l.Foreground
+				bg[i+top][a+left] = l.Background
 			}
 		}
 	}
 
 	result = l.addBorder(result)
 
-	l.SetCanvas(result,fg,bg)
+	l.SetCanvas(result, fg, bg)
 	l.DispatchEvent("onRenderReady")
 }

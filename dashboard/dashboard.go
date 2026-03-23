@@ -49,6 +49,7 @@ func NewDashboard() *Dashboard {
 	d.root.SetSize(s.Width, s.Height)
 	d.root.SetBorder(true).SetBorderPadding(1)
 	d.root.SetBackground(ui.GetColorStr(ui.ColorBG))
+	d.root.SetForeground(ui.GetColorStr(ui.ColorWhite))
 
 	d.left = component.NewFlex("Left")
 	d.left.SetHeightInherit(true)
