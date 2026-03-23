@@ -7,6 +7,18 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
+type GlobalValues struct {
+	Msg  tea.Msg
+	Time int
+}
+
+var Global = &GlobalValues{}
+
+func UpdateGlobalValues(msg tea.Msg, time int) {
+	Global.Msg = msg
+	Global.Time = time
+}
+
 type Component interface {
 	//X,Y,Width,Height
 	GetRect() (int, int, int, int)
@@ -17,7 +29,7 @@ type Component interface {
 	SetX(int)
 	SetY(int)
 	SetPos(int, int)
-	Update(tea.Msg, int)
+	Update()
 	Focus()
 	Blur()
 	GetFocusState() bool
@@ -26,26 +38,27 @@ type Component interface {
 	GetSiblings() []Component
 	GetChildren() []Component
 	GetCanvas() [][]string
-	OnUpdate(tea.Msg, int)
 
-	AddEventListener(string, func(Component))
+	AddEventListener(string, func(tea.Msg, int))
 }
 
 type ComponentState struct {
-	x             int
-	y             int
-	Width         int
-	Height        int
-	Children      []Component
-	Parent        Component
-	Focused       bool
-	Depth         int
-	FitHeight     bool
-	FitWidth      bool
-	OnRenderReady ([]func(Component))
-	Canvas        [][]string
-	ShowBorder bool
+	x              int
+	y              int
+	Width          int
+	Height         int
+	Children       []Component
+	Parent         Component
+	Focused        bool
+	Depth          int
+	FitHeight      bool
+	FitWidth       bool
+	OnRenderReady  ([]func(Component))
+	Canvas         [][]string
+	ShowBorder     bool
 	BorderPadWidth int
+	Name           string
+	EventCallbacks map[string][]func(tea.Msg, int)
 }
 
 func (c *ComponentState) AddChild(child Component) {
@@ -95,13 +108,13 @@ func (c *ComponentState) SetPos(x int, y int) {
 	c.y = y
 }
 
-func (c *ComponentState) OnUpdate(msg tea.Msg, time int) {}
-
-func (c *ComponentState) Update(msg tea.Msg, time int) {
-	c.OnUpdate(msg, time)
+func (c *ComponentState) Update() {
+	if c.GetFocusState() {
+		c.DispatchEvent("onUpdate")
+	}
 	for _, child := range c.Children {
 		if child.GetFocusState() {
-			child.Update(msg, time)
+			child.Update()
 		}
 	}
 }
@@ -124,8 +137,7 @@ func (c *ComponentState) GetFocusState() bool {
 	return c.Focused
 }
 
-func (c *ComponentState) PrepareFrame() {
-}
+func (c *ComponentState) PrepareFrame() {}
 
 func (c *ComponentState) GetChildren() []Component {
 	return c.Children
@@ -149,27 +161,24 @@ func (c *ComponentState) CreateCanvas() [][]string {
 	return arr
 }
 
-func (c *ComponentState) AddEventListener(event string, cb func(Component)) {
-	switch event {
-	case "onRenderReady":
-		c.OnRenderReady = append(c.OnRenderReady, cb)
+func (c *ComponentState) AddEventListener(event string, cb func(tea.Msg, int)) {
+	if c.EventCallbacks == nil{
+		c.EventCallbacks = map[string][]func(tea.Msg, int){}
 	}
+	list := c.EventCallbacks[event]
+	list = append(list, cb)
+	c.EventCallbacks[event] = list
 }
 
 func (c *ComponentState) DispatchEvent(event string) {
-	switch event {
-	case "onRenderReady":
-		for _, cb := range c.OnRenderReady {
-			cb(c)
-		}
-
+	for _, v := range c.EventCallbacks[event] {
+		v(Global.Msg,Global.Time)
 	}
 }
 
 func (c *ComponentState) GetCanvas() [][]string {
 	return c.Canvas
 }
-
 
 func (c *ComponentState) addBorder(arr [][]string) [][]string {
 	if !c.ShowBorder || c.BorderPadWidth == 0 {

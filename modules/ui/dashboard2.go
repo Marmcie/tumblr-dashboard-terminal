@@ -55,7 +55,6 @@ func (m RootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 		}
 	}
-
 	return m, m.App.Update(msg)
 }
 

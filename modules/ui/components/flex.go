@@ -1,17 +1,16 @@
 package component
 
 import (
-
 	tea "github.com/charmbracelet/bubbletea"
 )
 
 type Flex struct {
 	ComponentState
-	FitHeight      bool
-	FitWidth       bool
-	Direction      int
-	OffsetX        int
-	OffsetY        int
+	FitHeight bool
+	FitWidth  bool
+	Direction int
+	OffsetX   int
+	OffsetY   int
 }
 
 func NewFlex() *Flex {
@@ -21,6 +20,27 @@ func NewFlex() *Flex {
 	flex.Direction = 0
 	flex.OffsetX = 0
 	flex.OffsetY = 0
+	flex.Name = "Flex"
+
+	flex.AddEventListener("onUpdate", func(msg tea.Msg, time int) {
+		
+		switch msg := msg.(type) {
+
+		// Is it a key press?
+		case tea.KeyMsg:
+
+			// Cool, what was the actual key pressed?
+			switch msg.String() {
+
+			// These keys should exit the program.
+			case "j":
+				flex.OffsetY += 1
+			case "k":
+				flex.OffsetY = max(0, flex.OffsetY-1)
+			}
+		}
+	})
+
 	return flex
 }
 
@@ -66,22 +86,4 @@ func (b *Flex) PrepareFrame() {
 
 	b.Canvas = result
 	b.DispatchEvent("onRenderReady")
-}
-
-func (c *Flex) OnUpdate(msg tea.Msg, time int) {
-	switch msg := msg.(type) {
-
-	// Is it a key press?
-	case tea.KeyMsg:
-
-		// Cool, what was the actual key pressed?
-		switch msg.String() {
-
-		// These keys should exit the program.
-		case "j":
-			c.OffsetY += 1
-		case "k":
-			c.OffsetY = max(0, c.OffsetY-1)
-		}
-	}
 }

@@ -55,12 +55,15 @@ func (m *App) Render() string {
 }
 
 func (m *App) Update(msg tea.Msg) tea.Cmd {
+	component.UpdateGlobalValues(msg,m.Time)
 	for _, c := range m.children {
 		if (*c).GetFocusState() {
-			(*c).Update(msg, m.Time)
+			(*c).Update()
 		}
 	}
+
 	m.Time++
+
 	return nil
 }
 
