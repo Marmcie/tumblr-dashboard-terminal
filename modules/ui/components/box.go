@@ -1,13 +1,9 @@
 package component
 
-import (
-	helper "tumblr-dt/modules/ui/helper"
-)
+import ()
 
 type Box struct {
 	ComponentState
-	ShowBorder     bool
-	BorderPadWidth int
 }
 
 func NewBox() *Box {
@@ -22,32 +18,6 @@ func (c *Box) GetRect() (int, int, int, int) {
 // Returns x,y,width,height
 func (c *Box) GetRenderArea() (int, int, int, int) {
 	return c.x + c.BorderPadWidth, c.y + c.BorderPadWidth, c.Width - c.BorderPadWidth, c.Height - c.BorderPadWidth
-}
-
-func (c *Box) addBorder(arr [][]string) [][]string {
-	if !c.ShowBorder || c.BorderPadWidth == 0 {
-		return arr
-	}
-
-	side := helper.Dictionary(helper.BorderSide)
-	top := helper.Dictionary(helper.BorderTop)
-	for i := range c.Height {
-		arr[i][0] = side
-		arr[i][c.Width-1] = side
-	}
-
-	for i := range c.Width {
-		arr[0][i] = top
-		arr[c.Height-1][i] = top
-	}
-
-	arr[0][0] = helper.Dictionary(helper.BorderTopLeft)
-	arr[0][c.Width-1] = helper.Dictionary(helper.BorderTopRight)
-
-	arr[c.Height-1][0] = helper.Dictionary(helper.BorderBottomLeft)
-	arr[c.Height-1][c.Width-1] = helper.Dictionary(helper.BorderBottomRight)
-
-	return arr
 }
 
 // Returns Line per line contents,x,y

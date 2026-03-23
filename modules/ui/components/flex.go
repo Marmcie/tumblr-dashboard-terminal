@@ -1,15 +1,12 @@
 package component
 
 import (
-	helper "tumblr-dt/modules/ui/helper"
 
 	tea "github.com/charmbracelet/bubbletea"
 )
 
 type Flex struct {
 	ComponentState
-	ShowBorder     bool
-	BorderPadWidth int
 	FitHeight      bool
 	FitWidth       bool
 	Direction      int
@@ -30,32 +27,6 @@ func NewFlex() *Flex {
 // Returns x,y,width,height
 func (c *Flex) GetRect() (int, int, int, int) {
 	return c.x, c.y, c.Width, c.Height
-}
-
-func (c *Flex) addBorder(arr [][]string) [][]string {
-	if !c.ShowBorder || c.BorderPadWidth == 0 {
-		return arr
-	}
-
-	side := helper.Dictionary(helper.BorderSide)
-	top := helper.Dictionary(helper.BorderTop)
-	for i := range c.Height {
-		arr[i][0] = side
-		arr[i][c.Width-1] = side
-	}
-
-	for i := range c.Width {
-		arr[0][i] = top
-		arr[c.Height-1][i] = top
-	}
-
-	arr[0][0] = helper.Dictionary(helper.BorderTopLeft)
-	arr[0][c.Width-1] = helper.Dictionary(helper.BorderTopRight)
-
-	arr[c.Height-1][0] = helper.Dictionary(helper.BorderBottomLeft)
-	arr[c.Height-1][c.Width-1] = helper.Dictionary(helper.BorderBottomRight)
-
-	return arr
 }
 
 // Returns Line per line contents,x,y

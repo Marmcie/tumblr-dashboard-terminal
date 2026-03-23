@@ -2,6 +2,7 @@ package component
 
 import (
 	"strings"
+	"tumblr-dt/modules/ui/helper"
 
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -43,6 +44,8 @@ type ComponentState struct {
 	FitWidth      bool
 	OnRenderReady ([]func(Component))
 	Canvas        [][]string
+	ShowBorder bool
+	BorderPadWidth int
 }
 
 func (c *ComponentState) AddChild(child Component) {
@@ -165,4 +168,31 @@ func (c *ComponentState) DispatchEvent(event string) {
 
 func (c *ComponentState) GetCanvas() [][]string {
 	return c.Canvas
+}
+
+
+func (c *ComponentState) addBorder(arr [][]string) [][]string {
+	if !c.ShowBorder || c.BorderPadWidth == 0 {
+		return arr
+	}
+
+	side := helper.Dictionary(helper.BorderSide)
+	top := helper.Dictionary(helper.BorderTop)
+	for i := range c.Height {
+		arr[i][0] = side
+		arr[i][c.Width-1] = side
+	}
+
+	for i := range c.Width {
+		arr[0][i] = top
+		arr[c.Height-1][i] = top
+	}
+
+	arr[0][0] = helper.Dictionary(helper.BorderTopLeft)
+	arr[0][c.Width-1] = helper.Dictionary(helper.BorderTopRight)
+
+	arr[c.Height-1][0] = helper.Dictionary(helper.BorderBottomLeft)
+	arr[c.Height-1][c.Width-1] = helper.Dictionary(helper.BorderBottomRight)
+
+	return arr
 }

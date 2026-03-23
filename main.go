@@ -45,8 +45,8 @@ func main() {
 	box.Width = 10
 	box.Height = 10
 	box.ShowBorder = true
-	box.SetPos(0, 0)
 	box.BorderPadWidth = 1
+	box.SetPos(0, 0)
 
 	line := component.NewLine()
 	line.Text = "aaaa"
@@ -65,8 +65,8 @@ func main() {
 	flex.Width = 100
 	flex.Height = 30
 	flex.AddChild(line)
-	flex.AddChild(line2)
 	flex.Focus()
+	box.AddChild(line2)
 
 	root.App.AddChild(flex)
 
