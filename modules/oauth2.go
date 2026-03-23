@@ -39,6 +39,8 @@ type OAuth2Token struct {
 	created_at int64
 }
 
+var Expires_at int64
+
 func GetClient() *http.Client {
 	conf := getAuthConfig()
 	ctx := context.Background()
@@ -56,16 +58,21 @@ func GetClient() *http.Client {
 		token = &OAuth2Token{}
 		token.Token = Auth(ctx)
 		token.created_at = time.Now().Unix()
+		Expires_at = token.created_at + token.Token.ExpiresIn
 		bytes, _ := json.Marshal(token)
 		keyring.Set(service, user, string(bytes))
 	} else {
 		//INFO:Get token from keyring
 		token = &OAuth2Token{}
 		json.Unmarshal([]byte(tokenStr), token)
-		now := time.Now().Unix()
+
+		Expires_at = token.created_at + token.Token.ExpiresIn
+
 		//INFO:Attempt token refresh
-		if now >= token.created_at+token.Token.ExpiresIn {
+		if TokenExpired() {
 			token.Token = Refresh(ctx, token.Token.RefreshToken)
+			token.created_at = time.Now().Unix()
+			Expires_at = token.created_at + token.Token.ExpiresIn
 			bytes, _ := json.Marshal(token)
 			keyring.Set(service, user, string(bytes))
 		}
@@ -73,6 +80,12 @@ func GetClient() *http.Client {
 
 	return conf.Client(ctx, token.Token)
 
+}
+
+func TokenExpired() bool {
+	now := time.Now().Unix()
+	//INFO:Attempt token refresh
+	return now >= Expires_at
 }
 
 func RemoveToken() {

@@ -64,6 +64,10 @@ func (c *TumblrClient) GetDashboard(offset int) []npf.Post {
 		return npf.TestPosts(20)
 	}
 
+	if TokenExpired() {
+		c.Client = GetClient()
+	}
+
 	defer func() {
 		if err := recover(); err != nil {
 			RemoveToken()
@@ -93,6 +97,10 @@ func (c *TumblrClient) GetDashboard(offset int) []npf.Post {
 func (c *TumblrClient) GetTaggedPosts(before int, tag string) []npf.Post {
 	if c.Config.Testing {
 		return npf.TestPosts(20)
+	}
+
+	if TokenExpired() {
+		c.Client = GetClient()
 	}
 
 	defer func() {
@@ -126,6 +134,10 @@ func (c *TumblrClient) GetBlogPosts(before int, blogName string) []npf.Post {
 		return npf.TestPosts(20)
 	}
 
+	if TokenExpired() {
+		c.Client = GetClient()
+	}
+
 	defer func() {
 		if err := recover(); err != nil {
 			RemoveToken()
@@ -157,6 +169,10 @@ func (c *TumblrClient) GetFilteredTags(ch chan []string) {
 		return
 	}
 
+	if TokenExpired() {
+		c.Client = GetClient()
+	}
+
 	defer func() {
 		if err := recover(); err != nil {
 			RemoveToken()
@@ -180,6 +196,10 @@ func (c *TumblrClient) GetFilteredContents(ch chan []string) {
 	if c.Config.Testing {
 		ch <- []string{}
 		return
+	}
+
+	if TokenExpired() {
+		c.Client = GetClient()
 	}
 
 	defer func() {
