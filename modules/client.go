@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"os"
 	"strconv"
 	"tumblr-dt/npf"
 )
@@ -198,4 +199,14 @@ func (c *TumblrClient) GetFilteredContents(ch chan []string) {
 	dash := filteredContentsResponse{}
 	json.Unmarshal(bytes, &dash)
 	ch <- dash.Response.Filtered_content
+}
+
+func (c *TumblrClient) GetTutorial() []npf.Post {
+	tutorialData, err := os.ReadFile("./doc/tutorial.json")
+	if err != nil {
+		panic(err)
+	}
+	dash := dashboardResponse{}
+	json.Unmarshal(tutorialData, &dash)
+	return dash.Response.Posts
 }

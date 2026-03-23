@@ -12,6 +12,7 @@ import (
 func TestDashboardLoad(t *testing.T) {
 	config := modules.Config{}
 	config.Testing = true
+	config.Initialized = true
 	ch := make(chan *dashboard.Dashboard)
 	go func(ch chan *dashboard.Dashboard) {
 		ch <- dashboard.NewDashboard(config)
@@ -25,6 +26,7 @@ func TestDashboardLoad(t *testing.T) {
 func TestDashboardDisplay(t *testing.T) {
 	config := modules.Config{}
 	config.Testing = true
+	config.Initialized = true
 
 	ch := make(chan *dashboard.Dashboard)
 	go func(ch chan *dashboard.Dashboard) {
@@ -42,6 +44,7 @@ func TestDashboardDisplay(t *testing.T) {
 func BenchmarkDashboardLoad(b *testing.B) {
 	config := modules.Config{}
 	config.Testing = true
+	config.Initialized = true
 	ch := make(chan *dashboard.Dashboard)
 	go func(ch chan *dashboard.Dashboard) {
 		db := dashboard.NewDashboard(config)
@@ -59,6 +62,7 @@ func BenchmarkDashboardLoad(b *testing.B) {
 func BenchmarkDashboardUpdate(b *testing.B) {
 	config := modules.Config{}
 	config.Testing = true
+	config.Initialized = true
 
 	ch := make(chan *dashboard.Dashboard)
 	go func(ch chan *dashboard.Dashboard) {

@@ -29,6 +29,7 @@ type Config struct {
 		Filtered     string
 		Blacklisted  string
 	}
+	Initialized bool
 }
 
 func makeConfig() Config {
@@ -48,6 +49,7 @@ func makeConfig() Config {
 	con.Debug = false
 	con.Testing = false
 	con.Post_theme = "default"
+	con.Initialized = false
 
 	return con
 }
@@ -58,18 +60,21 @@ var initialized bool
 func GetConfig() Config {
 
 	if !initialized {
-		loadConfig()
+		result := loadConfig()
+		if !result {
+			return makeConfig()
+		}
 	}
 	return config
 }
-func loadConfig() {
+func loadConfig() bool {
 	dir, _ := os.UserHomeDir()
 
 	path := dir + "\\.config\\tumblr-dt.json"
 
 	configBytes, err := os.ReadFile(path)
 	if err != nil {
-		log.Fatal(err)
+		return false
 	}
 
 	c := makeConfig()
@@ -87,7 +92,9 @@ func loadConfig() {
 		config.Timezone = "Local"
 	}
 
+	config.Initialized = true
 	initialized = true
+	return true
 }
 
 func IsDebug() bool {

@@ -1,7 +1,7 @@
 {
-  "consumer_key": "Your tumblr app consumer key",
-  "secret_key": "Your tumblr app secret key",
-  "redirect_port": "Port for your tumblr app redirect endpoint",
+  "consumer_key": "Required! Your tumblr app consumer key",
+  "secret_key": "Required! Your tumblr app secret key",
+  "redirect_port": "Required! Port for your tumblr app redirect endpoint",
   "use_blog_avatar_color": false,
   "blacklist": [
     "discourse tag",

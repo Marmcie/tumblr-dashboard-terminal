@@ -55,16 +55,49 @@ func NewDashboard(config modules.Config) *Dashboard {
 	d.config = config
 	d.IsLoading = false
 
+	d.FilteredTags = mapset.NewSet[string]()
+	d.FilteredContents = mapset.NewSet[string]()
 	d.TagTrie = helper.NewTrie()
 	d.BlogTrie = helper.NewTrie()
 
+
+	d.initComponents(d.config)
+	d.initEvents()
+	d.UpdateControlText()
+
+	if !d.config.Initialized {
+		d.SwitchMode("tutorial", "")
+	} else {
+		d.initClient(d.config)
+
+		d.SwitchMode("dashboard", "")
+	}
+
+	return d
+}
+
+func (d *Dashboard) initClient(config modules.Config) {
+	d.client = modules.NewTumblrClient(config)
+	d.offset = 0
+
+	filteredTagsChan := make(chan []string)
+	filteredContentsChan := make(chan []string)
+
+	go d.client.GetFilteredTags(filteredTagsChan)
+	go d.client.GetFilteredContents(filteredContentsChan)
+
+	d.FilteredTags = mapset.NewSet[string](<-filteredTagsChan...)
+	d.FilteredContents = mapset.NewSet[string](<-filteredContentsChan...)
+}
+
+func (d *Dashboard) initComponents(config modules.Config) {
 	d.root = component.NewFlex("Root")
 	d.root.SetDirection(1)
 	d.root.SetBorder(true)
 	d.root.SetBackground(ui.GetColorStr(ui.ColorBG))
 	d.root.SetForeground(ui.GetColorStr(ui.ColorWhite))
 
-	if !d.config.Testing {
+	if !config.Testing {
 
 		var s tsize.Size
 		s, err := tsize.GetSize()
@@ -103,6 +136,7 @@ func NewDashboard(config modules.Config) *Dashboard {
 	d.switcher = NewSwitcher(d)
 	d.switcher.TagInput.SetSuggestions(d.TagTrie)
 	d.switcher.BlogInput.SetSuggestions(d.BlogTrie)
+	d.switcher.Window.SetVisibility(false)
 
 	d.feed = NewFeed(d)
 	d.contents = NewContents(d)
@@ -118,27 +152,10 @@ func NewDashboard(config modules.Config) *Dashboard {
 	d.root.AddItem(d.switcher.Window, 0, 3)
 
 	d.feed.listElem.Focus()
-	d.switcher.Window.Focus()
 	d.rootModel.App.SetRoot(d.root)
 
-	d.client = modules.NewTumblrClient(d.config)
-	d.offset = 0
-
-	filteredTagsChan := make(chan []string)
-	filteredContentsChan := make(chan []string)
-
-	go d.client.GetFilteredTags(filteredTagsChan)
-	go d.client.GetFilteredContents(filteredContentsChan)
-
-	d.FilteredTags = mapset.NewSet[string](<-filteredTagsChan...)
-	d.FilteredContents = mapset.NewSet[string](<-filteredContentsChan...)
-
-	d.initEvents()
-	d.SwitchMode("dashboard", "")
-	d.UpdateControlText()
-
-	return d
 }
+
 func (d *Dashboard) toggleControl() {
 	d.control.SetVisibility(!d.control.Visibility)
 }
@@ -212,6 +229,8 @@ func (d *Dashboard) SwitchMode(mode string, option string) {
 	case "blog":
 		d.option = option
 		d.feed.listElem.SetTitle("Posts from : " + d.option)
+	case "tutorial":
+		d.feed.listElem.SetTitle("Tutorial")
 	}
 
 	d.root.SetBorderLabelColor("BottomLeft", "")
@@ -276,6 +295,8 @@ func (d *Dashboard) LoadPosts() {
 		posts = d.client.GetTaggedPosts(int(d.timestamp), d.option)
 	case "blog":
 		posts = d.client.GetBlogPosts(int(d.timestamp), d.option)
+	case "tutorial":
+		posts = d.client.GetTutorial()
 	}
 	if len(posts) == 0 {
 		defer func() {
@@ -291,19 +312,23 @@ func (d *Dashboard) LoadPosts() {
 	sort.Sort(npf.SortPostById(posts))
 	d.root.SetBorderLabel("BottomLeft", "")
 
-	d.timestamp = posts[len(posts)-1].Timestamp
+	if d.mode != "tutorial" {
+		d.timestamp = posts[len(posts)-1].Timestamp
+	}
 
 	result := d.filterPosts(posts)
 	d.feed.AddPosts(result)
 	d.offset++
 
-	for _, p := range posts {
-		for _, tag := range p.Tags {
-			d.TagTrie.Insert(tag)
-		}
-		d.BlogTrie.Insert(p.Blog.GetName())
-		for _, t := range p.Trail {
-			d.BlogTrie.Insert(t.Blog.Name)
+	if d.mode != "tutorial" {
+		for _, p := range posts {
+			for _, tag := range p.Tags {
+				d.TagTrie.Insert(tag)
+			}
+			d.BlogTrie.Insert(p.Blog.GetName())
+			for _, t := range p.Trail {
+				d.BlogTrie.Insert(t.Blog.Name)
+			}
 		}
 	}
 	d.IsLoading = false

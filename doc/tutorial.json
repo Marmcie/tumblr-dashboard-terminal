@@ -1,0 +1,530 @@
+{
+  "meta": {
+    "status": 200,
+    "msg": "OK"
+  },
+  "response": {
+    "posts": [
+      {
+        "type": "blocks",
+        "original_type": "link",
+        "is_blocks_post_format": false,
+        "blog_name": "tutorial fairy",
+        "blog": {
+          "name": "Tutorial fairy",
+          "title": "You will be soo tutorialed",
+          "description": "<p>Tutorial fairy</p>",
+          "url": "tutorial land",
+          "uuid": "t:",
+          "updated": 1772611111,
+          "avatar": [
+            {
+              "width": 64,
+              "height": 64,
+              "url": "https://44.media.tumblr.com/a/a/a/a.gif",
+              "accessories": []
+            }
+          ],
+          "tumblrmart_accessories": {},
+          "can_show_badges": false
+        },
+        "id": 111111111111111113,
+        "id_string": "111111111111111113",
+        "is_blazed": false,
+        "is_blaze_pending": false,
+        "can_ignite": false,
+        "can_blaze": false,
+        "post_url": "Tutorial land",
+        "parent_post_url": "Tutorial land",
+        "slug": "this-is-a-tutorial",
+        "date": "2026-01-01 01:01:01 GMT",
+        "timestamp": 1772222222,
+        "state": "published",
+        "reblog_key": "aaaaaaa",
+        "tags": [],
+        "short_url": "Tutorial land",
+        "summary": "Step 1 : Register your application.",
+        "should_open_in_legacy": false,
+        "recommended_source": null,
+        "recommended_color": null,
+        "followed": true,
+        "liked": false,
+        "note_count": 0,
+        "content": [],
+        "layout": [],
+        "trail": [
+          {
+            "content": [
+              {
+                "type": "text",
+                "text": "1. Go to the website listed here, and click on Register application button.",
+                "subtype": "heading1"
+              },
+              {
+                "type": "text",
+                "text": "https://www.tumblr.com/oauth/apps"
+              }
+            ],
+            "layout": [],
+            "post": {
+              "id": "111111111111111111"
+            },
+            "blog": {
+              "name": "tutorial-fairy",
+              "title": "Tutorial fairy",
+              "description": "Hi! I teach people how to set up this program!",
+              "url": "tutorial land",
+              "uuid": "t:",
+              "updated": 1772222222,
+              "subscribed": false,
+              "can_subscribe": false,
+              "followed": false,
+              "avatar": [
+                {
+                  "width": 64,
+                  "height": 64,
+                  "url": "https://44.media.tumblr.com/a/a/a/a.gif",
+                  "accessories": []
+                }
+              ],
+              "tumblrmart_accessories": {},
+              "can_show_badges": true,
+              "active": true,
+              "show_follow_action": true
+            }
+          },
+          {
+            "content": [
+              {
+                "type": "text",
+                "text": "2. You will be greeted by a bunch of options, which should be filled like this.",
+                "subtype": "heading1"
+              },
+              {
+                "type": "text",
+                "text": "Application Name: Fill it with anything you want.",
+                "subtype": "unordered-list-item"
+              },
+              {
+                "type": "text",
+                "text": "Application Website: Any website URL.",
+                "subtype": "unordered-list-item"
+              },
+              {
+                "type": "text",
+                "text": "Application Description: Fill it with anything you want",
+                "subtype": "unordered-list-item"
+              },
+              {
+                "type": "text",
+                "text": "Administrative contact email: Your tumblr account email address.",
+                "subtype": "unordered-list-item"
+              },
+              {
+                "type": "text",
+                "text": "Default callback URL: Set it to 'http://localhost:6969'. (Port number can be anything, just make it consistent between other option) ",
+                "subtype": "unordered-list-item"
+              },
+              {
+                "type": "text",
+                "text": "OAuth2 redirect URLs: Same as Default callback URL",
+                "subtype": "unordered-list-item"
+              },
+              {
+                "type": "text",
+                "text": "Once all filled up, press Save changes to complete the first step!"
+              }
+            ],
+            "layout": [],
+            "post": {
+              "id": "111111111111111111"
+            },
+            "blog": {
+              "name": "tutorial-fairy",
+              "title": "Tutorial fairy",
+              "description": "Hi! I teach people how to set up this program!",
+              "url": "tutorial land",
+              "uuid": "t:",
+              "updated": 1772222222,
+              "subscribed": false,
+              "can_subscribe": false,
+              "followed": false,
+              "avatar": [
+                {
+                  "width": 64,
+                  "height": 64,
+                  "url": "https://44.media.tumblr.com/a/a/a/a.gif",
+                  "accessories": []
+                }
+              ],
+              "tumblrmart_accessories": {},
+              "can_show_badges": true,
+              "active": true,
+              "show_follow_action": true
+            }
+          }
+        ],
+        "reblogged_from_id": "111111111111111111",
+        "reblogged_from_url": "tutorial land",
+        "reblogged_from_name": "tutorial-fairy",
+        "reblogged_from_title": "Tutorial land",
+        "reblogged_from_uuid": "t:",
+        "reblogged_from_can_message": true,
+        "reblogged_from_following": false,
+        "reblogged_root_id": "111111111111111111",
+        "reblogged_root_url": "Tutorial land",
+        "reblogged_root_name": "tutorial-fairy",
+        "reblogged_root_title": "tutorial",
+        "reblogged_root_uuid": "t:",
+        "reblogged_root_can_message": true,
+        "reblogged_root_following": false,
+        "can_like": true,
+        "interactability_reblog": "everyone",
+        "can_reblog": true,
+        "interactability_blaze": "noone",
+        "can_send_in_message": true,
+        "can_reply": false,
+        "display_avatar": true
+      },
+      {
+        "type": "blocks",
+        "original_type": "link",
+        "is_blocks_post_format": false,
+        "blog_name": "tutorial fairy",
+        "blog": {
+          "name": "Tutorial fairy",
+          "title": "You will be soo tutorialed",
+          "description": "<p>Tutorial fairy</p>",
+          "url": "tutorial land",
+          "uuid": "t:",
+          "updated": 1772611112,
+          "avatar": [
+            {
+              "width": 64,
+              "height": 64,
+              "url": "https://44.media.tumblr.com/a/a/a/a.gif",
+              "accessories": []
+            }
+          ],
+          "tumblrmart_accessories": {},
+          "can_show_badges": false
+        },
+        "id": 111111111111111112,
+        "id_string": "111111111111111112",
+        "is_blazed": false,
+        "is_blaze_pending": false,
+        "can_ignite": false,
+        "can_blaze": false,
+        "post_url": "Tutorial land",
+        "parent_post_url": "Tutorial land",
+        "slug": "this-is-a-tutorial",
+        "date": "2026-01-01 01:01:01 GMT",
+        "timestamp": 1772222223,
+        "state": "published",
+        "reblog_key": "aaaaaaa",
+        "tags": [],
+        "short_url": "Tutorial land",
+        "summary": "Step 2 : Create a config file.",
+        "should_open_in_legacy": false,
+        "recommended_source": null,
+        "recommended_color": null,
+        "followed": true,
+        "liked": false,
+        "note_count": 0,
+        "content": [],
+        "layout": [],
+        "trail": [
+          {
+            "content": [
+              {
+                "type": "text",
+                "text": "1. Once you are done registering your application, you will be provided with the followings",
+                "subtype": "heading1"
+              },
+              {
+                "type": "text",
+                "text": "OAuth Consumer Key",
+                "subtype": "unordered-list-item"
+              },
+              {
+                "type": "text",
+                "text": "Secret key",
+                "subtype": "unordered-list-item"
+              },
+              {
+                "type": "text",
+                "text": "Take a note on both keys since we'll need them soon."
+              }
+            ],
+            "layout": [],
+            "post": {
+              "id": "111111111111111111"
+            },
+            "blog": {
+              "name": "tutorial-fairy",
+              "title": "Tutorial fairy",
+              "description": "Hi! I teach people how to set up this program!",
+              "url": "tutorial land",
+              "uuid": "t:",
+              "updated": 1772222222,
+              "subscribed": false,
+              "can_subscribe": false,
+              "followed": false,
+              "avatar": [
+                {
+                  "width": 64,
+                  "height": 64,
+                  "url": "https://44.media.tumblr.com/a/a/a/a.gif",
+                  "accessories": []
+                }
+              ],
+              "tumblrmart_accessories": {},
+              "can_show_badges": true,
+              "active": true,
+              "show_follow_action": true
+            }
+          },
+          {
+            "content": [
+              {
+                "type": "text",
+                "text": "2. Create a config file in your .config folder.",
+                "subtype": "heading1"
+              },
+              {
+                "type": "text",
+                "text": "The location of the .config folder can vary based on operating system. But it is usually located in the following location."
+              },
+              {
+                "type": "text",
+                "text": "{user home}/.config",
+                "subtype": "quote"
+              },
+              {
+                "type": "text",
+                "text": "Example: C:\\Users\\tumblralina\\.config",
+                "subtype": "quote"
+              },
+              {
+                "type": "text",
+                "text": "Within that folder, create a file called 'tumblr-dt.json'."
+              }
+            ],
+            "layout": [],
+            "post": {
+              "id": "111111111111111111"
+            },
+            "blog": {
+              "name": "tutorial-fairy",
+              "title": "Tutorial fairy",
+              "description": "Hi! I teach people how to set up this program!",
+              "url": "tutorial land",
+              "uuid": "t:",
+              "updated": 1772222222,
+              "subscribed": false,
+              "can_subscribe": false,
+              "followed": false,
+              "avatar": [
+                {
+                  "width": 64,
+                  "height": 64,
+                  "url": "https://44.media.tumblr.com/a/a/a/a.gif",
+                  "accessories": []
+                }
+              ],
+              "tumblrmart_accessories": {},
+              "can_show_badges": true,
+              "active": true,
+              "show_follow_action": true
+            }
+          },
+          {
+            "content": [
+              {
+                "type": "text",
+                "text": "3. Fill the config file.",
+                "subtype": "heading1"
+              },
+              {
+                "type": "text",
+                "text": "Open up the 'tumblr-dt.json' with any text editor, then paste the contents of this URL.\n https://github.com/RayMatsuo/tumblr-dashboard-terminal/blob/main/tumblr-dt.json.example"
+              },
+              {
+                "type": "text",
+                "text": "Then replace the consumer_key and secret_key value with the ones you received on step 1. and update the redirect_port to the port you registered earlier. (If you just copied the example, value here should be '6969'!)"
+              },
+              {
+                "type": "text",
+                "text": "Once done, hit the save, then relaunch the application."
+              }
+            ],
+            "layout": [],
+            "post": {
+              "id": "111111111111111111"
+            },
+            "blog": {
+              "name": "tutorial-fairy",
+              "title": "Tutorial fairy",
+              "description": "Hi! I teach people how to set up this program!",
+              "url": "tutorial land",
+              "uuid": "t:",
+              "updated": 1772222222,
+              "subscribed": false,
+              "can_subscribe": false,
+              "followed": false,
+              "avatar": [
+                {
+                  "width": 64,
+                  "height": 64,
+                  "url": "https://44.media.tumblr.com/a/a/a/a.gif",
+                  "accessories": []
+                }
+              ],
+              "tumblrmart_accessories": {},
+              "can_show_badges": true,
+              "active": true,
+              "show_follow_action": true
+            }
+          }
+        ],
+        "reblogged_from_id": "111111111111111111",
+        "reblogged_from_url": "tutorial land",
+        "reblogged_from_name": "tutorial-fairy",
+        "reblogged_from_title": "Tutorial land",
+        "reblogged_from_uuid": "t:",
+        "reblogged_from_can_message": true,
+        "reblogged_from_following": false,
+        "reblogged_root_id": "111111111111111111",
+        "reblogged_root_url": "Tutorial land",
+        "reblogged_root_name": "tutorial-fairy",
+        "reblogged_root_title": "tutorial",
+        "reblogged_root_uuid": "t:",
+        "reblogged_root_can_message": true,
+        "reblogged_root_following": false,
+        "can_like": true,
+        "interactability_reblog": "everyone",
+        "can_reblog": true,
+        "interactability_blaze": "noone",
+        "can_send_in_message": true,
+        "can_reply": false,
+        "display_avatar": true
+      },
+      {
+        "type": "blocks",
+        "original_type": "link",
+        "is_blocks_post_format": false,
+        "blog_name": "tutorial fairy",
+        "blog": {
+          "name": "Tutorial fairy",
+          "title": "You will be soo tutorialed",
+          "description": "<p>Tutorial fairy</p>",
+          "url": "tutorial land",
+          "uuid": "t:",
+          "updated": 1772611111,
+          "avatar": [
+            {
+              "width": 64,
+              "height": 64,
+              "url": "https://44.media.tumblr.com/a/a/a/a.gif",
+              "accessories": []
+            }
+          ],
+          "tumblrmart_accessories": {},
+          "can_show_badges": false
+        },
+        "id": 111111111111111111,
+        "id_string": "111111111111111111",
+        "is_blazed": false,
+        "is_blaze_pending": false,
+        "can_ignite": false,
+        "can_blaze": false,
+        "post_url": "Tutorial land",
+        "parent_post_url": "Tutorial land",
+        "slug": "this-is-a-tutorial",
+        "date": "2026-01-01 01:01:01 GMT",
+        "timestamp": 1772222221,
+        "state": "published",
+        "reblog_key": "aaaaaaa",
+        "tags": [],
+        "short_url": "Tutorial land",
+        "summary": "Step 3 : Log into your account.",
+        "should_open_in_legacy": false,
+        "recommended_source": null,
+        "recommended_color": null,
+        "followed": true,
+        "liked": false,
+        "note_count": 0,
+        "content": [],
+        "layout": [],
+        "trail": [
+          {
+            "content": [
+              {
+                "type": "text",
+                "text": "1. Reopen the application once the config file is ready.",
+                "subtype": "heading1"
+              },
+              {
+                "type": "text",
+                "text": "Then you will be greeted by an URL, open the page then click on the 'Allow' button."
+              },
+              {
+                "type": "text",
+                "text": "You may have to log into your account first.",
+                "subtype":"quote"
+              }
+            ],
+            "layout": [],
+            "post": {
+              "id": "111111111111111111"
+            },
+            "blog": {
+              "name": "tutorial-fairy",
+              "title": "Tutorial fairy",
+              "description": "Hi! I teach people how to set up this program!",
+              "url": "tutorial land",
+              "uuid": "t:",
+              "updated": 1772222222,
+              "subscribed": false,
+              "can_subscribe": false,
+              "followed": false,
+              "avatar": [
+                {
+                  "width": 64,
+                  "height": 64,
+                  "url": "https://44.media.tumblr.com/a/a/a/a.gif",
+                  "accessories": []
+                }
+              ],
+              "tumblrmart_accessories": {},
+              "can_show_badges": true,
+              "active": true,
+              "show_follow_action": true
+            }
+          }
+        ],
+        "reblogged_from_id": "111111111111111111",
+        "reblogged_from_url": "tutorial land",
+        "reblogged_from_name": "tutorial-fairy",
+        "reblogged_from_title": "Tutorial land",
+        "reblogged_from_uuid": "t:",
+        "reblogged_from_can_message": true,
+        "reblogged_from_following": false,
+        "reblogged_root_id": "111111111111111111",
+        "reblogged_root_url": "Tutorial land",
+        "reblogged_root_name": "tutorial-fairy",
+        "reblogged_root_title": "tutorial",
+        "reblogged_root_uuid": "t:",
+        "reblogged_root_can_message": true,
+        "reblogged_root_following": false,
+        "can_like": true,
+        "interactability_reblog": "everyone",
+        "can_reblog": true,
+        "interactability_blaze": "noone",
+        "can_send_in_message": true,
+        "can_reply": false,
+        "display_avatar": true
+      }
+    ]
+  }
+}
