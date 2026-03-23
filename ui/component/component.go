@@ -736,7 +736,7 @@ func (b *BaseComponent) RenderToCanvas() {
 // Create a 2D array of string the size of component
 func (c *BaseComponent) CreateCanvas() ([][]string, [][]string, [][]string) {
 	height := max(c.GetContentsHeight()+1, 1)
-	width := c.GetWidth()
+	width := max(c.GetWidth(),1)
 
 	var arr [][]string = make([][]string, height)
 	var fg [][]string = make([][]string, height)
