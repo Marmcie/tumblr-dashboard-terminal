@@ -291,6 +291,14 @@ func (c *Content) RenderWithData() struct {
 		case "heading2":
 			str.WriteString("② " + c.Text)
 			cType = "Heading2"
+			
+		case "heading3":
+			str.WriteString("③ " + c.Text)
+			cType = "Heading3"
+			
+		case "quote":
+			str.WriteString("> " + c.Text)
+			cType = "Quote"
 
 		case "ordered-list-item":
 			str.WriteString(strconv.Itoa(orderedListIndex) + ". ")

@@ -79,6 +79,8 @@ func (f *Contents) DisplayPost(post modules.Post) {
 				style = style.Foreground(lipgloss.Color("#40a0f0"))
 			case "Heading2":
 				style = style.Foreground(lipgloss.Color("#a0f000"))
+			case "Quote":
+				style = style.Foreground(lipgloss.Color("#f0f000"))
 
 			default:
 				style = style.Foreground(lipgloss.Color("#ffffff"))
