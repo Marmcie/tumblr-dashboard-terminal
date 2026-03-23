@@ -38,6 +38,7 @@ func (m RootModel) Init() tea.Cmd {
 	)
 }
 func (m RootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	commands := []tea.Cmd{}
 	if m.isWindows {
 		var s tsize.Size
 		s, err := tsize.GetSize()
@@ -48,35 +49,37 @@ func (m RootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		w, h := (*m.App).GetSize()
 		if w != s.Width || h != s.Height {
 			(*m.App).UpdateSize(s.Width, s.Height)
-			return m, tea.ClearScreen
+			commands = append(commands, tea.ClearScreen)
 		}
 	}
 	switch msg := msg.(type) {
 	case TickMsg:
 		m.App.Update(msg)
-		return m, TickCmd(component.Global.TickInterval)
+		commands = append(commands, TickCmd(component.Global.TickInterval))
 
 	case tea.KeyPressMsg:
 		switch msg.String() {
 		case "ctrl+c":
-			return m, tea.Quit
+			commands = append(commands, tea.Quit)
 
 		case "ctrl+d":
 			modules.RemoveToken()
-			return m, tea.Quit
+			commands = append(commands, tea.Quit)
 
 		case "ctrl+l":
 			component.Global.PrintLog()
 
 		}
 
-		return m, m.App.Update(msg)
+		commands = append(commands, m.App.Update(msg))
 	case tea.WindowSizeMsg:
 		m.App.UpdateSize(msg.Width, msg.Height)
-		return m, tea.ClearScreen
+		commands = append(commands, tea.ClearScreen)
 	}
 
-	return m, nil
+	return m, tea.Batch(
+		commands...,
+	)
 
 }
 
