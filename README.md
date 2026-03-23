@@ -6,7 +6,7 @@ With this project you can:
 - Read posts from any blog.
 - Search for posts with specific tag.
 ## Screenshot
-![image](https://github.com/RayMatsuo/tumblr-dashboard-terminal/blob/main/doc/preview_01.png?raw=true)
+![image](https://github.com/Marmcie/tumblr-dashboard-terminal/blob/main/doc/preview_01.png?raw=true)
 ## Set up
 1. Register a new application at [Registration page](https://www.tumblr.com/oauth/apps).
 2. Copy the consumer key and secret key.
