@@ -252,6 +252,7 @@ func (d *Dashboard) LoadPosts() {
 		return
 	}
 	d.IsLoading = true
+	component.Global.TickInterval=time.Second/60
 	var posts []npf.Post
 	switch d.mode {
 	case "dashboard":
@@ -286,6 +287,7 @@ func (d *Dashboard) LoadPosts() {
 		}
 	}
 	d.IsLoading = false
+	component.Global.TickInterval=time.Second
 }
 
 func (d *Dashboard) GetRootModel() ui.RootModel {
