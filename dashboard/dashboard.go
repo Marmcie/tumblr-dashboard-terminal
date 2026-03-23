@@ -276,6 +276,7 @@ func (d *Dashboard) LoadPosts() {
 	}
 	if len(posts) == 0 {
 		defer func() {
+			d.feed.listElem.SetBorderLabel("Bottom", "")
 			d.root.SetBorderLabel("BottomLeft", "Could not retrieve posts")
 		}()
 
