@@ -61,11 +61,12 @@ func (f *Contents) DisplayPost(post *npf.Post, showFiltered bool) {
 		box := component.NewBox("Post")
 		box.SetBorder(true)
 		box.SetWidthInherit(true)
-		box.SetH(3)
+		box.SetH(6)
 		f.contentElem.AddChild(box)
-		l := component.NewLine("Post text")
-		l.SetText("This post contains filtered content.")
+		l := component.NewText("Filtered content")
+		l.SetText("This post contains filtered content.\nPress enter to read.")
 		l.SetWidthInherit(true)
+		l.SetHeightInherit(true)
 		box.AddChild(l)
 		return
 	}
