@@ -61,6 +61,14 @@ func (c *Content) RenderWithData() struct {
 		}
 		str.WriteString("[Image : " + alt + "]")
 		cType = "Image"
+		
+	case "video":
+		alt := c.Alt_text
+		if runewidth.StringWidth(alt) == 0 {
+			alt = "No alt"
+		}
+		str.WriteString("[Video : " + alt + "]")
+		cType = "Video"
 	case "text":
 		cType = "Text"
 		switch c.Subtype {
@@ -93,7 +101,7 @@ func (c *Content) RenderWithData() struct {
 			cType = "UnOrderedList"
 
 		default:
-			str.WriteString(c.Text)
+			str.WriteString(c.Subtype+ c.Text)
 		}
 
 		if c.Subtype != "ordered-list-item" {
@@ -109,7 +117,7 @@ func (c *Content) RenderWithData() struct {
 		cType = "Poll"
 
 	default:
-		str.WriteString(c.Text)
+			str.WriteString(c.Type+ c.Text)
 	}
 
 	postStr := RenderUnicode(str.String())

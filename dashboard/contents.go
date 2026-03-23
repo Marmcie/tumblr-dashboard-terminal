@@ -88,6 +88,10 @@ func (f *Contents) DisplayPost(post npf.Post) {
 			case "Image":
 				style = style.Foreground(ui.GetColor("ColorImage"))
 				col = "#00a000"
+				
+			case "Video":
+				style = style.Foreground(ui.GetColor("ColorImage"))
+				col = "#00a000"
 			case "Heading2":
 				style = style.Foreground(ui.GetColor("ColorH2"))
 				col = "#00a000"
