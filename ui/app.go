@@ -13,7 +13,6 @@ type App struct {
 	root   *component.Component
 	Height int
 	Width  int
-	Time   int
 }
 
 func NewApp() *App {
@@ -80,7 +79,6 @@ func (m *App) Update(msg tea.Msg) tea.Cmd {
 	component.UpdateGlobalValues(msg)
 	(*m.root).Update()
 	component.Global.CallEvents()
-	m.Time++
 	cmd := component.Global.Command
 	component.Global.Command = nil
 	return cmd
