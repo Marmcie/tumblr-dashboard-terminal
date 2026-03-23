@@ -3,8 +3,8 @@ package modules
 import (
 	"bytes"
 	"strconv"
+	"strings"
 
-	"github.com/forPelevin/gomoji"
 	"github.com/mattn/go-runewidth"
 	"golang.org/x/text/width"
 )
@@ -233,7 +233,7 @@ func (p *Post) BlogNames() []string {
 	}
 	for _, t := range p.Trail {
 		name := t.Blog.GetName()
-		if len(name) == 0 {
+		if runewidth.StringWidth(name) == 0 {
 			name = t.Broken_blog_name
 		}
 		result = append(result, name)
@@ -274,7 +274,7 @@ func (c *Content) RenderWithData() struct {
 	switch c.Type {
 	case "image":
 		alt := c.Alt_text
-		if len(alt) == 0 {
+		if runewidth.StringWidth(alt) == 0 {
 			alt = "No alt"
 		}
 		str.WriteString("[Image : " + alt + "]")
@@ -329,21 +329,20 @@ func (c *Content) RenderWithData() struct {
 		EastAsianWidth:     false,
 		StrictEmojiNeutral: false,
 	}
+
+	postStr := str.String()
 	
-	postStr:=gomoji.RemoveEmojis(str.String())
-	for _, v := range postStr {
-		info := width.LookupRune(v)
-		runeWidth := con.RuneWidth(v)
+	for v := range strings.SplitSeq(postStr, "") {
+		info, _ := width.LookupString(v)
+		runeWidth := con.StringWidth(v)
 
 		if info.Kind() == width.EastAsianFullwidth || info.Kind() == width.EastAsianWide {
 			for range runeWidth - 1 {
 				// INFO: Output 0 width character to account for full width chars
 				result.WriteRune('\u200b')
-				// result.WriteString(strconv.Itoa(runeWidth))
-				// result.WriteRune('#')
 			}
 		}
-		result.WriteRune(v)
+		result.WriteString(v)
 	}
 
 	return struct {
@@ -361,12 +360,17 @@ func (p *Post) GetSummary() string {
 		StrictEmojiNeutral: false,
 	}
 	var result bytes.Buffer
-	summary:=gomoji.RemoveEmojis(p.Summary)
-	for _, v := range summary {
-		info := width.LookupRune(v)
-		runeWidth := con.RuneWidth(v)
+	summary := p.Summary
 
-		//INFO: SUS EMOJIS LIST : ⭐⭐⭐⭐
+	for v := range strings.SplitSeq(summary, "") {
+		info, _ := width.LookupString(v)
+		/**INFO:
+				Use StringWidth instead of RuneWidth because sometimes
+		  	rune count and actual string width are different
+		*/
+		runeWidth := con.StringWidth(v)
+
+		//INFO: SUS EMOJIS LIST : 👨‍👩‍👧
 		if info.Kind() == width.EastAsianFullwidth || info.Kind() == width.EastAsianWide {
 			for range runeWidth - 1 {
 				// INFO: Output 0 width character to account for full width chars
@@ -374,7 +378,7 @@ func (p *Post) GetSummary() string {
 				// result.WriteRune('#')
 			}
 		}
-		result.WriteRune(v)
+		result.WriteString(v)
 	}
 	return result.String()
 }
@@ -385,7 +389,7 @@ func (c *Content) Render() string {
 	switch c.Type {
 	case "image":
 		alt := c.Alt_text
-		if len(alt) == 0 {
+		if runewidth.StringWidth(alt) == 0 {
 			alt = "No alt"
 		}
 		str += "[Image : " + alt + "]"
@@ -438,7 +442,7 @@ func (m *Media) Render() string {
 }
 
 func (b *Blog) GetName() string {
-	if len(b.Name) > 0 {
+	if runewidth.StringWidth(b.Name) > 0 {
 		return b.Name
 	}
 

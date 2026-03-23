@@ -8,6 +8,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/google/uuid"
+	"github.com/mattn/go-runewidth"
 )
 
 type GlobalValues struct {
@@ -504,23 +505,24 @@ func (c *ComponentState) addBorder(arr [][]string) [][]string {
 		}
 
 		title := c.GetTitle()
+
 		switch c.GetTitleAlignment() {
 		case "left":
-			for i := range min(wid-1, len(title)) {
+			for i := range min(wid-1, runewidth.StringWidth(title)) {
 				char := title[i]
 				arr[0][i+1] = style.Render(string(char))
 			}
 
 		case "center":
 			length := len(title)
-			for i := range min(wid-1, len(title)) {
+			for i := range min(wid-1, runewidth.StringWidth(title)) {
 				char := title[i]
 				arr[0][i+max(1, (wid-length)/2)] = style.Render(string(char))
 			}
 
 		case "right":
-			for i := range min(wid-1, len(title)) {
-				char := title[len(title)-(i+1)]
+			for i := range min(wid-1, runewidth.StringWidth(title)) {
+				char := title[runewidth.StringWidth(title)-(i+1)]
 				arr[0][(wid-2)-i] = style.Render(string(char))
 			}
 		}
