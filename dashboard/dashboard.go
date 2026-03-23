@@ -186,7 +186,7 @@ func (d *Dashboard) SwitchMode(mode string, option string) {
 
 	if mode != "dashboard" && slices.Contains(d.config.Blacklist, option) {
 		d.root.SetBorderLabel("BottomLeft", girlNo[rand.Intn(len(girlNo))])
-		d.root.SetBorderLabelColor("BottomLeft", "#ff00ff")
+		d.root.SetBorderLabelColor("BottomLeft", ui.GetColorStr(ui.ColorBlacklisted))
 		return
 	}
 

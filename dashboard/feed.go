@@ -111,7 +111,7 @@ func (f *Feed) AddPosts(posts []*npf.Post) {
 
 		if post.IsFiltered {
 			summary.SetText("Filtered")
-			summary.SetForeground("#ff0000")
+			summary.SetForeground(ui.GetColorStr(ui.ColorFiltered))
 		}
 
 		item.AddChild(blogName)
