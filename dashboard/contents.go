@@ -54,8 +54,22 @@ func (f *Contents) InitEvents() {
 	}, true)
 }
 
-func (f *Contents) DisplayPost(post npf.Post) {
+func (f *Contents) DisplayPost(post *npf.Post, showFiltered bool) {
 	f.contentElem.ClearChildren()
+
+	if post.IsFiltered && !showFiltered {
+		box := component.NewBox("Post")
+		box.SetBorder(true)
+		box.SetWidthInherit(true)
+		box.SetH(3)
+		f.contentElem.AddChild(box)
+		l := component.NewLine("Post text")
+		l.SetText("This post contains filtered content.")
+		l.SetWidthInherit(true)
+		box.AddChild(l)
+		return
+	}
+
 	for _, reblog := range post.Render() {
 		box := component.NewBox("Post")
 		box.SetBorder(true)

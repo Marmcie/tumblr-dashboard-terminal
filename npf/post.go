@@ -59,6 +59,7 @@ type Post struct {
 	Display_avatar             bool
 	Rendered                   bool
 	Result                     []TrailData
+	IsFiltered                 bool
 }
 
 var orderedListIndex = 1

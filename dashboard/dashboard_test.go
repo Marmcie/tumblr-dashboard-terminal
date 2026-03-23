@@ -21,7 +21,7 @@ func TestDashboardDisplay(t *testing.T) {
 	config := modules.Config{}
 	config.Testing = true
 	dash := dashboard.NewDashboard(config)
-	dash.DisplayPost(dash.GetSelectedPost())
+	dash.DisplayPost(dash.GetSelectedPost(),true)
 }
 
 func BenchmarkDashboardLoad(b *testing.B) {
@@ -29,7 +29,7 @@ func BenchmarkDashboardLoad(b *testing.B) {
 	config.Testing = true
 	dashboard := dashboard.NewDashboard(config)
 	for b.Loop() {
-		dashboard.DisplayPost(dashboard.GetSelectedPost())
+		dashboard.DisplayPost(dashboard.GetSelectedPost(),true)
 	}
 }
 func BenchmarkDashboardUpdate(b *testing.B) {

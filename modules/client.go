@@ -25,6 +25,24 @@ type taggedResponse struct {
 		msg    string
 	}
 }
+type filteredTagsResponse struct {
+	meta struct {
+		status int
+		msg    string
+	}
+	Response struct {
+		Filtered_Tags []string
+	}
+}
+type filteredContentsResponse struct {
+	meta struct {
+		status int
+		msg    string
+	}
+	Response struct {
+		Filtered_content []string
+	}
+}
 
 type TumblrClient struct {
 	Client *http.Client
@@ -127,4 +145,52 @@ func (c *TumblrClient) GetBlogPosts(before int, blogName string) []npf.Post {
 	dash := dashboardResponse{}
 	json.Unmarshal(bytes, &dash)
 	return dash.Response.Posts
+}
+
+func (c *TumblrClient) GetFilteredTags(ch chan []string) {
+	if c.Config.Testing {
+		ch <- []string{}
+		return
+	}
+
+	defer func() {
+		if err := recover(); err != nil {
+			RemoveToken()
+			print("Failed to retrieve posts\n")
+			panic(err)
+		}
+	}()
+
+	u, _ := url.Parse("https://api.tumblr.com/v2/user/filtered_tags")
+
+	resp, _ := c.Client.Get(u.String())
+	bytes, _ := io.ReadAll(resp.Body)
+
+	dash := filteredTagsResponse{}
+	json.Unmarshal(bytes, &dash)
+	ch <- dash.Response.Filtered_Tags
+}
+
+func (c *TumblrClient) GetFilteredContents(ch chan []string) {
+	if c.Config.Testing {
+		ch <- []string{}
+		return
+	}
+
+	defer func() {
+		if err := recover(); err != nil {
+			RemoveToken()
+			print("Failed to retrieve posts\n")
+			panic(err)
+		}
+	}()
+
+	u, _ := url.Parse("https://api.tumblr.com/v2/user/filtered_content")
+
+	resp, _ := c.Client.Get(u.String())
+	bytes, _ := io.ReadAll(resp.Body)
+
+	dash := filteredContentsResponse{}
+	json.Unmarshal(bytes, &dash)
+	ch <- dash.Response.Filtered_content
 }

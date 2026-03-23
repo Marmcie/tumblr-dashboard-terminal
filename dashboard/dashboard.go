@@ -14,6 +14,7 @@ import (
 	"tumblr-dt/ui/helper"
 
 	tea "charm.land/bubbletea/v2"
+	mapset "github.com/deckarep/golang-set/v2"
 	tsize "github.com/kopoli/go-terminal-size"
 )
 
@@ -26,23 +27,25 @@ var girlNo []string = []string{
 }
 
 type Dashboard struct {
-	config    modules.Config
-	rootModel ui.RootModel
-	root      *component.Flex
-	left      *component.Flex
-	right     *component.Flex
-	switcher  *Switcher
-	feed      *Feed
-	info      *component.Text
-	control   *component.Text
-	contents  *Contents
-	mode      string
-	client    modules.TumblrClient
-	offset    int
-	timestamp int64
-	option    string
-	TagTrie   *helper.Trie
-	BlogTrie  *helper.Trie
+	config           modules.Config
+	rootModel        ui.RootModel
+	root             *component.Flex
+	left             *component.Flex
+	right            *component.Flex
+	switcher         *Switcher
+	feed             *Feed
+	info             *component.Text
+	control          *component.Text
+	contents         *Contents
+	mode             string
+	client           modules.TumblrClient
+	offset           int
+	timestamp        int64
+	option           string
+	TagTrie          *helper.Trie
+	BlogTrie         *helper.Trie
+	FilteredTags     mapset.Set[string]
+	FilteredContents mapset.Set[string]
 }
 
 func NewDashboard(config modules.Config) *Dashboard {
@@ -117,6 +120,16 @@ func NewDashboard(config modules.Config) *Dashboard {
 
 	d.client = modules.NewTumblrClient(d.config)
 	d.offset = 0
+
+	filteredTagsChan := make(chan []string)
+	filteredContentsChan := make(chan []string)
+
+	go d.client.GetFilteredTags(filteredTagsChan)
+	go d.client.GetFilteredContents(filteredContentsChan)
+
+	d.FilteredTags = mapset.NewSet[string](<-filteredTagsChan...)
+	d.FilteredContents = mapset.NewSet[string](<-filteredContentsChan...)
+
 	d.initEvents()
 	d.SwitchMode("dashboard", "")
 	d.UpdateControlText()
@@ -199,6 +212,46 @@ func (d *Dashboard) SwitchMode(mode string, option string) {
 	d.LoadPosts()
 }
 
+func (d *Dashboard) filterPosts(posts []npf.Post) []*npf.Post {
+
+	result := []*npf.Post{}
+	for _, po := range posts {
+		p := &po
+		result = append(result, p)
+		for _, t := range p.Tags {
+			if d.FilteredTags.Contains(t) {
+				p.IsFiltered = true
+				break
+			}
+		}
+		if p.IsFiltered {
+			continue
+		}
+
+		for _, r := range p.Render() {
+			for _, f := range d.FilteredContents.ToSlice() {
+				if strings.Contains(r.Blog.Name, f) {
+					p.IsFiltered = true
+					break
+				}
+				for _, c := range r.Contents {
+					if strings.Contains(c.Str, f) {
+						p.IsFiltered = true
+						break
+					}
+				}
+				if p.IsFiltered {
+					break
+				}
+			}
+			if p.IsFiltered {
+				break
+			}
+		}
+	}
+	return result
+}
+
 func (d *Dashboard) LoadPosts() {
 	var posts []npf.Post
 	switch d.mode {
@@ -218,7 +271,9 @@ func (d *Dashboard) LoadPosts() {
 	d.root.SetBorderLabel("BottomLeft", "")
 
 	d.timestamp = posts[len(posts)-1].Timestamp
-	d.feed.AddPosts(posts)
+
+	result := d.filterPosts(posts)
+	d.feed.AddPosts(result)
 	d.offset++
 
 	for _, p := range posts {
@@ -236,7 +291,7 @@ func (d *Dashboard) GetRootModel() ui.RootModel {
 	return d.rootModel
 }
 
-func (d *Dashboard) GetSelectedPost() npf.Post {
+func (d *Dashboard) GetSelectedPost() *npf.Post {
 	return d.feed.GetSelectedPost()
 }
 
@@ -276,12 +331,12 @@ func (d *Dashboard) UpdateControlText() {
 	d.control.SetText(str)
 }
 
-func (d *Dashboard) DisplayPost(post npf.Post) {
-	d.contents.DisplayPost(post)
+func (d *Dashboard) DisplayPost(post *npf.Post, showFiltered bool) {
+	d.contents.DisplayPost(post, showFiltered)
 	d.UpdateInfo(post)
 }
 
-func (d *Dashboard) UpdateInfo(post npf.Post) {
+func (d *Dashboard) UpdateInfo(post *npf.Post) {
 	config := d.config
 	loc, err := time.LoadLocation(config.Timezone)
 	if err != nil {

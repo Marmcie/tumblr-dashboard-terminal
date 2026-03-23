@@ -10,10 +10,11 @@ import (
 )
 
 type Feed struct {
-	listElem  *component.Selectlist
-	dashboard *Dashboard
-	posts     []npf.Post
-	prev      string
+	listElem         *component.Selectlist
+	dashboard        *Dashboard
+	posts            []*npf.Post
+	prev             string
+	showFilteredPost bool
 }
 
 func NewFeed(dashboard *Dashboard) *Feed {
@@ -24,6 +25,7 @@ func NewFeed(dashboard *Dashboard) *Feed {
 	f.listElem.SetBorderLabel("BottomRight", "? For keybind")
 	f.listElem.SetSelectedOptionBackground(ui.GetColorStr(ui.ColorFocus))
 	f.listElem.SetSelectedOptionForeground(ui.GetColorStr(ui.ColorWhite))
+	f.showFilteredPost = false
 
 	f.InitEvents()
 	return f
@@ -40,22 +42,27 @@ func (f *Feed) InitEvents() {
 		case tea.KeyPressMsg:
 			switch msg.String() {
 			case "enter", "l":
+				f.showFilteredPost = true
 				f.dashboard.FocusContents()
 				f.listElem.RunSelectedOption()
 			case "j":
+				f.showFilteredPost = false
 				f.listElem.IncrementCursor()
 				f.listElem.RunSelectedOption()
 				f.UpdatePostCounter()
 			case "k":
+				f.showFilteredPost = false
 				f.listElem.DecrementCursor()
 				f.listElem.RunSelectedOption()
 				f.UpdatePostCounter()
 			case "G":
+				f.showFilteredPost = false
 				f.listElem.SetCursor(len(f.posts) - 1)
 				f.listElem.RunSelectedOption()
 				f.UpdatePostCounter()
 			case "g":
 				if f.prev == "g" {
+					f.showFilteredPost = false
 					f.listElem.SetCursor(0)
 					f.listElem.RunSelectedOption()
 					f.UpdatePostCounter()
@@ -67,15 +74,15 @@ func (f *Feed) InitEvents() {
 
 }
 
-func (f *Feed) GetSelectedPost() npf.Post {
+func (f *Feed) GetSelectedPost() *npf.Post {
 	return f.posts[f.listElem.Cursor]
 }
 
 func (f *Feed) ClearPosts() {
-	f.posts = []npf.Post{}
+	f.posts = []*npf.Post{}
 }
 
-func (f *Feed) AddPosts(posts []npf.Post) {
+func (f *Feed) AddPosts(posts []*npf.Post) {
 	for _, post := range posts {
 		f.posts = append(f.posts, post)
 		item := component.NewBox("Feed post")
@@ -87,6 +94,7 @@ func (f *Feed) AddPosts(posts []npf.Post) {
 
 		blogName := component.NewLine("User name : " + post.Blog.Name)
 		blogName.SetText(post.Blog.Name)
+
 		blogName.SetWidthInherit(true)
 		if f.dashboard.config.Use_blog_avatar_color {
 			blogName.SetForeground(post.Blog.GetBlogColor())
@@ -98,10 +106,15 @@ func (f *Feed) AddPosts(posts []npf.Post) {
 		summary.SetText(post.GetSummary())
 		summary.SetWidthInherit(true)
 
+		if post.IsFiltered {
+			summary.SetText("Filtered")
+			summary.SetForeground("#ff0000")
+		}
+
 		item.AddChild(blogName)
 		item.AddChild(summary)
 		f.listElem.AddOption(item, func() {
-			f.dashboard.DisplayPost(post)
+			f.dashboard.DisplayPost(post,f.showFilteredPost)
 		})
 	}
 	f.listElem.SetCursor(f.listElem.Cursor)
