@@ -46,11 +46,13 @@ type Dashboard struct {
 	BlogTrie         *helper.Trie
 	FilteredTags     mapset.Set[string]
 	FilteredContents mapset.Set[string]
+	IsLoading        bool
 }
 
 func NewDashboard(config modules.Config) *Dashboard {
 	d := &Dashboard{}
 	d.config = config
+	d.IsLoading = false
 
 	d.TagTrie = helper.NewTrie()
 	d.BlogTrie = helper.NewTrie()
@@ -246,6 +248,10 @@ func (d *Dashboard) filterPosts(posts []npf.Post) []*npf.Post {
 }
 
 func (d *Dashboard) LoadPosts() {
+	if d.IsLoading {
+		return
+	}
+	d.IsLoading = true
 	var posts []npf.Post
 	switch d.mode {
 	case "dashboard":
@@ -279,6 +285,7 @@ func (d *Dashboard) LoadPosts() {
 			d.BlogTrie.Insert(t.Blog.Name)
 		}
 	}
+	d.IsLoading = false
 }
 
 func (d *Dashboard) GetRootModel() ui.RootModel {

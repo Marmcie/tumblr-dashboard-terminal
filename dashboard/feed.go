@@ -49,6 +49,9 @@ func (f *Feed) InitEvents() {
 					f.listElem.RunSelectedOption()
 				}
 			case "j":
+				if f.listElem.Cursor == len(f.listElem.GetChildren())-1 {
+					go f.dashboard.LoadPosts()
+				}
 				f.showFilteredPost = false
 				f.listElem.IncrementCursor()
 				f.listElem.RunSelectedOption()
