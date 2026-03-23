@@ -146,7 +146,7 @@ func (c *TumblrClient) GetBlogPosts(before int, blogName string) []npf.Post {
 		}
 	}()
 
-	u, _ := url.Parse("https://api.tumblr.com/v2/blog/" + blogName + ".tumblr.com/posts/text?notes_info=true")
+	u, _ := url.Parse("https://api.tumblr.com/v2/blog/" + blogName + ".tumblr.com/posts?notes_info=true")
 
 	q := u.Query()
 	q.Add("before", strconv.Itoa(before))
