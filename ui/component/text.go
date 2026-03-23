@@ -34,19 +34,19 @@ func (t *Text) GetStringArray() [][]string {
 		x++
 		if r == '\n' {
 			x = 0
-			res = append(res, strings.Split(str.String(), ""))
+			res = append(res, strings.Split(strings.Trim(str.String()," "), ""))
 			str.Reset()
 		} else {
 			str.WriteRune(r)
 			if x >= width {
-				res = append(res, strings.Split(str.String(), ""))
+				res = append(res, strings.Split(strings.Trim(str.String()," "), ""))
 				x = 0
 				str.Reset()
 			}
 		}
 	}
 
-	res = append(res, strings.Split(str.String(), ""))
+	res = append(res, strings.Split(strings.Trim(str.String()," "), ""))
 	return res
 }
 
