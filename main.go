@@ -1,30 +1,78 @@
 package main
 
 import (
+	"fmt"
 	"os"
-	"tumblr-dt/modules"
+	"tumblr-dt/modules/ui"
+	component "tumblr-dt/modules/ui/components"
 
-	"github.com/rivo/tview"
+	tea "github.com/charmbracelet/bubbletea"
 )
 
+// import (
+// 	"os"
+// 	"tumblr-dt/modules"
+//
+// 	"github.com/rivo/tview"
+// )
+//
+// func main() {
+// 	client := modules.NewTumblrClient()
+//
+// 	app := tview.NewApplication()
+//
+// 	dashboard := modules.NewDashboard(&client, app)
+//
+// 	if len(os.Args) > 1 {
+// 		// Black and white dashboard
+// 		dashboard.BWMode = os.Args[1] == "BW"
+// 	}
+//
+// 	// Load first sets of posts.
+// 	dashboard.Update()
+// 	dashboard.RenderPost()
+//
+// 	if err := app.SetRoot(dashboard.Root, true).Run(); err != nil {
+// 		print("Error in tview loop\n")
+// 		panic(err)
+// 	}
+// }
+
 func main() {
-	client := modules.NewTumblrClient()
+	root := ui.NewRootModel()
 
-	app := tview.NewApplication()
+	var box = component.NewBox()
+	box.Width = 10
+	box.Height = 10
+	box.ShowBorder = true
+	box.SetPos(0, 0)
+	box.BorderPadWidth = 1
 
-	dashboard := modules.NewDashboard(&client, app)
+	line := component.NewLine()
+	line.Text = "aaaa"
 
-	if len(os.Args) > 1 {
-		// Black and white dashboard
-		dashboard.BWMode = os.Args[1] == "BW"
-	}
+	line2 := component.NewLine()
+	line2.Text = "bbbb"
+	line2.SetX(3)
+	line2.SetY(3)
 
-	// Load first sets of posts.
-	dashboard.Update()
-	dashboard.RenderPost()
+	flex := component.NewFlex()
+	flex.ShowBorder = true
+	flex.BorderPadWidth = 1
+	flex.SetPos(0, 0)
 
-	if err := app.SetRoot(dashboard.Root, true).Run(); err != nil {
-		print("Error in tview loop\n")
-		panic(err)
+	flex.AddChild(box)
+	flex.Width = 100
+	flex.Height = 30
+	flex.AddChild(line)
+	flex.AddChild(line2)
+	flex.Focus()
+
+	root.App.AddChild(flex)
+
+	p := tea.NewProgram(root)
+	if _, err := p.Run(); err != nil {
+		fmt.Printf("Alas, there's been an error: %v", err)
+		os.Exit(1)
 	}
 }
