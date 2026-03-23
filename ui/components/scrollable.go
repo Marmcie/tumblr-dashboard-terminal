@@ -63,6 +63,8 @@ func (c *Scrollable) CreateCanvas() [][]string {
 
 // Returns Line per line contents,x,y
 func (b *Scrollable) PrepareFrame() {
+
+	
 	if !b.Visibility {
 		b.Canvas = [][]string{{""}}
 		b.DispatchEvent("onRenderReady")

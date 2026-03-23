@@ -38,17 +38,20 @@ func (l *Line) PrepareFrame() {
 		l.DispatchEvent("onRenderReady")
 		return
 	}
-	var result [][]string
 
 	str := l.Text
 	innerWidth := l.GetInnerWidth()
 
+	var result [][]string
 	str = strings.ReplaceAll(str, "\n", "")
 
 	var res []string
+	parts := strings.Split(str, "")
+	res = strings.Split(strings.Repeat(" ", max(innerWidth, len(parts))), "")
+
 	style := l.GetStyle()
 	ct := 0
-	for c := range strings.SplitSeq(str, "") {
+	for i, c := range parts {
 		if ct >= innerWidth {
 			break
 		}
@@ -56,7 +59,7 @@ func (l *Line) PrepareFrame() {
 		if runewidth.StringWidth(c) > 0 {
 			ct++
 		}
-		res = append(res, style.Render(c))
+		res[i] = style.Render(c)
 	}
 	result = append(result, res)
 
