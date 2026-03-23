@@ -91,7 +91,13 @@ func (d *Dashboard) initEvents() {
 			switch msg.String() {
 			case "r":
 				d.LoadPosts()
+
+			case "o":
+				post := d.feed.GetSelectedPost()
+				modules.OpenInBrowser(post.Short_url)
+				component.Global.SetCmd(tea.ClearScreen)
 			}
+			
 		}
 	})
 }

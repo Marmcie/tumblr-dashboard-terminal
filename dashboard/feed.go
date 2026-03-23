@@ -1,7 +1,6 @@
 package dashboard
 
 import (
-	"tumblr-dt/modules"
 	"tumblr-dt/npf"
 	component "tumblr-dt/ui/components"
 
@@ -46,10 +45,6 @@ func (f *Feed) InitEvents() {
 				f.listElem.RunSelectedOption()
 				f.UpdateSelectedOptionBorder()
 
-			case "o":
-				post := f.GetSelectedPost()
-				modules.OpenInBrowser(post.Short_url)
-				component.Global.SetCmd(tea.ClearScreen)
 			}
 		}
 	})
