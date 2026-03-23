@@ -11,6 +11,7 @@ import (
 	"tumblr-dt/npf"
 	"tumblr-dt/ui"
 	component "tumblr-dt/ui/component"
+	"tumblr-dt/ui/helper"
 
 	tea "charm.land/bubbletea/v2"
 	tsize "github.com/kopoli/go-terminal-size"
@@ -40,11 +41,16 @@ type Dashboard struct {
 	offset    int
 	timestamp int64
 	option    string
+	TagTrie   *helper.Trie
+	BlogTrie  *helper.Trie
 }
 
 func NewDashboard(config modules.Config) *Dashboard {
 	d := &Dashboard{}
 	d.config = config
+
+	d.TagTrie = helper.NewTrie()
+	d.BlogTrie = helper.NewTrie()
 
 	d.root = component.NewFlex("Root")
 	d.root.SetDirection(1)
@@ -89,6 +95,8 @@ func NewDashboard(config modules.Config) *Dashboard {
 		SetCentered(true)
 
 	d.switcher = NewSwitcher(d)
+	d.switcher.TagInput.SetSuggestions(d.TagTrie)
+	d.switcher.BlogInput.SetSuggestions(d.BlogTrie)
 
 	d.feed = NewFeed(d)
 	d.contents = NewContents(d)
@@ -213,6 +221,12 @@ func (d *Dashboard) LoadPosts() {
 	d.feed.AddPosts(posts)
 	d.offset++
 
+	for _, p := range posts {
+		for _, tag := range p.Tags {
+			d.TagTrie.Insert(tag)
+		}
+		d.BlogTrie.Insert(p.Blog.GetName())
+	}
 }
 
 func (d *Dashboard) GetRootModel() ui.RootModel {

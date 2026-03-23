@@ -1,5 +1,9 @@
 package component
 
+import (
+	"tumblr-dt/ui/helper"
+)
+
 // Component that displays a single line of text
 type Input struct {
 	Line
@@ -7,6 +11,7 @@ type Input struct {
 	Placeholder      string
 	EmptyForeground  string
 	ActiveForeground string
+	Suggestions      *helper.Trie
 }
 
 func NewInput(name string) *Input {
@@ -18,10 +23,26 @@ func NewInput(name string) *Input {
 	l.SetPos(0, 0)
 	l.EmptyForeground = "#aaaaaa"
 	l.ActiveForeground = "#ffffff"
+
 	return l
 }
-func (i *Input) SetPlaceholder(s string) *Input{
-	i.Placeholder=s
+
+func (i *Input) ApplyTopSuggestion() {
+	if len(i.Value) > 0 {
+		// helper.Log(strconv.Itoa(len(*l.Suggestions.Children)))
+		suggestions := i.Suggestions.Search(i.Value)
+		if len(suggestions) > 0 {
+			i.Value = suggestions[0]
+			i.UpdateText()
+		}
+	}
+}
+
+func (i *Input) SetSuggestions(trie *helper.Trie) {
+	i.Suggestions = trie
+}
+func (i *Input) SetPlaceholder(s string) *Input {
+	i.Placeholder = s
 	i.UpdateText()
 	return i
 }
@@ -54,4 +75,28 @@ func (i *Input) DeleteChar() {
 func (i *Input) ClearInput() {
 	i.Value = ""
 	i.UpdateText()
+}
+
+func (l *Input) RenderToCanvas() {
+
+	if !l.Visibility {
+		l.SetCanvas([][]string{{""}}, [][]string{{""}}, [][]string{{""}})
+		return
+	}
+	l.Line.RenderToCanvas()
+	canvas, fg, bg := l.GetCanvas()
+	suggestion := ""
+	if len(l.Value) > 0 {
+		// helper.Log(strconv.Itoa(len(*l.Suggestions.Children)))
+		suggestions := l.Suggestions.Search(l.Value)
+		if len(suggestions) > 0 {
+			suggestion = suggestions[0]
+		}
+	}
+	for i := len(l.Value); i < min(len(suggestion), len(canvas[0])); i++ {
+		canvas[0][i] = string(suggestion[i])
+		fg[0][i] = l.EmptyForeground
+	}
+
+	l.SetCanvas(canvas, fg, bg)
 }

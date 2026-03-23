@@ -100,7 +100,7 @@ func (s *Switcher) InitEvents() {
 		switch msg := msg.(type) {
 		case tea.KeyPressMsg:
 			switch msg.String() {
-			case "tab", "down":
+			case "down":
 				s.index = (s.index + 1) % 3
 				s.ToggleOption()
 
@@ -113,6 +113,7 @@ func (s *Switcher) InitEvents() {
 				s.ToggleOption()
 
 			case "esc":
+				s.index = 0
 				s.TagInput.ClearInput()
 				s.dashboard.toggleSwitcher()
 			}
@@ -125,6 +126,7 @@ func (s *Switcher) InitEvents() {
 		case tea.KeyPressMsg:
 			switch msg.String() {
 			case "enter":
+				s.index = 0
 				s.dashboard.SwitchMode("dashboard", "")
 			}
 		}
@@ -143,10 +145,13 @@ func (s *Switcher) InitEvents() {
 					s.TagInput.DeleteChar()
 				}
 
+			case "tab", "right":
+				s.TagInput.ApplyTopSuggestion()
+
 			default:
 				str := string(msg.Code)
 				if len(str) == 1 {
-					s.TagInput.AppendChar(str)
+					s.TagInput.AppendChar(msg.String())
 				}
 			}
 		}
@@ -164,11 +169,13 @@ func (s *Switcher) InitEvents() {
 				if len(s.BlogInput.Value) > 0 {
 					s.BlogInput.DeleteChar()
 				}
+			case "tab", "right":
+				s.BlogInput.ApplyTopSuggestion()
 
 			default:
 				str := string(msg.Code)
 				if len(str) == 1 {
-					s.BlogInput.AppendChar(str)
+					s.BlogInput.AppendChar(msg.String())
 				}
 			}
 		}
