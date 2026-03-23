@@ -1,6 +1,6 @@
 # Tumblr dashboard on terminal
 Your Tumblr dashboard on terminal.
-![./preview.png]
+![image](https://github.com/RayMatsuo/tumblr-dashboard-terminal/blob/main/preview.png?raw=true)
 ## Set up
 1. Register a new application at [Registration page](https://www.tumblr.com/oauth/apps).
 2. Copy the consumer key and secret key.
