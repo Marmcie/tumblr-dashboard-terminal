@@ -20,5 +20,6 @@
     "quote": "#f0f000",
     "filtered": "#ff0000",
     "blacklisted":"#ff00ff"
-  }
+  },
+  "post_theme":"default or slim"
 }

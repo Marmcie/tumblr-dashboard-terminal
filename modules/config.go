@@ -15,6 +15,7 @@ type Config struct {
 	Testing               bool
 	Blacklist             []string
 	Redirect_port         string
+	Post_theme            string
 	Colors                struct {
 		Bg           string
 		Focus        string
@@ -46,6 +47,7 @@ func makeConfig() Config {
 
 	con.Debug = false
 	con.Testing = false
+	con.Post_theme = "default"
 
 	return con
 }

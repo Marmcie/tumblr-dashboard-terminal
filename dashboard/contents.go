@@ -56,6 +56,8 @@ func (f *Contents) InitEvents() {
 }
 
 func (f *Contents) DisplayPost(post *npf.Post, showFiltered bool) {
+	isSlimMode := f.dashboard.config.Post_theme == "slim"
+
 	f.contentElem.ClearChildren()
 
 	if post.IsFiltered && !showFiltered {
@@ -74,8 +76,10 @@ func (f *Contents) DisplayPost(post *npf.Post, showFiltered bool) {
 
 	for _, reblog := range post.Render() {
 		box := component.NewBox("Post")
-		box.SetBorder(true)
-		box.SetWidthInherit(true)
+		box.SetBorder(true).SetWidthInherit(true)
+		if isSlimMode {
+			box.SetBorders(true, false, false, false).SetBorderCorner(false)
+		}
 		f.contentElem.AddChild(box)
 		innerWidth := box.GetInnerWidth()
 		var str bytes.Buffer
@@ -183,10 +187,15 @@ func (f *Contents) DisplayPost(post *npf.Post, showFiltered bool) {
 		colors = append(colors, col)
 		parts = append(parts, str.String())
 
-		if f.dashboard.config.Use_blog_avatar_color {
-			box.SetBorderLabelColor("Top", reblog.Blog.GetBlogColor())
+		labelAlignment := "Top"
+		if isSlimMode {
+			labelAlignment = "TopLeft"
 		}
-		box.SetBorderLabel("Top", reblog.Blog.Name)
+
+		if f.dashboard.config.Use_blog_avatar_color {
+			box.SetBorderLabelColor(labelAlignment, reblog.Blog.GetBlogColor())
+		}
+		box.SetBorderLabel(labelAlignment, reblog.Blog.Name)
 		box.SetH(max(3, len(parts)))
 
 		//INFO: Convert each line into Line object, then apply corresponding style
