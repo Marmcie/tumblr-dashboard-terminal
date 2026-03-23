@@ -6,7 +6,6 @@ import (
 	component "tumblr-dt/ui/components"
 
 	tea "charm.land/bubbletea/v2"
-	tsize "github.com/kopoli/go-terminal-size"
 )
 
 type App struct {
@@ -19,14 +18,8 @@ type App struct {
 func NewApp() *App {
 	return &App{}
 }
-func (m *App) UpdateSize() {
-	var s tsize.Size
-
-	s, err := tsize.GetSize()
-	if err != nil {
-		panic(err)
-	}
-	(*m.root).SetSize(s.Width, s.Height-1)
+func (m *App) UpdateSize(w int,h int) {
+	(*m.root).SetSize(w, h)
 }
 
 func (m *App) SetRoot(child component.Component) {
@@ -42,7 +35,6 @@ func initializeDepth(comp component.Component, depth int) {
 }
 
 func (m *App) Render() string {
-	m.UpdateSize()
 	(*m.root).Propagate()
 
 	(*m.root).PrepareFrame()

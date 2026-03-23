@@ -83,6 +83,8 @@ func (m RootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 		return m, m.App.Update(msg)
+	case tea.WindowSizeMsg:
+		m.App.UpdateSize(msg.Width, msg.Height)
 	}
 	return m, nil
 
