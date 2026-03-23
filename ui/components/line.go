@@ -22,11 +22,12 @@ func NewLine(name string) *Line {
 }
 func (l *Line) SetText(text string) *Line {
 	l.Text = text
-	return l
-}
 
-func (l *Line) GetRect() (int, int, int, int) {
-	return l.x, max(0, l.y), len(l.Text), l.Height
+	if !l.InheritWidth {
+		l.SetW(runewidth.StringWidth(l.Text))
+	}
+	l.DispatchEvent("onChange")
+	return l
 }
 
 // Returns Line per line contents,x,y

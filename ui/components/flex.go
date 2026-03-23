@@ -43,8 +43,12 @@ func (c *Flex) AddItem(child Component, desc FlexDescriptor) {
 
 func (f *Flex) GetProportionSum() int {
 	res := 0
-	for _, p := range f.Descriptors {
-		res += p.Proportion
+	children := f.GetChildren()
+	for i := 0; i < len(f.Descriptors); i++ {
+		if children[i].IsAbsolute() {
+			continue
+		}
+		res += f.Descriptors[i].Proportion
 	}
 	return res
 }
@@ -74,6 +78,9 @@ func (b *Flex) UpdateChildSize() {
 		proportionSum := b.GetProportionSum()
 
 		for i, child := range b.GetChildren() {
+			if child.IsAbsolute() {
+				continue
+			}
 			descriptor := b.Descriptors[i]
 
 			if descriptor.Proportion > 0 {
@@ -92,6 +99,10 @@ func (b *Flex) UpdateChildSize() {
 		proportionSum := b.GetProportionSum()
 
 		for i, child := range b.GetChildren() {
+
+			if child.IsAbsolute() {
+				continue
+			}
 			descriptor := b.Descriptors[i]
 
 			if descriptor.Proportion > 0 {
@@ -140,14 +151,15 @@ func (b *Flex) PrepareFrame() {
 				}
 				cursor++
 			}
+			if b.Direction == 1 {
+				cursor = top
+				sideOffset += c.GetWidth()
+				sideOffset += b.Gap
+			} else {
+				cursor += b.Gap
+			}
 		}
-		if b.Direction == 1 {
-			cursor = top
-			sideOffset += c.GetWidth()
-			sideOffset += b.Gap
-		} else {
-			cursor += b.Gap
-		}
+
 	}
 
 	result = b.addBorder(result)

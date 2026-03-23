@@ -62,6 +62,7 @@ func NewDashboard() *Dashboard {
 	d.feed = NewFeed(d)
 	d.contents = NewContents(d)
 
+
 	d.left.AddItem(d.feed.listElem, component.NewFlexDescriptor(0, 1))
 	d.left.AddItem(d.control, component.NewFlexDescriptor(9, 0))
 
