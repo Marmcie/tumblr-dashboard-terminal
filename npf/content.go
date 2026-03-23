@@ -3,6 +3,8 @@ package npf
 import (
 	"bytes"
 	"strconv"
+	"strings"
+
 	"github.com/mattn/go-runewidth"
 )
 
@@ -70,10 +72,14 @@ func (c *Content) RenderWithData() struct {
 		cType = "Video"
 	case "text":
 		text := c.Text
+		offset := 0
 		for _, f := range c.Formatting {
 			switch f.Type {
 			case "link":
-				text = text[:f.Start] +"["+text[f.Start:f.End]+"]"+ "(" + f.Url + ")" + text[f.End:]
+				t := strings.Split(text, "")
+				urlString := "(" + f.Url + ")"
+				text = strings.Join(t[:f.End+int64(offset)], "") + urlString + strings.Join(t[f.End+int64(offset):], "")
+				offset += len(strings.Split(urlString, ""))
 			}
 		}
 

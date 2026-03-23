@@ -94,8 +94,12 @@ func (f *Contents) DisplayPost(post npf.Post) {
 					if runewidth.StringWidth(str)+runewidth.StringWidth(word)+1 >= innerWidth {
 						parts = append(parts, str)
 						colors = append(colors, col)
+						//INFO: If the single word is wider than the box,
+						//or the language doesn't use white space as separator,
+						//split the word into smaller chunks
 						if innerWidth > 1 && runewidth.StringWidth(word) >= innerWidth {
 							w := word
+							//INFO: Loop through each characters to determine real width of string split
 							for runewidth.StringWidth(w) >= innerWidth {
 								l := 0
 								for i := 0; l < innerWidth && i < len(w); i++ {
