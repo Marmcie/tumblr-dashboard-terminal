@@ -175,7 +175,6 @@ func (d *Dashboard) LoadPosts() {
 		posts = d.client.GetDashboard(d.offset)
 	case "tag":
 		posts = d.client.GetTaggedPosts(int(d.timestamp), d.option)
-
 	case "blog":
 		posts = d.client.GetBlogPosts(int(d.timestamp), d.option)
 	}
@@ -184,6 +183,7 @@ func (d *Dashboard) LoadPosts() {
 		d.root.SetBorderLabel("BottomLeft", "Could not retrieve posts")
 		return
 	}
+	d.root.SetBorderLabel("BottomLeft", "")
 
 	d.timestamp = posts[len(posts)-1].Timestamp
 	d.feed.AddPosts(posts)
