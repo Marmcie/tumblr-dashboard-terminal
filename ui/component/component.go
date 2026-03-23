@@ -857,11 +857,10 @@ func (c *BaseComponent) addBorder(arr [][]string, fg [][]string, bg [][]string) 
 
 			case "Bottom":
 				length := len(str)
-				center := wid - length/2
 				for i := range min(wid-1, runewidth.StringWidth(str)) {
 					char := str[i]
-					arr[hei-1][i+max(1, center)] = (string(char))
-					fg[hei-1][i+max(1, center)] = c.BorderLabelColors[key]
+					arr[hei-1][i+max(1, (wid-length)/2)] = (string(char))
+					fg[hei-1][i+max(1, (wid-length)/2)] = c.BorderLabelColors[key]
 				}
 
 			case "BottomRight":
