@@ -81,9 +81,8 @@ func (f *Contents) DisplayPost(post modules.Post) {
 				style = style.Foreground(lipgloss.Color("#a0f000"))
 			case "Quote":
 				style = style.Foreground(lipgloss.Color("#f0f000"))
-
 			default:
-				// style = style.Foreground(lipgloss.Color("#ffffff"))
+				style = lipgloss.NewStyle()
 			}
 
 			//INFO: Divide the text into lines, while preventing word break
