@@ -125,6 +125,9 @@ func (d *Dashboard) initEvents() {
 			switch msg.String() {
 			case "r":
 				d.LoadPosts()
+				
+			case "q":
+				component.Global.SetCmd(tea.Quit)
 
 			case "o":
 				post := d.feed.GetSelectedPost()
