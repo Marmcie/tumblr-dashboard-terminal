@@ -2,11 +2,13 @@ package modules
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
 	"os"
 	"strconv"
+	"strings"
 	"tumblr-dt/npf"
 )
 
@@ -115,8 +117,16 @@ func (c *TumblrClient) GetTaggedPosts(before int, tag string) []npf.Post {
 
 	q := u.Query()
 	q.Add("before", strconv.Itoa(before))
-	q.Add("tag", tag)
 	q.Add("npf", "true")
+
+	tags := strings.Split(tag, ",")
+	if len(tags) == 1 {
+		q.Add("tag", tag)
+	} else {
+		for i, t := range tags {
+			q.Add(fmt.Sprintf("tag[%d]", i), t)
+		}
+	}
 
 	u.RawQuery = q.Encode()
 
