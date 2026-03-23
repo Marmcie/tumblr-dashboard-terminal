@@ -62,12 +62,7 @@ func (c *Content) RenderWithData() ContentData {
 		if runewidth.StringWidth(alt) == 0 {
 			alt = "No alt"
 		}
-		imageUrl := ""
-		if len(c.Media) > 0 {
-			imageUrl = c.Media[0].Url
-		}
-
-		str.WriteString(fmt.Sprintf("[Image : %s](%s)", alt, imageUrl))
+		str.WriteString(fmt.Sprintf("[Image : %s]", alt))
 		if len(c.Caption) > 0 {
 			str.WriteString(fmt.Sprintf("\n%s", c.Caption))
 		}
@@ -81,7 +76,6 @@ func (c *Content) RenderWithData() ContentData {
 		audioTitle := c.Title
 		audioArtist := c.Artist
 		audioAlbum := c.Album
-		audioUrl := c.Url
 		if len(audioTitle) == 0 {
 			audioTitle = "Unknown audio"
 		}
@@ -94,12 +88,7 @@ func (c *Content) RenderWithData() ContentData {
 			audioAlbum = "Unknown album"
 		}
 
-		if len(audioUrl) == 0 {
-			if len(c.Media) > 0 {
-				audioUrl = c.Media[0].Url
-			}
-		}
-		str.WriteString(fmt.Sprintf("[Audio : %s By %s, From %s](%s)", audioTitle, audioArtist, audioAlbum, c.Url))
+		str.WriteString(fmt.Sprintf("[Audio : %s By %s, From %s]", audioTitle, audioArtist, audioAlbum))
 		cType = "Audio"
 
 	case "text":
