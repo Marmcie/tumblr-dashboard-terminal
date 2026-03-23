@@ -46,7 +46,7 @@ func (f *Flex) GetProportionSum() int {
 	res := 0
 	children := f.GetChildren()
 	for i := 0; i < len(f.Descriptors); i++ {
-		if children[i].IsAbsolute() {
+		if children[i].IsAbsolute() || !children[i].GetVisibility() {
 			continue
 		}
 		res += f.Descriptors[i].Proportion
@@ -56,8 +56,11 @@ func (f *Flex) GetProportionSum() int {
 
 func (f *Flex) GetFixedSizeSum() int {
 	res := 0
-	for _, p := range f.Descriptors {
-		res += p.FixedSize
+	children := f.GetChildren()
+	for i, p := range f.Descriptors {
+		if children[i].GetVisibility() {
+			res += p.FixedSize
+		}
 	}
 	return res
 }
@@ -79,7 +82,7 @@ func (b *Flex) UpdateChildSize() {
 		proportionSum := b.GetProportionSum()
 
 		for i, child := range b.GetChildren() {
-			if child.IsAbsolute() {
+			if child.IsAbsolute() || !child.GetVisibility() {
 				continue
 			}
 			descriptor := b.Descriptors[i]
@@ -101,7 +104,7 @@ func (b *Flex) UpdateChildSize() {
 
 		for i, child := range b.GetChildren() {
 
-			if child.IsAbsolute() {
+			if child.IsAbsolute() || !child.GetVisibility() {
 				continue
 			}
 			descriptor := b.Descriptors[i]
@@ -123,7 +126,6 @@ func (c *Flex) BeforeRender() {
 }
 
 func (b *Flex) RenderToCanvas() {
-	// start := time.Now().UnixMilli()
 	var result, fg, bg = b.CreateCanvas()
 
 	top, _, left, _ := b.GetPaddings()
@@ -131,12 +133,12 @@ func (b *Flex) RenderToCanvas() {
 	sideOffset := left
 
 	for _, c := range b.GetChildren() {
+		if !c.GetVisibility() {
+			continue
+		}
 		c.RenderToCanvas()
 		output, childFG, childBG := c.GetCanvas()
 		if c.IsAbsolute() == true {
-			if !c.GetVisibility() {
-				continue
-			}
 			childX, childY := c.GetPos()
 			globalX := left + childX
 
@@ -183,7 +185,4 @@ func (b *Flex) RenderToCanvas() {
 
 	result = b.addBorder(result)
 	b.SetCanvas(result, fg, bg)
-
-	// end := time.Now().UnixMilli()
-	// b.SetBorderLabel("Top", strconv.Itoa(int(end-start)))
 }
