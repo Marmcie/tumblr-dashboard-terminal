@@ -2,7 +2,6 @@ package ui
 
 import (
 	"runtime"
-	"strconv"
 	"time"
 	"tumblr-dt/modules"
 	component "tumblr-dt/ui/components"
