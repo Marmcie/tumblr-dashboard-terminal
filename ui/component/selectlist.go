@@ -63,7 +63,7 @@ func (s *Selectlist) UpdateOffset() {
 }
 
 func (s *Selectlist) AddOption(child Component, cb func()) {
-	s.ComponentState.AddChild(child)
+	s.BaseComponent.AddChild(child)
 	s.OptionCallbacks = append(s.OptionCallbacks, cb)
 
 	children := s.GetChildren()
@@ -86,7 +86,7 @@ func (s *Selectlist) Propagate() {
 }
 
 func (c *Selectlist) ClearChildren() {
-	c.ComponentState.ClearChildren()
+	c.BaseComponent.ClearChildren()
 	c.OptionCallbacks = []func(){}
 	c.Cursor = 0
 }

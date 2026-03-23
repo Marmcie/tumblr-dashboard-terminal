@@ -7,7 +7,7 @@ import (
 
 // Component that displays multi line text
 type Text struct {
-	ComponentState
+	BaseComponent
 	Text string
 }
 

@@ -13,60 +13,60 @@ import (
 )
 
 type Component interface {
-	SetBorder(bool) *ComponentState
-	SetBorderCorner(bool) *ComponentState
+	SetBorder(bool) *BaseComponent
+	SetBorderCorner(bool) *BaseComponent
 	GetBorderPadding() int
-	SetBorderPadding(int) *ComponentState
+	SetBorderPadding(int) *BaseComponent
 	GetBorderPaddings() (int, int, int, int)
-	SetBorders(bool, bool, bool, bool) *ComponentState
+	SetBorders(bool, bool, bool, bool) *BaseComponent
 	GetCanvas() ([][]string, [][]string, [][]string)
 	SetCanvas([][]string, [][]string, [][]string)
 	AddChild(Component)
 	GetChildren() []Component
 	GetComponent() Component
 	GetComponentName() string
-	SetComponentName(string) *ComponentState
+	SetComponentName(string) *BaseComponent
 	GetContentsHeight() int
 	GetContentsSize() (int, int)
-	SetDepth(int) *ComponentState
+	SetDepth(int) *BaseComponent
 	GetEventCallbacks(string) map[string]EventCb
 	AddEventListener(string, func(tea.Msg, int), bool)
 	GetFocusState() bool
-	SetH(int) *ComponentState
+	SetH(int) *BaseComponent
 	GetHeight() int
-	SetHeightInherit(bool) *ComponentState
+	SetHeightInherit(bool) *BaseComponent
 	GetInnerHeight() int
 	GetInnerWidth() int
 	GetIsFlexItem() bool
-	SetIsFlexItem(bool) *ComponentState
+	SetIsFlexItem(bool) *BaseComponent
 	GetName() string
-	SetName(string) *ComponentState
+	SetName(string) *BaseComponent
 	GetParent() Component
-	SetParent(*ComponentState) *ComponentState
+	SetParent(*BaseComponent) *BaseComponent
 	GetPos() (int, int)
-	SetPos(int, int) *ComponentState
+	SetPos(int, int) *BaseComponent
 	GetRect() (int, int, int, int)
 	GetSiblings() []Component
-	SetSize(int, int) *ComponentState
-	SetBackgroundGradient([]color.Color) *ComponentState
-	SetForegroundGradient([]color.Color) *ComponentState
+	SetSize(int, int) *BaseComponent
+	SetBackgroundGradient([]color.Color) *BaseComponent
+	SetForegroundGradient([]color.Color) *BaseComponent
 	GetBackgroundGradient() []color.Color
 	GetForegroundGradient() []color.Color
 	ClearBackgroundGradient()
 	ClearForegroundGradient()
 	GetTitle() string
-	SetTitle(string) *ComponentState
+	SetTitle(string) *BaseComponent
 	GetTitleAlignment() string
-	SetTitleAlignment(string) *ComponentState
+	SetTitleAlignment(string) *BaseComponent
 	GetTrace() []string
 	GetUUID() string
-	SetW(int) *ComponentState
+	SetW(int) *BaseComponent
 	GetWidth() int
-	SetWidthInherit(bool) *ComponentState
+	SetWidthInherit(bool) *BaseComponent
 	GetX() int
-	SetX(int) *ComponentState
+	SetX(int) *BaseComponent
 	GetY() int
-	SetY(int) *ComponentState
+	SetY(int) *BaseComponent
 	ClearChildren()
 	Update()
 	IsAbsolute() bool
@@ -75,19 +75,19 @@ type Component interface {
 	PrepareFrame()
 	DispatchEvent(string)
 	Blur()
-	SetDoubleBorder(bool) *ComponentState
+	SetDoubleBorder(bool) *BaseComponent
 	GetDoubleBorder() bool
 	Initialize(string)
 	Focus()
-	SetVisibility(bool) *ComponentState
+	SetVisibility(bool) *BaseComponent
 	GetVisibility() bool
 	ToString() string
 	SetBorderLabel(string, string)
 	UpdateVisibility(int, int)
 	Delete()
 	SetGlobalIndex(int)
-	SetAbsolute(bool) *ComponentState
-	SetCentered(bool) *ComponentState
+	SetAbsolute(bool) *BaseComponent
+	SetCentered(bool) *BaseComponent
 	GetCentered() bool
 	SetForeground(string)
 	SetBackground(string)
@@ -98,7 +98,7 @@ type Component interface {
 }
 
 // Base class for all components
-type ComponentState struct {
+type BaseComponent struct {
 	// X coordinates
 	x int
 	// Y coordinates
@@ -153,7 +153,7 @@ type EventCb struct {
 }
 
 // Initialized all shared values
-func (c *ComponentState) Initialize(name string) {
+func (c *BaseComponent) Initialize(name string) {
 	c.x = 0
 	c.y = 0
 	c.Centered = false
@@ -199,7 +199,7 @@ func (c *ComponentState) Initialize(name string) {
 // #region Component relation
 
 // Adds a child to an component
-func (c *ComponentState) AddChild(child Component) {
+func (c *BaseComponent) AddChild(child Component) {
 	child.SetDepth(c.Depth + 1)
 	child.SetParent(c)
 	c.Children = append(c.Children, child)
@@ -207,18 +207,18 @@ func (c *ComponentState) AddChild(child Component) {
 }
 
 // Set parent of a component
-func (c *ComponentState) SetParent(parent *ComponentState) *ComponentState {
+func (c *BaseComponent) SetParent(parent *BaseComponent) *BaseComponent {
 	c.Parent = parent
 	return c
 }
 
 // Get array of child components
-func (c *ComponentState) GetChildren() []Component {
+func (c *BaseComponent) GetChildren() []Component {
 	return c.Children
 }
 
 // Get array of child components belonging to the parent component
-func (c *ComponentState) GetSiblings() []Component {
+func (c *BaseComponent) GetSiblings() []Component {
 	if c.GetParent() != nil {
 		return c.GetParent().GetChildren()
 	}
@@ -227,17 +227,17 @@ func (c *ComponentState) GetSiblings() []Component {
 }
 
 // Get parent component
-func (c *ComponentState) GetParent() Component {
+func (c *BaseComponent) GetParent() Component {
 	return c.Parent
 }
 
 // Get root component
-func (c *ComponentState) GetComponent() Component {
+func (c *BaseComponent) GetComponent() Component {
 	return c
 }
 
 // Remove all children
-func (c *ComponentState) ClearChildren() {
+func (c *BaseComponent) ClearChildren() {
 	for _, child := range c.GetChildren() {
 		child.Delete()
 	}
@@ -246,7 +246,7 @@ func (c *ComponentState) ClearChildren() {
 }
 
 // Perform cleanup on elements and its children
-func (c *ComponentState) Delete() {
+func (c *BaseComponent) Delete() {
 	for _, child := range c.GetChildren() {
 		child.Delete()
 	}
@@ -254,7 +254,7 @@ func (c *ComponentState) Delete() {
 }
 
 // Set the global index for the component
-func (c *ComponentState) SetGlobalIndex(i int) {
+func (c *BaseComponent) SetGlobalIndex(i int) {
 	c.GlobalIndex = i
 }
 
@@ -263,18 +263,18 @@ func (c *ComponentState) SetGlobalIndex(i int) {
 // #region Component graphical properties
 
 // Set the nest depth of a component
-func (c *ComponentState) SetDepth(v int) *ComponentState {
+func (c *BaseComponent) SetDepth(v int) *BaseComponent {
 	c.Depth = v
 	return c
 }
 
 // Get the rect of the component. (X,Y,Width,Height)
-func (c *ComponentState) GetRect() (int, int, int, int) {
+func (c *BaseComponent) GetRect() (int, int, int, int) {
 	return c.GetX(), c.GetY(), c.GetWidth(), c.GetHeight()
 }
 
 // Get X coordinates
-func (c *ComponentState) GetX() int {
+func (c *BaseComponent) GetX() int {
 	if c.Centered && c.Absolute {
 		pw := c.GetParent().GetInnerWidth()
 		w := c.GetWidth()
@@ -284,7 +284,7 @@ func (c *ComponentState) GetX() int {
 }
 
 // Get Y coordinates
-func (c *ComponentState) GetY() int {
+func (c *BaseComponent) GetY() int {
 	if c.Centered && c.Absolute {
 		pw := c.GetParent().GetInnerHeight()
 		w := c.GetHeight()
@@ -294,62 +294,62 @@ func (c *ComponentState) GetY() int {
 }
 
 // Get coordinates of the component. (X,Y)
-func (c *ComponentState) GetPos() (int, int) {
+func (c *BaseComponent) GetPos() (int, int) {
 	return c.GetX(), c.GetY()
 }
 
 // Set X coordinate of the component
-func (c *ComponentState) SetX(v int) *ComponentState {
+func (c *BaseComponent) SetX(v int) *BaseComponent {
 	c.x = v
 	return c
 }
 
 // Set Y coordinate of the component
-func (c *ComponentState) SetY(v int) *ComponentState {
+func (c *BaseComponent) SetY(v int) *BaseComponent {
 	c.y = v
 	return c
 }
 
 // Set coordinates of the component
-func (c *ComponentState) SetPos(x int, y int) *ComponentState {
+func (c *BaseComponent) SetPos(x int, y int) *BaseComponent {
 	c.SetX(x)
 	c.SetY(y)
 	return c
 }
 
 // Set width of the component
-func (c *ComponentState) SetW(v int) *ComponentState {
+func (c *BaseComponent) SetW(v int) *BaseComponent {
 	c.Width = v
 	return c
 }
 
 // Set height of the component
-func (c *ComponentState) SetH(v int) *ComponentState {
+func (c *BaseComponent) SetH(v int) *BaseComponent {
 	c.Height = v
 	return c
 }
 
 // Set if component's height should be equal to the parent's inner height
-func (c *ComponentState) SetHeightInherit(v bool) *ComponentState {
+func (c *BaseComponent) SetHeightInherit(v bool) *BaseComponent {
 	c.InheritHeight = v
 	return c
 }
 
 // Set if component's width should be equal to the parent's inner width
-func (c *ComponentState) SetWidthInherit(v bool) *ComponentState {
+func (c *BaseComponent) SetWidthInherit(v bool) *BaseComponent {
 	c.InheritWidth = v
 	return c
 }
 
 // Set size of the component
-func (c *ComponentState) SetSize(w int, h int) *ComponentState {
+func (c *BaseComponent) SetSize(w int, h int) *BaseComponent {
 	c.SetW(w)
 	c.SetH(h)
 	return c
 }
 
 // Get width of a component. if InheritWidth is true, retrieve parent's inner width
-func (c *ComponentState) GetWidth() int {
+func (c *BaseComponent) GetWidth() int {
 	if c.InheritWidth == true && c.GetParent() != nil {
 		return c.GetParent().GetInnerWidth()
 	}
@@ -357,7 +357,7 @@ func (c *ComponentState) GetWidth() int {
 }
 
 // Get height of a component. if InheritHeight is true, retrieve parent's inner height
-func (c *ComponentState) GetHeight() int {
+func (c *BaseComponent) GetHeight() int {
 	if c.InheritHeight == true && c.GetParent() != nil {
 		return c.GetParent().GetInnerHeight()
 	}
@@ -365,7 +365,7 @@ func (c *ComponentState) GetHeight() int {
 }
 
 // Get inner width of a component. (width - side paddings).
-func (c *ComponentState) GetInnerWidth() int {
+func (c *BaseComponent) GetInnerWidth() int {
 	if c.ShowBorder {
 		_, _, l, r := c.GetBorderPaddings()
 		return c.GetWidth() - (l + r)
@@ -374,7 +374,7 @@ func (c *ComponentState) GetInnerWidth() int {
 }
 
 // Get inner height of a component. (height - top and bottom paddings)
-func (c *ComponentState) GetInnerHeight() int {
+func (c *BaseComponent) GetInnerHeight() int {
 	if c.ShowBorder {
 		t, b, _, _ := c.GetBorderPaddings()
 		return c.GetHeight() - (t + b)
@@ -383,12 +383,12 @@ func (c *ComponentState) GetInnerHeight() int {
 }
 
 // Check if element's position should be dictated by parent element
-func (c *ComponentState) IsAbsolute() bool {
+func (c *BaseComponent) IsAbsolute() bool {
 	return c.Absolute
 }
 
 // Get smallest area that can fit all children. (width,height)
-func (c *ComponentState) GetContentsSize() (int, int) {
+func (c *BaseComponent) GetContentsSize() (int, int) {
 	w := 0
 	h := 0
 	for _, child := range c.GetChildren() {
@@ -405,7 +405,7 @@ func (c *ComponentState) GetContentsSize() (int, int) {
 }
 
 // Get smallest height that can fit all children.
-func (c *ComponentState) GetContentsHeight() int {
+func (c *BaseComponent) GetContentsHeight() int {
 	h := 0
 	for _, child := range c.GetChildren() {
 		_, cy, _, ch := child.GetRect()
@@ -419,7 +419,7 @@ func (c *ComponentState) GetContentsHeight() int {
 }
 
 // Get the width of the padding
-func (c *ComponentState) GetBorderPadding() int {
+func (c *BaseComponent) GetBorderPadding() int {
 	if c.ShowBorder {
 		return c.BorderPadWidth
 	}
@@ -427,7 +427,7 @@ func (c *ComponentState) GetBorderPadding() int {
 }
 
 // Get the width of the padding for each sides. (top,bottom,left,right)
-func (c *ComponentState) GetBorderPaddings() (int, int, int, int) {
+func (c *BaseComponent) GetBorderPaddings() (int, int, int, int) {
 	if c.ShowBorder {
 		pad := c.GetBorderPadding()
 		top := 0
@@ -455,27 +455,27 @@ func (c *ComponentState) GetBorderPaddings() (int, int, int, int) {
 }
 
 // Set a flag to check if a component is a child of a flex component
-func (c *ComponentState) SetIsFlexItem(flex bool) *ComponentState {
+func (c *BaseComponent) SetIsFlexItem(flex bool) *BaseComponent {
 	c.IsFlexItem = flex
 	return c
 }
 
 // Check if a component is a child of a flex component
-func (c *ComponentState) GetIsFlexItem() bool {
+func (c *BaseComponent) GetIsFlexItem() bool {
 	return c.IsFlexItem
 }
 
-func (c *ComponentState) SetAbsolute(v bool) *ComponentState {
+func (c *BaseComponent) SetAbsolute(v bool) *BaseComponent {
 	c.Absolute = v
 	return c
 }
 
-func (c *ComponentState) SetCentered(v bool) *ComponentState {
+func (c *BaseComponent) SetCentered(v bool) *BaseComponent {
 	c.Centered = v
 	return c
 }
 
-func (c *ComponentState) GetCentered() bool {
+func (c *BaseComponent) GetCentered() bool {
 	return c.Centered
 }
 
@@ -484,7 +484,7 @@ func (c *ComponentState) GetCentered() bool {
 // #region Event handler
 
 // Perform bubbletea's update event on all elements that has focus
-func (c *ComponentState) Update() {
+func (c *BaseComponent) Update() {
 	for _, child := range c.GetChildren() {
 		child.Update()
 	}
@@ -495,7 +495,7 @@ func (c *ComponentState) Update() {
 }
 
 // Hook a callback to a specific event
-func (c *ComponentState) AddEventListener(event string, cb func(tea.Msg, int), bubble bool) {
+func (c *BaseComponent) AddEventListener(event string, cb func(tea.Msg, int), bubble bool) {
 	list := c.GetEventCallbacks(event)
 	list[uuid.New().String()] = EventCb{
 		Cb:     cb,
@@ -505,7 +505,7 @@ func (c *ComponentState) AddEventListener(event string, cb func(tea.Msg, int), b
 }
 
 // Queue all functions hooked to an event to be executed at the end of the frame
-func (c *ComponentState) DispatchEvent(event string) {
+func (c *BaseComponent) DispatchEvent(event string) {
 	var bubble []Component
 	pt := c.GetParent()
 	bubble = append(bubble, c)
@@ -530,14 +530,14 @@ func (c *ComponentState) DispatchEvent(event string) {
 }
 
 // Called on all function right before rendering
-func (c *ComponentState) Propagate() {
+func (c *BaseComponent) Propagate() {
 	for _, c := range c.GetChildren() {
 		c.Propagate()
 	}
 }
 
 // Get a list of callbacks hooked to a specific event
-func (c *ComponentState) GetEventCallbacks(event string) map[string]EventCb {
+func (c *BaseComponent) GetEventCallbacks(event string) map[string]EventCb {
 	if c.EventCallbacks[event] == nil {
 		c.EventCallbacks[event] = map[string]EventCb{}
 	}
@@ -550,7 +550,7 @@ func (c *ComponentState) GetEventCallbacks(event string) map[string]EventCb {
 
 // Set focus on a component.
 // Only the component with focus receives bubbletea's event.
-func (c *ComponentState) Focus() {
+func (c *BaseComponent) Focus() {
 	Global.BlurAll()
 	c.Focused = true
 	c.DispatchEvent("onFocus")
@@ -558,7 +558,7 @@ func (c *ComponentState) Focus() {
 }
 
 // Remove focus from a component
-func (c *ComponentState) Blur() {
+func (c *BaseComponent) Blur() {
 	for _, child := range c.GetChildren() {
 		child.Blur()
 	}
@@ -568,46 +568,46 @@ func (c *ComponentState) Blur() {
 }
 
 // Check if a component is focused
-func (c *ComponentState) GetFocusState() bool {
+func (c *BaseComponent) GetFocusState() bool {
 	return c.Focused
 }
 
 // Get a name of an individual component
-func (c *ComponentState) GetName() string {
+func (c *BaseComponent) GetName() string {
 	return c.Name
 }
 
 // Get a name of the component type
-func (c *ComponentState) GetComponentName() string {
+func (c *BaseComponent) GetComponentName() string {
 	return c.ComponentName
 }
 
 // Set name of a component
-func (c *ComponentState) SetName(n string) *ComponentState {
+func (c *BaseComponent) SetName(n string) *BaseComponent {
 	c.Name = n
 	return c
 }
 
 // Set name of a component type
-func (c *ComponentState) SetComponentName(n string) *ComponentState {
+func (c *BaseComponent) SetComponentName(n string) *BaseComponent {
 	c.ComponentName = n
 	return c
 }
 
 // Set title of a component.
 // Title is displayed at the top of the component with border.
-func (c *ComponentState) SetTitle(str string) *ComponentState {
+func (c *BaseComponent) SetTitle(str string) *BaseComponent {
 	c.Title = str
 	return c
 }
 
 // Get the title of a component
-func (c *ComponentState) GetTitle() string {
+func (c *BaseComponent) GetTitle() string {
 	return c.Title
 }
 
 // Get UUID of a component
-func (c *ComponentState) GetUUID() string {
+func (c *BaseComponent) GetUUID() string {
 	return c.UUID
 }
 
@@ -617,7 +617,7 @@ func (c *ComponentState) GetUUID() string {
 
 // Perform rendering for a component and all its child components.
 // Rendered result is written to the Canvas property
-func (b *ComponentState) PrepareFrame() {
+func (b *BaseComponent) PrepareFrame() {
 	var result, fg, bg = b.CreateCanvas()
 	if !b.Visibility {
 		b.SetCanvas([][]string{{""}}, [][]string{{""}}, [][]string{{""}})
@@ -685,7 +685,7 @@ func (b *ComponentState) PrepareFrame() {
 }
 
 // Create a 2D array of string the size of component
-func (c *ComponentState) CreateCanvas() ([][]string, [][]string, [][]string) {
+func (c *BaseComponent) CreateCanvas() ([][]string, [][]string, [][]string) {
 	height := c.GetContentsHeight() + 1
 	width := c.GetWidth()
 
@@ -708,12 +708,12 @@ func (c *ComponentState) CreateCanvas() ([][]string, [][]string, [][]string) {
 }
 
 // Get the rendered canvas
-func (c *ComponentState) GetCanvas() ([][]string, [][]string, [][]string) {
+func (c *BaseComponent) GetCanvas() ([][]string, [][]string, [][]string) {
 	return c.Canvas, c.FGSheet, c.BGSheet
 }
 
 // Get the rendered canvas
-func (c *ComponentState) SetCanvas(
+func (c *BaseComponent) SetCanvas(
 	canvas [][]string,
 	fg [][]string,
 	bg [][]string,
@@ -724,7 +724,7 @@ func (c *ComponentState) SetCanvas(
 }
 
 // Add border to a component if applicable
-func (c *ComponentState) addBorder(arr [][]string) [][]string {
+func (c *BaseComponent) addBorder(arr [][]string) [][]string {
 	if !c.ShowBorder || c.GetBorderPadding() == 0 || len(arr) <= 1 || len(arr[0]) <= 1 {
 		return arr
 	}
@@ -854,7 +854,7 @@ func (c *ComponentState) addBorder(arr [][]string) [][]string {
 }
 
 // Set if border should be visible
-func (c *ComponentState) SetBorder(show bool) *ComponentState {
+func (c *BaseComponent) SetBorder(show bool) *BaseComponent {
 	c.ShowBorder = show
 	if show && c.BorderPadWidth == 0 {
 		c.SetBorderPadding(1)
@@ -863,18 +863,18 @@ func (c *ComponentState) SetBorder(show bool) *ComponentState {
 }
 
 // Set where should the title be rendered
-func (c *ComponentState) SetTitleAlignment(str string) *ComponentState {
+func (c *BaseComponent) SetTitleAlignment(str string) *BaseComponent {
 	c.Title = str
 	return c
 }
 
 // Get where should the title be rendered
-func (c *ComponentState) GetTitleAlignment() string {
+func (c *BaseComponent) GetTitleAlignment() string {
 	return c.TitleAlignment
 }
 
 // Set Visibility for each border edges
-func (c *ComponentState) SetBorders(top bool, bottom bool, left bool, right bool) *ComponentState {
+func (c *BaseComponent) SetBorders(top bool, bottom bool, left bool, right bool) *BaseComponent {
 	c.ShowTopBorder = top
 	c.ShowBottomBorder = bottom
 	c.ShowLeftBorder = left
@@ -883,45 +883,45 @@ func (c *ComponentState) SetBorders(top bool, bottom bool, left bool, right bool
 }
 
 // Set if rounded border corder should be rendered
-func (c *ComponentState) SetBorderCorner(show bool) *ComponentState {
+func (c *BaseComponent) SetBorderCorner(show bool) *BaseComponent {
 	c.ShowBorderCorner = show
 	return c
 }
 
 // Set padding width of the border
-func (c *ComponentState) SetBorderPadding(v int) *ComponentState {
+func (c *BaseComponent) SetBorderPadding(v int) *BaseComponent {
 	c.BorderPadWidth = v
 	return c
 }
 
 // Set if rendered border should be double border
-func (c *ComponentState) SetDoubleBorder(v bool) *ComponentState {
+func (c *BaseComponent) SetDoubleBorder(v bool) *BaseComponent {
 	c.ShowDoubleBorder = v
 	return c
 }
 
 // Get if rendered border should be double border
-func (c *ComponentState) GetDoubleBorder() bool {
+func (c *BaseComponent) GetDoubleBorder() bool {
 	return c.ShowDoubleBorder
 }
 
 // Set if a component should be rendered
-func (c *ComponentState) SetVisibility(v bool) *ComponentState {
+func (c *BaseComponent) SetVisibility(v bool) *BaseComponent {
 	c.Visibility = v
 	return c
 }
 
-func (c *ComponentState) GetVisibility() bool {
+func (c *BaseComponent) GetVisibility() bool {
 	return c.Visibility
 }
 
 // Set a label to be displayed on corners of the border
-func (c *ComponentState) SetBorderLabel(key string, str string) {
+func (c *BaseComponent) SetBorderLabel(key string, str string) {
 	c.BorderLabels[key] = str
 }
 
 // Recursively hide all elements invisible to the parent element
-func (c *ComponentState) UpdateVisibility(ytop int, hei int) {
+func (c *BaseComponent) UpdateVisibility(ytop int, hei int) {
 	top := 0
 	y := ytop
 	h := hei
@@ -936,43 +936,43 @@ func (c *ComponentState) UpdateVisibility(ytop int, hei int) {
 	}
 }
 
-func (c *ComponentState) SetBackgroundGradient(v []color.Color) *ComponentState {
+func (c *BaseComponent) SetBackgroundGradient(v []color.Color) *BaseComponent {
 	c.BackgroundGradient = v
 	return c
 }
-func (c *ComponentState) SetForegroundGradient(v []color.Color) *ComponentState {
+func (c *BaseComponent) SetForegroundGradient(v []color.Color) *BaseComponent {
 	c.ForegroundGradient = v
 	return c
 }
-func (c *ComponentState) GetBackgroundGradient() []color.Color {
+func (c *BaseComponent) GetBackgroundGradient() []color.Color {
 	return c.BackgroundGradient
 }
-func (c *ComponentState) GetForegroundGradient() []color.Color {
+func (c *BaseComponent) GetForegroundGradient() []color.Color {
 	return c.ForegroundGradient
 }
-func (c *ComponentState) ClearBackgroundGradient() {
+func (c *BaseComponent) ClearBackgroundGradient() {
 	c.BackgroundGradient = []color.Color{}
 }
-func (c *ComponentState) ClearForegroundGradient() {
+func (c *BaseComponent) ClearForegroundGradient() {
 	c.ForegroundGradient = []color.Color{}
 }
-func (c *ComponentState) SetForeground(v string) {
+func (c *BaseComponent) SetForeground(v string) {
 	c.Foreground = v
 }
-func (c *ComponentState) SetBackground(v string) {
+func (c *BaseComponent) SetBackground(v string) {
 	c.Background = v
 }
-func (c *ComponentState) ClearForeground() {
+func (c *BaseComponent) ClearForeground() {
 	c.Foreground = ""
 }
-func (c *ComponentState) ClearBackground() {
+func (c *BaseComponent) ClearBackground() {
 	c.Background = ""
 }
 
-func (c *ComponentState) GetForeground() string {
+func (c *BaseComponent) GetForeground() string {
 	return c.Foreground
 }
-func (c *ComponentState) GetBackground() string {
+func (c *BaseComponent) GetBackground() string {
 	return c.Background
 }
 
@@ -981,7 +981,7 @@ func (c *ComponentState) GetBackground() string {
 // #region Debugging
 
 // Retrieve the list of parents
-func (c *ComponentState) Trace(list []string) []string {
+func (c *BaseComponent) Trace(list []string) []string {
 
 	if c.GetParent() != nil {
 		list = append(list, c.GetParent().Trace(list)...)
@@ -992,12 +992,12 @@ func (c *ComponentState) Trace(list []string) []string {
 }
 
 // Retrieve the list of parents
-func (c *ComponentState) GetTrace() []string {
+func (c *BaseComponent) GetTrace() []string {
 	return c.Trace([]string{})
 }
 
 // String representation of a component for debugging purpose.
-func (c *ComponentState) ToString() string {
+func (c *BaseComponent) ToString() string {
 	var res bytes.Buffer
 
 	inherited := ""

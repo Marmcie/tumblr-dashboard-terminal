@@ -2,7 +2,7 @@ package component
 
 // Basic component that displays its child.
 type Box struct {
-	ComponentState
+	BaseComponent
 }
 
 func NewBox(name string) *Box {
@@ -13,7 +13,7 @@ func NewBox(name string) *Box {
 }
 
 func (b *Box) PrepareFrame() {
-	b.ComponentState.PrepareFrame()
+	b.BaseComponent.PrepareFrame()
 	var result, fg, bg = b.GetCanvas()
 	result = b.addBorder(result)
 	b.SetCanvas(result, fg, bg)

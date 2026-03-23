@@ -2,7 +2,7 @@ package component
 
 // Flex box component
 type Flex struct {
-	ComponentState
+	BaseComponent
 	Direction   int
 	InnerHeight int
 	Descriptors []FlexDescriptor
@@ -32,13 +32,13 @@ func NewFlex(name string) *Flex {
 
 func (c *Flex) AddChild(child Component) {
 	child.SetIsFlexItem(true)
-	c.ComponentState.AddChild(child)
+	c.BaseComponent.AddChild(child)
 	c.Descriptors = append(c.Descriptors, NewFlexDescriptor(1, 1))
 }
 
 func (c *Flex) AddItem(child Component, desc FlexDescriptor) {
 	child.SetIsFlexItem(true)
-	c.ComponentState.AddChild(child)
+	c.BaseComponent.AddChild(child)
 	c.Descriptors = append(c.Descriptors, desc)
 }
 
@@ -119,7 +119,7 @@ func (b *Flex) UpdateChildSize() {
 
 func (c *Flex) Propagate() {
 	c.UpdateChildSize()
-	c.ComponentState.Propagate()
+	c.BaseComponent.Propagate()
 }
 
 func (b *Flex) PrepareFrame() {

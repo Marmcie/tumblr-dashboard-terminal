@@ -6,7 +6,7 @@ import (
 
 // Component that can scroll to show child elements
 type Scrollable struct {
-	ComponentState
+	BaseComponent
 	OffsetY int
 	OffsetX int
 	ScrollX bool
@@ -63,7 +63,7 @@ func (b *Scrollable) PrepareFrame() {
 		return
 	}
 	result, fg, bg := b.CreateCanvas()
-	b.ComponentState.PrepareFrame()
+	b.BaseComponent.PrepareFrame()
 
 	output, childFG, childBG := b.GetCanvas()
 	boxHeight := b.GetInnerHeight()
@@ -105,5 +105,5 @@ func (c *Scrollable) Propagate() {
 		pt += child.GetHeight()
 	}
 
-	c.ComponentState.Propagate()
+	c.BaseComponent.Propagate()
 }
