@@ -23,7 +23,7 @@ func BenchmarkBoxRenderChildren(b *testing.B) {
 		elem.AddChild(line)
 	}
 	for b.Loop() {
-		elem.PrepareFrame()
+		elem.RenderToCanvas()
 	}
 }
 
@@ -39,7 +39,7 @@ func BenchmarkScrollableRenderChildren(b *testing.B) {
 	}
 
 	for b.Loop() {
-		elem.PrepareFrame()
+		elem.RenderToCanvas()
 	}
 }
 
@@ -53,7 +53,7 @@ func BenchmarkFlexRenderChildren(b *testing.B) {
 		flex.AddItem(line, component.NewFlexDescriptor(0, 1))
 	}
 	for b.Loop() {
-		flex.PrepareFrame()
+		flex.RenderToCanvas()
 	}
 }
 
@@ -70,17 +70,17 @@ func TestRenderChildren(t *testing.T) {
 	t.Run("Box", func(t *testing.T) {
 		elem := component.NewBox("b")
 		initItem(elem)
-		elem.PrepareFrame()
+		elem.RenderToCanvas()
 	})
 	t.Run("Flex", func(t *testing.T) {
 		elem := component.NewFlex("b")
 		initItem(elem)
-		elem.PrepareFrame()
+		elem.RenderToCanvas()
 	})
 	t.Run("Scrollable", func(t *testing.T) {
 		elem := component.NewScrollable("b")
 		initItem(elem)
-		elem.PrepareFrame()
+		elem.RenderToCanvas()
 	})
 }
 
@@ -96,23 +96,23 @@ func TestRenderChildrenOverflow(t *testing.T) {
 	t.Run("Box", func(t *testing.T) {
 		elem := component.NewBox("b")
 		initItem(elem)
-		elem.PrepareFrame()
+		elem.RenderToCanvas()
 	})
 	t.Run("Flex", func(t *testing.T) {
 		elem := component.NewFlex("b")
 		initItem(elem)
-		elem.PrepareFrame()
+		elem.RenderToCanvas()
 	})
 	t.Run("FlexRow", func(t *testing.T) {
 		elem := component.NewFlex("b")
 		initItem(elem)
 		elem.Direction = 1
-		elem.PrepareFrame()
+		elem.RenderToCanvas()
 	})
 	t.Run("Scrollable", func(t *testing.T) {
 		elem := component.NewScrollable("b")
 		initItem(elem)
-		elem.PrepareFrame()
+		elem.RenderToCanvas()
 	})
 }
 
@@ -129,23 +129,23 @@ func TestRenderChildrenEmpty(t *testing.T) {
 	t.Run("Box", func(t *testing.T) {
 		elem := component.NewBox("b")
 		initItem(elem)
-		elem.PrepareFrame()
+		elem.RenderToCanvas()
 	})
 	t.Run("Flex", func(t *testing.T) {
 		elem := component.NewFlex("b")
 		initItem(elem)
-		elem.PrepareFrame()
+		elem.RenderToCanvas()
 	})
 	t.Run("FlexRow", func(t *testing.T) {
 		elem := component.NewFlex("b")
 		initItem(elem)
 		elem.Direction = 1
-		elem.PrepareFrame()
+		elem.RenderToCanvas()
 	})
 	t.Run("Scrollable", func(t *testing.T) {
 		elem := component.NewScrollable("b")
 		initItem(elem)
-		elem.PrepareFrame()
+		elem.RenderToCanvas()
 	})
 }
 
@@ -178,22 +178,22 @@ func TestRenderChildrenTypes(t *testing.T) {
 	t.Run("Box", func(t *testing.T) {
 		elem := component.NewBox("b")
 		initItem(elem)
-		elem.PrepareFrame()
+		elem.RenderToCanvas()
 	})
 	t.Run("Flex", func(t *testing.T) {
 		elem := component.NewFlex("b")
 		initItem(elem)
-		elem.PrepareFrame()
+		elem.RenderToCanvas()
 	})
 	t.Run("FlexRow", func(t *testing.T) {
 		elem := component.NewFlex("b")
 		initItem(elem)
 		elem.Direction = 1
-		elem.PrepareFrame()
+		elem.RenderToCanvas()
 	})
 	t.Run("Scrollable", func(t *testing.T) {
 		elem := component.NewScrollable("b")
 		initItem(elem)
-		elem.PrepareFrame()
+		elem.RenderToCanvas()
 	})
 }

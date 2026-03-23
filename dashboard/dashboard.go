@@ -181,6 +181,7 @@ func (d *Dashboard) LoadPosts() {
 	}
 	if len(posts) == 0 {
 		d.SwitchMode("dashboard", "")
+		d.root.SetBorderLabel("BottomLeft", "Could not retrieve posts")
 		return
 	}
 

@@ -78,11 +78,11 @@ func (s *Selectlist) RunSelectedOption() {
 	}
 }
 
-func (s *Selectlist) Propagate() {
+func (s *Selectlist) BeforeRender() {
 
 	s.UpdateOffset()
 
-	s.Scrollable.Propagate()
+	s.Scrollable.BeforeRender()
 }
 
 func (c *Selectlist) ClearChildren() {

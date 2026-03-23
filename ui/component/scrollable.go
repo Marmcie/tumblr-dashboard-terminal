@@ -56,14 +56,14 @@ func (c *Scrollable) CreateCanvas() ([][]string, [][]string, [][]string) {
 }
 
 // Returns Line per line contents,x,y
-func (b *Scrollable) PrepareFrame() {
+func (b *Scrollable) RenderToCanvas() {
 
 	if !b.Visibility {
 		b.SetCanvas([][]string{{""}}, [][]string{{""}}, [][]string{{""}})
 		return
 	}
 	result, fg, bg := b.CreateCanvas()
-	b.BaseComponent.PrepareFrame()
+	b.BaseComponent.RenderToCanvas()
 
 	output, childFG, childBG := b.GetCanvas()
 	boxHeight := b.GetInnerHeight()
@@ -96,7 +96,7 @@ func (b *Scrollable) PrepareFrame() {
 	b.SetCanvas(result, fg, bg)
 }
 
-func (c *Scrollable) Propagate() {
+func (c *Scrollable) BeforeRender() {
 	hei := c.GetInnerHeight()
 	c.UpdateVisibility(c.OffsetY, hei)
 	pt := 0
@@ -105,5 +105,5 @@ func (c *Scrollable) Propagate() {
 		pt += child.GetHeight()
 	}
 
-	c.BaseComponent.Propagate()
+	c.BaseComponent.BeforeRender()
 }

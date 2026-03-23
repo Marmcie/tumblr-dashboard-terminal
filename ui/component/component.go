@@ -15,9 +15,9 @@ import (
 type Component interface {
 	SetBorder(bool) *BaseComponent
 	SetBorderCorner(bool) *BaseComponent
-	GetBorderPadding() int
-	SetBorderPadding(int) *BaseComponent
-	GetBorderPaddings() (int, int, int, int)
+	SetPadding(int) *BaseComponent
+	SetPaddings(int,int,int,int) *BaseComponent
+	GetPaddings() (int, int, int, int)
 	SetBorders(bool, bool, bool, bool) *BaseComponent
 	GetCanvas() ([][]string, [][]string, [][]string)
 	SetCanvas([][]string, [][]string, [][]string)
@@ -71,8 +71,8 @@ type Component interface {
 	Update()
 	IsAbsolute() bool
 	Trace([]string) []string
-	Propagate()
-	PrepareFrame()
+	BeforeRender()
+	RenderToCanvas()
 	DispatchEvent(string)
 	Blur()
 	SetDoubleBorder(bool) *BaseComponent
@@ -103,6 +103,10 @@ type BaseComponent struct {
 	x int
 	// Y coordinates
 	y             int
+	PaddingTop    int
+	PaddingBottom int
+	PaddingLeft   int
+	PaddingRight  int
 	Centered      bool
 	UUID          string
 	Width         int
@@ -119,8 +123,7 @@ type BaseComponent struct {
 	BGSheet       [][]string
 	FGSheet       [][]string
 
-	ShowBorder     bool
-	BorderPadWidth int
+	ShowBorder bool
 	// Name of an individual component
 	Name string
 	// Name of a component type
@@ -164,7 +167,6 @@ func (c *BaseComponent) Initialize(name string) {
 	c.FitHeight = false
 	c.FitWidth = false
 	c.ShowBorder = false
-	c.BorderPadWidth = 0
 	c.Name = name
 	c.ComponentName = "Base component"
 	c.Absolute = false
@@ -180,6 +182,7 @@ func (c *BaseComponent) Initialize(name string) {
 	c.TitleAlignment = "center"
 	c.Foreground = ""
 	c.Background = ""
+	c.SetPadding(0)
 
 	c.BorderLabels = map[string]string{
 		"TopLeft":     "",
@@ -367,7 +370,7 @@ func (c *BaseComponent) GetHeight() int {
 // Get inner width of a component. (width - side paddings).
 func (c *BaseComponent) GetInnerWidth() int {
 	if c.ShowBorder {
-		_, _, l, r := c.GetBorderPaddings()
+		_, _, l, r := c.GetPaddings()
 		return c.GetWidth() - (l + r)
 	}
 	return c.GetWidth()
@@ -376,7 +379,7 @@ func (c *BaseComponent) GetInnerWidth() int {
 // Get inner height of a component. (height - top and bottom paddings)
 func (c *BaseComponent) GetInnerHeight() int {
 	if c.ShowBorder {
-		t, b, _, _ := c.GetBorderPaddings()
+		t, b, _, _ := c.GetPaddings()
 		return c.GetHeight() - (t + b)
 	}
 	return c.GetHeight()
@@ -418,40 +421,31 @@ func (c *BaseComponent) GetContentsHeight() int {
 	return max(h, c.GetHeight())
 }
 
-// Get the width of the padding
-func (c *BaseComponent) GetBorderPadding() int {
-	if c.ShowBorder {
-		return c.BorderPadWidth
-	}
-	return 0
-}
-
 // Get the width of the padding for each sides. (top,bottom,left,right)
-func (c *BaseComponent) GetBorderPaddings() (int, int, int, int) {
+func (c *BaseComponent) GetPaddings() (int, int, int, int) {
+	top := c.PaddingTop
+	bottom := c.PaddingBottom
+	left := c.PaddingLeft
+	right := c.PaddingRight
+
 	if c.ShowBorder {
-		pad := c.GetBorderPadding()
-		top := 0
 		if c.ShowTopBorder {
-			top = pad
+			top = max(1, top)
 		}
 
-		bottom := 0
 		if c.ShowBottomBorder {
-			bottom = pad
+			bottom = max(1, bottom)
 		}
 
-		right := 0
 		if c.ShowRightBorder {
-			right = pad
+			right = max(1, right)
 		}
 
-		left := 0
 		if c.ShowLeftBorder {
-			left = pad
+			left = max(1, left)
 		}
-		return top, bottom, left, right
 	}
-	return 0, 0, 0, 0
+	return top, bottom, left, right
 }
 
 // Set a flag to check if a component is a child of a flex component
@@ -530,9 +524,9 @@ func (c *BaseComponent) DispatchEvent(event string) {
 }
 
 // Called on all function right before rendering
-func (c *BaseComponent) Propagate() {
+func (c *BaseComponent) BeforeRender() {
 	for _, c := range c.GetChildren() {
-		c.Propagate()
+		c.BeforeRender()
 	}
 }
 
@@ -617,14 +611,14 @@ func (c *BaseComponent) GetUUID() string {
 
 // Perform rendering for a component and all its child components.
 // Rendered result is written to the Canvas property
-func (b *BaseComponent) PrepareFrame() {
+func (b *BaseComponent) RenderToCanvas() {
 	var result, fg, bg = b.CreateCanvas()
 	if !b.Visibility {
 		b.SetCanvas([][]string{{""}}, [][]string{{""}}, [][]string{{""}})
 		return
 	}
 
-	top, _, left, _ := b.GetBorderPaddings()
+	top, _, left, _ := b.GetPaddings()
 	cursor := top
 
 	innerWidth := b.GetInnerWidth() + 1
@@ -636,7 +630,7 @@ func (b *BaseComponent) PrepareFrame() {
 			cursor += childHeight
 			continue
 		}
-		c.PrepareFrame()
+		c.RenderToCanvas()
 		output, childFG, childBG := c.GetCanvas()
 
 		if c.IsAbsolute() == true {
@@ -725,7 +719,7 @@ func (c *BaseComponent) SetCanvas(
 
 // Add border to a component if applicable
 func (c *BaseComponent) addBorder(arr [][]string) [][]string {
-	if !c.ShowBorder || c.GetBorderPadding() == 0 || len(arr) <= 1 || len(arr[0]) <= 1 {
+	if !c.ShowBorder || len(arr) <= 1 || len(arr[0]) <= 1 {
 		return arr
 	}
 
@@ -856,9 +850,6 @@ func (c *BaseComponent) addBorder(arr [][]string) [][]string {
 // Set if border should be visible
 func (c *BaseComponent) SetBorder(show bool) *BaseComponent {
 	c.ShowBorder = show
-	if show && c.BorderPadWidth == 0 {
-		c.SetBorderPadding(1)
-	}
 	return c
 }
 
@@ -889,8 +880,18 @@ func (c *BaseComponent) SetBorderCorner(show bool) *BaseComponent {
 }
 
 // Set padding width of the border
-func (c *BaseComponent) SetBorderPadding(v int) *BaseComponent {
-	c.BorderPadWidth = v
+func (c *BaseComponent) SetPadding(v int) *BaseComponent {
+	c.PaddingTop = v
+	c.PaddingBottom = v
+	c.PaddingLeft = v
+	c.PaddingRight = v
+	return c
+}
+func (c *BaseComponent) SetPaddings(t int,b int,l int,r int) *BaseComponent {
+	c.PaddingTop = t
+	c.PaddingBottom = b
+	c.PaddingLeft = l
+	c.PaddingRight = r
 	return c
 }
 

@@ -140,19 +140,19 @@ func (f *Contents) DisplayPost(post npf.Post) {
 								for i := 0; l < innerWidth && i < len(w); i++ {
 									l += runewidth.StringWidth(string(w[i]))
 								}
-								parts = append(parts, w[:l])
+								parts = append(parts, strings.Trim(w[:l]," "))
 								colors = append(colors, col)
 								w = w[l:]
 							}
-							parts = append(parts, w)
+							parts = append(parts, strings.Trim(w," "))
 							colors = append(colors, col)
 							str.Reset()
 						} else {
 							str.Reset()
-							str.WriteString(word+" ")
+							str.WriteString(strings.TrimLeft(word+" "," "))
 						}
 					} else {
-						str.WriteString(word + " ")
+						str.WriteString(strings.TrimLeft(word + " "," "))
 					}
 				}
 
@@ -169,7 +169,7 @@ func (f *Contents) DisplayPost(post npf.Post) {
 		colors = append(colors, col)
 		parts = append(parts, str.String())
 
-		top, _, _, _ := box.GetBorderPaddings()
+		top, _, _, _ := box.GetPaddings()
 
 		box.SetTitle(reblog.Blog.Name)
 		box.SetH(max(3, len(parts)+1))
