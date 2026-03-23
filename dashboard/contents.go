@@ -48,7 +48,7 @@ func (f *Contents) InitEvents() {
 			}
 			f.prev = msg.String()
 		}
-	},true)
+	}, true)
 }
 
 func (f *Contents) DisplayPost(post npf.Post) {
@@ -94,7 +94,23 @@ func (f *Contents) DisplayPost(post npf.Post) {
 					if runewidth.StringWidth(str)+runewidth.StringWidth(word)+1 >= innerWidth {
 						parts = append(parts, str)
 						colors = append(colors, col)
-						str = word + " "
+						if innerWidth > 1 && runewidth.StringWidth(word) >= innerWidth {
+							w := word
+							for runewidth.StringWidth(w) >= innerWidth {
+								l := 0
+								for i := 0; l < innerWidth && i < len(w); i++ {
+									l += runewidth.StringWidth(string(w[i]))
+								}
+								parts = append(parts, w[:l])
+								colors = append(colors, col)
+								w = w[l:]
+							}
+							parts = append(parts, w)
+							colors = append(colors, col)
+							str = ""
+						} else {
+							str = word + " "
+						}
 					} else {
 						str += word + " "
 					}

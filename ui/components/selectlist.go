@@ -4,9 +4,11 @@ package component
 type Selectlist struct {
 	Scrollable
 
-	OptionCallbacks     []func()
-	Cursor              int
-	SizeList            []int
+	OptionCallbacks []func()
+	Cursor          int
+	SizeList        []int
+	SelectedBG      string
+	SelectedFG      string
 }
 
 func NewSelectlist(name string) *Selectlist {
@@ -19,23 +21,31 @@ func NewSelectlist(name string) *Selectlist {
 	return s
 }
 
+func (s *Selectlist) SetSelectedOptionForeground(fg string) {
+	s.SelectedFG = fg
+}
+
+func (s *Selectlist) SetSelectedOptionBackground(bg string) {
+	s.SelectedBG = bg
+}
+
 func (s *Selectlist) IncrementCursor() {
-	s.Cursor = min(s.Cursor+1, len(s.OptionCallbacks)-1)
-	s.DispatchEvent("onChange")
+	s.SetCursor(min(s.Cursor+1, len(s.OptionCallbacks)-1))
 }
 
 func (s *Selectlist) DecrementCursor() {
-	s.Cursor = max(s.Cursor-1, 0)
-	s.DispatchEvent("onChange")
+	s.SetCursor(max(s.Cursor-1, 0))
 }
 
 func (s *Selectlist) SetCursor(v int) {
-	if s.Cursor != v {
-		s.Cursor = max(min(len(s.OptionCallbacks)-1, v), 0)
-		s.DispatchEvent("onChange")
-	} else {
-		s.Cursor = max(min(len(s.OptionCallbacks)-1, v), 0)
-	}
+	prev := s.Cursor
+	children := s.GetChildren()
+	children[prev].ClearBackground()
+	children[prev].ClearForeground()
+	children[v].SetBackground(s.SelectedBG)
+	children[v].SetForeground(s.SelectedFG)
+	s.Cursor = max(min(len(s.OptionCallbacks)-1, v), 0)
+	s.DispatchEvent("onChange")
 }
 
 func (s *Selectlist) UpdateOffset() {
@@ -52,9 +62,14 @@ func (s *Selectlist) UpdateOffset() {
 	}
 }
 
-func (c *Selectlist) AddOption(child Component, cb func()) {
-	c.ComponentState.AddChild(child)
-	c.OptionCallbacks = append(c.OptionCallbacks, cb)
+func (s *Selectlist) AddOption(child Component, cb func()) {
+	s.ComponentState.AddChild(child)
+	s.OptionCallbacks = append(s.OptionCallbacks, cb)
+
+	children := s.GetChildren()
+	if len(children) > 0 {
+		s.SizeList = append(s.SizeList, s.SizeList[len(s.SizeList)-1]+children[len(children)-1].GetHeight())
+	}
 }
 
 func (s *Selectlist) RunSelectedOption() {
@@ -65,10 +80,6 @@ func (s *Selectlist) RunSelectedOption() {
 
 func (s *Selectlist) Propagate() {
 
-	children := s.GetChildren()
-	if len(children) > 0 {
-		s.SizeList = append(s.SizeList, s.SizeList[len(s.SizeList)-1]+children[len(children)-1].GetHeight())
-	}
 	s.UpdateOffset()
 
 	s.Scrollable.Propagate()
@@ -77,5 +88,5 @@ func (s *Selectlist) Propagate() {
 func (c *Selectlist) ClearChildren() {
 	c.ComponentState.ClearChildren()
 	c.OptionCallbacks = []func(){}
-	c.Cursor=0
+	c.Cursor = 0
 }

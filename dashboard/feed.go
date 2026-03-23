@@ -12,6 +12,7 @@ type Feed struct {
 	listElem  *component.Selectlist
 	dashboard *Dashboard
 	posts     []npf.Post
+	prev      string
 }
 
 func NewFeed(dashboard *Dashboard) *Feed {
@@ -20,6 +21,8 @@ func NewFeed(dashboard *Dashboard) *Feed {
 	f.listElem.SetBorder(true).SetBorderPadding(1).SetBorderCorner(true).SetWidthInherit(true)
 	f.dashboard = dashboard
 	f.listElem.SetBorderLabel("BottomRight", "? For keybind")
+	f.listElem.SetSelectedOptionBackground(ui.GetColorStr(ui.ColorFocus))
+	f.listElem.SetSelectedOptionForeground(ui.GetColorStr(ui.ColorWhite))
 
 	f.InitEvents()
 	return f
@@ -37,35 +40,22 @@ func (f *Feed) InitEvents() {
 			case "j":
 				f.listElem.IncrementCursor()
 				f.listElem.RunSelectedOption()
-				f.UpdateSelectedOptionBorder()
 			case "k":
 				f.listElem.DecrementCursor()
 				f.listElem.RunSelectedOption()
-				f.UpdateSelectedOptionBorder()
+			case "G":
+				f.listElem.SetCursor(len(f.posts) - 1)
+				f.listElem.RunSelectedOption()
+			case "g":
+				if f.prev == "g" {
+					f.listElem.SetCursor(0)
+					f.listElem.RunSelectedOption()
+				}
 			}
+			f.prev = msg.String()
 		}
-	},true)
+	}, true)
 
-}
-
-func (f *Feed) UpdateSelectedOptionBorder() {
-	children := f.listElem.GetChildren()
-	if len(children) == 0 {
-		return
-	}
-	if children[f.listElem.Cursor] != nil {
-		children[f.listElem.Cursor].SetBackground(ui.GetColorStr(ui.ColorFocus))
-		children[f.listElem.Cursor].SetForeground(ui.GetColorStr(ui.ColorWhite))
-	}
-	if f.listElem.Cursor > 0 {
-		children[f.listElem.Cursor-1].ClearBackground()
-		children[f.listElem.Cursor-1].ClearForeground()
-	}
-
-	if f.listElem.Cursor < len(children)-1 {
-		children[f.listElem.Cursor+1].ClearBackground()
-		children[f.listElem.Cursor+1].ClearForeground()
-	}
 }
 
 func (f *Feed) GetSelectedPost() npf.Post {
@@ -101,7 +91,8 @@ func (f *Feed) AddPosts(posts []npf.Post) {
 			f.dashboard.DisplayPost(post)
 		})
 	}
-	f.UpdateSelectedOptionBorder()
+	f.listElem.SetCursor(f.listElem.Cursor)
+	f.listElem.RunSelectedOption()
 }
 
 func (f *Feed) Focus() {

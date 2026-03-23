@@ -27,7 +27,7 @@ type Dashboard struct {
 	client    modules.TumblrClient
 	offset    int
 	timestamp int64
-	tag       string
+	option    string
 }
 
 func NewDashboard() *Dashboard {
@@ -63,7 +63,7 @@ func NewDashboard() *Dashboard {
 	d.control = component.NewText("Control")
 	d.control.SetBorder(true).
 		SetBorderPadding(1).
-		SetSize(40, 8).
+		SetSize(40, 10).
 		SetTitle("Control").
 		SetPos(0, 0).
 		SetVisibility(false).
@@ -126,6 +126,10 @@ func (d *Dashboard) initEvents() {
 			case "]":
 				d.toggleSwitcher()
 
+			case "b":
+				post := d.feed.GetSelectedPost()
+				d.SwitchMode("blog", post.Blog.Name)
+
 			case "?":
 				d.toggleControl()
 			}
@@ -134,7 +138,7 @@ func (d *Dashboard) initEvents() {
 	}, true)
 }
 
-func (d *Dashboard) SwitchMode(mode string, tag string) {
+func (d *Dashboard) SwitchMode(mode string, option string) {
 	d.switcher.Window.SetVisibility(false)
 	d.feed.listElem.Focus()
 	d.mode = mode
@@ -142,8 +146,12 @@ func (d *Dashboard) SwitchMode(mode string, tag string) {
 	case "dashboard":
 		d.feed.listElem.SetTitle("Dashboard")
 	case "tag":
-		d.tag = tag
-		d.feed.listElem.SetTitle("Tagged posts : " + d.tag)
+		d.option = option
+		d.feed.listElem.SetTitle("Tagged posts : " + d.option)
+
+	case "blog":
+		d.option = option
+		d.feed.listElem.SetTitle("Posts from : " + d.option)
 	}
 
 	d.feed.ClearPosts()
@@ -158,13 +166,17 @@ func (d *Dashboard) LoadPosts() {
 	case "dashboard":
 		posts = d.client.GetDashboard(d.offset)
 	case "tag":
-		posts = d.client.GetTaggedPosts(int(d.timestamp), d.tag)
-		if len(posts) == 0 {
-			d.SwitchMode("dashboard", "")
-			return
-		}
-		d.timestamp = posts[len(posts)-1].Timestamp
+		posts = d.client.GetTaggedPosts(int(d.timestamp), d.option)
+
+	case "blog":
+		posts = d.client.GetBlogPosts(int(d.timestamp), d.option)
 	}
+	if len(posts) == 0 {
+		d.SwitchMode("dashboard", "")
+		return
+	}
+
+	d.timestamp = posts[len(posts)-1].Timestamp
 	d.feed.AddPosts(posts)
 	d.offset++
 
@@ -196,6 +208,7 @@ func (d *Dashboard) UpdateControlText() {
 		str += "l/Enter  :  Focus post window   \n"
 		str += "r        :  Load more posts    \n"
 		str += "]        :  Open feed switcher    \n"
+		str += "b        :  Open blog feed    \n"
 		str += "o        :  Open post in browser    \n"
 		str += "Ctrl+c   :  Exit the program  \n"
 		str += "Ctrl+d   :  Log out of the account  \n"
@@ -204,6 +217,7 @@ func (d *Dashboard) UpdateControlText() {
 		str += "h        :  Focus feed  \n"
 		str += "r        :  Load more posts     \n"
 		str += "]        :  Open feed switcher    \n"
+		str += "b        :  Open blog feed    \n"
 		str += "o        :  Open post in browser    \n"
 		str += "Ctrl+c   :  Exit the program   \n"
 		str += "Ctrl+d   :  Log out of the account  \n"

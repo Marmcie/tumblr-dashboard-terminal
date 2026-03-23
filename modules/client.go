@@ -89,3 +89,29 @@ func (c *TumblrClient) GetTaggedPosts(before int, tag string) []npf.Post {
 	json.Unmarshal(bytes, &dash)
 	return dash.Response
 }
+
+func (c *TumblrClient) GetBlogPosts(before int, blogName string) []npf.Post {
+
+	defer func() {
+		if err := recover(); err != nil {
+			RemoveToken()
+			print("Failed to retrieve posts\n")
+			panic(err)
+		}
+	}()
+
+	u, _ := url.Parse("https://api.tumblr.com/v2/blog/" + blogName + ".tumblr.com/posts/text?notes_info=true")
+
+	q := u.Query()
+	q.Add("before", strconv.Itoa(before))
+	q.Add("npf", "true")
+
+	u.RawQuery = q.Encode()
+
+	resp, _ := c.Client.Get(u.String())
+	bytes, _ := io.ReadAll(resp.Body)
+
+	dash := dashboardResponse{}
+	json.Unmarshal(bytes, &dash)
+	return dash.Response.Posts
+}

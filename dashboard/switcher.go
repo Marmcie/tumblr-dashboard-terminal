@@ -14,6 +14,7 @@ type Switcher struct {
 	TagOption  *component.Flex
 	TagInput   *component.Line
 	TagLabel   *component.Line
+	BlogOption *component.Box
 	dashboard  *Dashboard
 }
 
@@ -40,6 +41,16 @@ func NewSwitcher(dashboard *Dashboard) *Switcher {
 	s.DashLabel.SetText("Dashboard")
 
 	s.DashOption.AddChild(s.DashLabel)
+
+	s.BlogOption = component.NewBox("Blog option")
+	s.BlogOption.SetBorder(true).
+		SetWidthInherit(true).
+		SetBorders(false, false, true, false).
+		SetBorderCorner(false)
+
+	BlogLabel := component.NewLine("Dash label")
+	BlogLabel.SetText("Blog")
+	s.BlogOption.AddChild(BlogLabel)
 
 	s.TagLabel = component.NewLine("Tag label")
 	s.TagLabel.SetText("Tag : ")
