@@ -64,13 +64,13 @@ func NewDashboard() *Dashboard {
 
 
 	d.left.AddItem(d.feed.listElem, component.NewFlexDescriptor(0, 1))
-	d.left.AddItem(d.control, component.NewFlexDescriptor(9, 0))
+	// d.left.AddItem(d.control, component.NewFlexDescriptor(9, 0))
 
 	d.right.AddItem(d.contents.contentElem, component.NewFlexDescriptor(0, 1))
 	d.right.AddItem(d.info, component.NewFlexDescriptor(9, 0))
 
-	d.root.AddItem(d.left, component.NewFlexDescriptor(39, 0))
-	d.root.AddItem(d.right, component.NewFlexDescriptor(0, 1))
+	d.root.AddItem(d.left, component.NewFlexDescriptor(0,1))
+	d.root.AddItem(d.right, component.NewFlexDescriptor(0, 3))
 
 	d.feed.listElem.Focus()
 	d.core.App.SetRoot(d.root)

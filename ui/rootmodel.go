@@ -44,6 +44,19 @@ func (m RootModel) Init() tea.Cmd {
 }
 func (m RootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
+	if m.isWindows {
+		var s tsize.Size
+		s, err := tsize.GetSize()
+		if err != nil {
+			println("Could not determine the size of the terminal window")
+			panic(err)
+		}
+		w, h := (*m.App).GetSize()
+		if w != s.Width || h != s.Height-1 {
+			(*m.App).UpdateSize(s.Width, s.Height-1)
+			return m, tea.ClearScreen
+		}
+	}
 	switch msg := msg.(type) {
 
 	// Is it a key press?
@@ -71,19 +84,6 @@ func (m RootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, tea.ClearScreen
 	}
 
-	if m.isWindows {
-		var s tsize.Size
-		s, err := tsize.GetSize()
-		if err != nil {
-			println("Could not determine the size of the terminal window")
-			panic(err)
-		}
-		w, h := (*m.App).GetSize()
-		if w != s.Width || h != s.Height-1 {
-			(*m.App).UpdateSize(s.Width, s.Height-1)
-			return m, tea.ClearScreen
-		}
-	}
 	return m, nil
 
 }
