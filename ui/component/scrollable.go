@@ -27,14 +27,14 @@ func NewScrollable(name string) *Scrollable {
 	return flex
 }
 
-func (b *Scrollable) findBottom(canvas [][]string) {
-	for i := len(canvas) - 1; i >= 0; i-- {
-		line := canvas[i]
-		if len(strings.ReplaceAll(strings.Join(line, ""), " ", "")) > 0 {
-			b.Bottom = i
-			return
-		}
+func (b *Scrollable) findBottom() {
+
+	bottom:=0
+	for _, c := range b.GetChildren() {
+		bottom+=c.GetHeight()
 	}
+	b.Bottom=bottom
+
 }
 
 func (c *Scrollable) CreateCanvas() ([][]string, [][]string, [][]string) {
@@ -69,7 +69,7 @@ func (b *Scrollable) RenderToCanvas() {
 	boxHeight := b.GetInnerHeight()
 	boxWidth := b.GetInnerWidth()
 
-	b.findBottom(output)
+	b.findBottom()
 	bottomEdge := b.OffsetY + boxHeight + 1
 
 	for lineY := b.OffsetY; lineY < min(bottomEdge, len(output)); lineY++ {
