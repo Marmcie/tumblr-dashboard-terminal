@@ -1,5 +1,10 @@
 {
   "consumer_key": "Your tumblr app consumer key",
   "secret_key": "Your tumblr app secret key",
-  "use_blog_avatar_color": false
+  "use_blog_avatar_color": false,
+  "blacklist": [
+    "discourse tag",
+    "Your ex's blog",
+    "Any term you don't want to search"
+  ]
 }

@@ -28,7 +28,6 @@ func NewSwitcher(dashboard *Dashboard) *Switcher {
 		SetCentered(true).
 		SetSize(50, 8).
 		SetBorder(true)
-		
 
 	s.Window.SetTitle("Feed picker")
 	s.Window.SetBorderLabel("BottomRight", "Esc to close")
@@ -138,6 +137,7 @@ func (s *Switcher) InitEvents() {
 			case "enter":
 				s.dashboard.SwitchMode("tag", s.TagInput.Value)
 				s.TagInput.ClearInput()
+				s.index = 0
 			case "backspace":
 				if len(s.TagInput.Value) > 0 {
 					s.TagInput.DeleteChar()
@@ -159,6 +159,7 @@ func (s *Switcher) InitEvents() {
 			case "enter":
 				s.dashboard.SwitchMode("blog", s.BlogInput.Value)
 				s.BlogInput.ClearInput()
+				s.index = 0
 			case "backspace":
 				if len(s.BlogInput.Value) > 0 {
 					s.BlogInput.DeleteChar()

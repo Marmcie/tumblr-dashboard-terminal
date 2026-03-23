@@ -13,6 +13,7 @@ type Config struct {
 	Timezone              string
 	Debug                 bool
 	Testing               bool
+	Blacklist             []string
 }
 
 var config Config

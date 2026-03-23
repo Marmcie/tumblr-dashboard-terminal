@@ -3,6 +3,8 @@ package dashboard
 import (
 	"bytes"
 	"fmt"
+	"math/rand"
+	"slices"
 	"strings"
 	"time"
 	"tumblr-dt/modules"
@@ -13,6 +15,14 @@ import (
 	tea "charm.land/bubbletea/v2"
 	tsize "github.com/kopoli/go-terminal-size"
 )
+
+var girlNo []string = []string{
+	"Girl no",
+	"It's not worth it",
+	"Bad girl",
+	"Awawawawa",
+	"Bonk",
+}
 
 type Dashboard struct {
 	config    modules.Config
@@ -125,7 +135,7 @@ func (d *Dashboard) initEvents() {
 			switch msg.String() {
 			case "r":
 				d.LoadPosts()
-				
+
 			case "q":
 				component.Global.SetCmd(tea.Quit)
 
@@ -152,6 +162,13 @@ func (d *Dashboard) initEvents() {
 func (d *Dashboard) SwitchMode(mode string, option string) {
 	d.switcher.Window.SetVisibility(false)
 	d.feed.listElem.Focus()
+
+	if mode != "dashboard" && slices.Contains(d.config.Blacklist, option) {
+		d.root.SetBorderLabel("BottomLeft", girlNo[rand.Intn(len(girlNo))])
+		d.root.SetBorderLabelColor("BottomLeft", "#ff00ff")
+		return
+	}
+
 	d.mode = mode
 	d.timestamp = time.Now().Local().UnixMilli() / 1000
 	switch d.mode {
@@ -165,6 +182,8 @@ func (d *Dashboard) SwitchMode(mode string, option string) {
 		d.option = option
 		d.feed.listElem.SetTitle("Posts from : " + d.option)
 	}
+
+	d.root.SetBorderLabelColor("BottomLeft", "")
 
 	d.feed.ClearPosts()
 	d.feed.listElem.ClearChildren()
@@ -187,6 +206,7 @@ func (d *Dashboard) LoadPosts() {
 		d.root.SetBorderLabel("BottomLeft", "Could not retrieve posts")
 		return
 	}
+
 	d.root.SetBorderLabel("BottomLeft", "")
 
 	d.timestamp = posts[len(posts)-1].Timestamp
