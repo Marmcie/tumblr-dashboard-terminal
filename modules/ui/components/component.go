@@ -63,31 +63,42 @@ type Component interface {
 	SetStyle(lipgloss.Style)
 	ClearStyle()
 	GetStyle() lipgloss.Style
+
+	SetBorder(bool)
+	SetBorders(bool, bool, bool, bool)
+	SetBorderCorner(bool)
+
+	GetBorderPaddings() (int, int, int, int)
 }
 
 type ComponentState struct {
-	x              int
-	y              int
-	Width          int
-	Height         int
-	InheritWidth   bool
-	InheritHeight  bool
-	Children       []Component
-	Parent         Component
-	Focused        bool
-	Depth          int
-	FitHeight      bool
-	FitWidth       bool
-	OnRenderReady  ([]func(Component))
-	Canvas         [][]string
-	ShowBorder     bool
-	BorderPadWidth int
-	Name           string
-	ComponentName  string
-	EventCallbacks map[string][]func(tea.Msg, int)
-	Absolute       bool
-	Overflow       bool
-	Style          lipgloss.Style
+	x                int
+	y                int
+	Width            int
+	Height           int
+	InheritWidth     bool
+	InheritHeight    bool
+	Children         []Component
+	Parent           Component
+	Focused          bool
+	Depth            int
+	FitHeight        bool
+	FitWidth         bool
+	OnRenderReady    ([]func(Component))
+	Canvas           [][]string
+	ShowBorder       bool
+	BorderPadWidth   int
+	Name             string
+	ComponentName    string
+	EventCallbacks   map[string][]func(tea.Msg, int)
+	Absolute         bool
+	Overflow         bool
+	Style            lipgloss.Style
+	ShowTopBorder    bool
+	ShowBottomBorder bool
+	ShowLeftBorder   bool
+	ShowRightBorder  bool
+	ShowBorderCorner bool
 }
 
 func (c *ComponentState) Initialize() {
@@ -105,6 +116,11 @@ func (c *ComponentState) Initialize() {
 	c.ComponentName = "Base component"
 	c.Absolute = false
 	c.Parent = nil
+	c.ShowTopBorder = true
+	c.ShowBottomBorder = true
+	c.ShowLeftBorder = true
+	c.ShowRightBorder = true
+	c.ShowBorderCorner = true
 }
 
 func (c *ComponentState) AddChild(child Component) {
@@ -128,8 +144,8 @@ func (c *ComponentState) GetRect() (int, int, int, int) {
 
 func (c *ComponentState) GetRenderArea() (int, int, int, int) {
 	if c.ShowBorder {
-		pad := c.GetBorderPadding()
-		return c.GetX() + pad, c.GetY() + pad, c.GetInnerWidth(), c.GetInnerHeight()
+		t, _, l, _ := c.GetBorderPaddings()
+		return c.GetX() + l, c.GetY() + t, c.GetInnerWidth(), c.GetInnerHeight()
 	}
 
 	return c.GetX(), c.GetY(), c.GetInnerWidth(), c.GetInnerHeight()
@@ -189,14 +205,17 @@ func (c *ComponentState) GetHeight() int {
 
 func (c *ComponentState) GetInnerWidth() int {
 	if c.ShowBorder {
-		return c.GetWidth() - (2 + ((c.GetBorderPadding() - 1) * 2))
+
+		_, _, l, r := c.GetBorderPaddings()
+		return c.GetWidth() - (l + r)
 	}
 	return c.GetWidth()
 }
 
 func (c *ComponentState) GetInnerHeight() int {
 	if c.ShowBorder {
-		return c.GetHeight() - (2 + ((c.GetBorderPadding() - 1) * 2))
+		t, b, _, _ := c.GetBorderPaddings()
+		return c.GetHeight() - (t + b)
 	}
 	return c.GetHeight()
 }
@@ -233,19 +252,19 @@ func (c *ComponentState) GetFocusState() bool {
 func (b *ComponentState) PrepareFrame() {
 	var result = b.CreateCanvas()
 
-	cursor := b.GetBorderPadding()
+	top, _, left, _ := b.GetBorderPaddings()
+	cursor := top
 
-	pad := b.GetBorderPadding() - 1
 	for _, c := range b.GetChildren() {
 		c.PrepareFrame()
 		output := c.GetCanvas()
 		style := c.GetStyle()
 		if c.IsAbsolute() == true {
 			childX, childY := c.GetPos()
-			globalX := pad + childX
+			globalX := left + childX
 
 			for ind, line := range output {
-				posY := ind + b.GetY() + childY + pad
+				posY := ind + b.GetY() + childY + top
 				for index, char := range line {
 					result[posY][globalX+index] = char
 				}
@@ -256,11 +275,11 @@ func (b *ComponentState) PrepareFrame() {
 					break
 				}
 				for i, char := range line {
-					index := i + b.GetBorderPadding()
+					index := i + left
 					if index > b.GetInnerWidth() {
 						break
 					}
-					result[cursor][index+pad] = style.Render(char)
+					result[cursor][index+left] = style.Render(char)
 				}
 				cursor++
 			}
@@ -323,7 +342,7 @@ func (c *ComponentState) GetCanvas() [][]string {
 }
 
 func (c *ComponentState) addBorder(arr [][]string) [][]string {
-	if !c.ShowBorder || c.GetBorderPadding() == 0 || c.GetHeight() < (c.GetBorderPadding()*2) {
+	if !c.ShowBorder || c.GetBorderPadding() == 0  {
 		return arr
 	}
 
@@ -332,21 +351,31 @@ func (c *ComponentState) addBorder(arr [][]string) [][]string {
 	wid := c.GetWidth()
 	hei := c.GetHeight()
 	for i := range c.GetHeight() {
-		arr[i][0] = side
-		arr[i][wid-1] = side
+		if c.ShowLeftBorder {
+			arr[i][0] = side
+		}
+		if c.ShowRightBorder {
+			arr[i][wid-1] = side
+		}
 	}
 
 	for i := range c.GetWidth() {
-		arr[0][i] = top
-		arr[hei-1][i] = top
+		if c.ShowTopBorder {
+			arr[0][i] = top
+		}
+		if c.ShowBottomBorder {
+			arr[hei-1][i] = top
+		}
 	}
 
-	arr[0][0] = helper.Dictionary(helper.BorderTopLeft)
-	arr[0][wid-1] = helper.Dictionary(helper.BorderTopRight)
+	if c.ShowBorderCorner {
+		arr[0][0] = helper.Dictionary(helper.BorderTopLeft)
+		arr[0][wid-1] = helper.Dictionary(helper.BorderTopRight)
 
-	arr[hei-1][0] = helper.Dictionary(helper.BorderBottomLeft)
-	arr[hei-1][wid-1] = helper.Dictionary(helper.BorderBottomRight)
+		arr[hei-1][0] = helper.Dictionary(helper.BorderBottomLeft)
+		arr[hei-1][wid-1] = helper.Dictionary(helper.BorderBottomRight)
 
+	}
 	return arr
 }
 
@@ -387,6 +416,33 @@ func (c *ComponentState) GetBorderPadding() int {
 	return 0
 }
 
+func (c *ComponentState) GetBorderPaddings() (int, int, int, int) {
+	if c.ShowBorder {
+		pad := c.GetBorderPadding()
+		top := 0
+		if c.ShowTopBorder {
+			top = pad
+		}
+
+		bottom := 0
+		if c.ShowBottomBorder {
+			bottom = pad
+		}
+
+		right := 0
+		if c.ShowRightBorder {
+			right = pad
+		}
+
+		left := 0
+		if c.ShowLeftBorder {
+			left = pad
+		}
+		return top, bottom, left, right
+	}
+	return 0, 0, 0, 0
+}
+
 func (c *ComponentState) Propagate() {
 	for _, c := range c.GetChildren() {
 		c.Propagate()
@@ -419,4 +475,18 @@ func (c *ComponentState) ClearStyle() {
 
 func (c *ComponentState) GetStyle() lipgloss.Style {
 	return c.Style
+}
+
+func (c *ComponentState) SetBorder(show bool) {
+	c.ShowBorder = show
+}
+func (c *ComponentState) SetBorders(top bool, bottom bool, left bool, right bool) {
+	c.ShowTopBorder = top
+	c.ShowBottomBorder = bottom
+	c.ShowLeftBorder = left
+	c.ShowRightBorder = right
+}
+
+func (c *ComponentState) SetBorderCorner(show bool) {
+	c.ShowBorderCorner = show
 }

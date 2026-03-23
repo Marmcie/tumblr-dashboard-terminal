@@ -46,20 +46,40 @@ func (f *Flex) GetProportionSum() int {
 }
 
 func (b *Flex) UpdateChildSize() {
-	flexH := b.GetInnerHeight()
-	// Proportion should  fixed size
+	if b.Direction == 0 {
 
-	proportionSum := b.GetProportionSum()
+		flexH := b.GetInnerHeight()
+		// Proportion should  fixed size
 
-	for i, child := range b.GetChildren() {
-		descriptor := b.Descriptors[i]
+		proportionSum := b.GetProportionSum()
 
-		if descriptor.Proportion > 0 {
-			ratio := float64(descriptor.Proportion) / float64(proportionSum)
-			childSize := int(float64(flexH) * ratio)
-			child.SetH(childSize)
-		} else {
-			child.SetH(descriptor.FixedSize)
+		for i, child := range b.GetChildren() {
+			descriptor := b.Descriptors[i]
+
+			if descriptor.Proportion > 0 {
+				ratio := float64(descriptor.Proportion) / float64(proportionSum)
+				childSize := int(float64(flexH) * ratio)
+				child.SetH(childSize)
+			} else {
+				child.SetH(descriptor.FixedSize)
+			}
+		}
+	} else {
+		flexW := b.GetInnerWidth()
+		// Proportion should  fixed size
+
+		proportionSum := b.GetProportionSum()
+
+		for i, child := range b.GetChildren() {
+			descriptor := b.Descriptors[i]
+
+			if descriptor.Proportion > 0 {
+				ratio := float64(descriptor.Proportion) / float64(proportionSum)
+				childSize := int(float64(flexW) * ratio)
+				child.SetW(childSize)
+			} else {
+				child.SetW(descriptor.FixedSize)
+			}
 		}
 	}
 }
@@ -69,11 +89,52 @@ func (c *Flex) Propagate() {
 	c.ComponentState.Propagate()
 }
 
-// Returns Line per line contents,x,y
 func (b *Flex) PrepareFrame() {
-	b.ComponentState.PrepareFrame()
-	var result = b.ComponentState.GetCanvas()
-	result = b.addBorder(result)
+	var result = b.CreateCanvas()
+
+	top, _, left, _ := b.GetBorderPaddings()
+	cursor := top
+	sideOffset := 0
+
+	if b.Direction == 1 {
+		cursor = 0
+	}
+
+	for _, c := range b.GetChildren() {
+		c.PrepareFrame()
+		output := c.GetCanvas()
+		style := c.GetStyle()
+		if c.IsAbsolute() == true {
+			childX, childY := c.GetPos()
+			globalX := left + childX
+
+			for ind, line := range output {
+				posY := ind + b.GetY() + childY + top
+				for index, char := range line {
+					result[posY][globalX+index] = char
+				}
+			}
+		} else {
+			for _, line := range output {
+				if cursor > b.GetInnerHeight() {
+					break
+				}
+				for i, char := range line {
+					index := i + left
+					if index > b.GetInnerWidth() {
+						break
+					}
+					result[cursor][index+left+sideOffset] = style.Render(char)
+				}
+				cursor++
+			}
+		}
+		if b.Direction == 1 {
+			cursor = 0
+			sideOffset += c.GetWidth()
+		}
+	}
+
 	b.Canvas = result
 	b.DispatchEvent("onRenderReady")
 }
