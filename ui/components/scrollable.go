@@ -88,14 +88,13 @@ func (b *Scrollable) PrepareFrame() {
 		for lineX := b.OffsetX; lineX < min(len(line), leftEdge); lineX++ {
 			char := line[lineX]
 			result[lineY-b.OffsetY][lineX-b.OffsetX] = char
-			if len(childFG[lineY][lineX]) > 0 {
+			if len(childFG[lineY][lineX]) > 0 && lineY-b.OffsetY > 0 {
 				fg[lineY-b.OffsetY][lineX-b.OffsetX] = childFG[lineY][lineX]
 			}
-			if len(childBG[lineY][lineX]) > 0 &&lineY-b.OffsetY > 0 {
+			if len(childBG[lineY][lineX]) > 0 && lineY-b.OffsetY > 0 {
 				bg[lineY-b.OffsetY][lineX-b.OffsetX] = childBG[lineY][lineX]
 			}
 		}
-
 	}
 
 	result = b.addBorder(result)

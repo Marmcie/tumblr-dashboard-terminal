@@ -127,6 +127,7 @@ type ComponentState struct {
 	Canvas         [][]string
 	BGSheet        [][]string
 	FGSheet        [][]string
+	
 	ShowBorder     bool
 	BorderPadWidth int
 	// Name of an individual component
@@ -700,6 +701,24 @@ func (c *ComponentState) CreateCanvas() ([][]string, [][]string, [][]string) {
 		fg = append(fg, strings.Split(strings.Repeat(c.Foreground+",", width), ","))
 		bg = append(bg, strings.Split(strings.Repeat(c.Background+",", width), ","))
 	}
+
+	// blend := lipgloss.Blend2D(width, height, float64(Global.Time%359), lipgloss.Color("#060616"), lipgloss.Color("#663626"))
+	// for y := range height {
+	// 	for x := range width {
+	// 		index := (y * (len(fg[0]) - 1)) + x
+	// 		if index >= len(blend) {
+	// 			break
+	// 		}
+	// 		red, green, blue, _ := blend[index].RGBA()
+	// 		div := float64(65535)
+	// 		r := int(float64(float64(red)/div) * 255)
+	// 		g := int(float64(float64(green)/div) * 255)
+	// 		b := int(float64(float64(blue)/div) * 255)
+	//
+	// 		bg[y][x] = fmt.Sprintf("#%02x%02x%02x", r, g, b)
+	// 	}
+	// }
+	//
 	return arr, fg, bg
 }
 

@@ -2,7 +2,6 @@ package dashboard
 
 import (
 	"tumblr-dt/npf"
-	"tumblr-dt/ui"
 	component "tumblr-dt/ui/components"
 
 	tea "charm.land/bubbletea/v2"
@@ -62,17 +61,14 @@ func (f *Feed) UpdateSelectedOptionBorder() {
 		return
 	}
 	if children[f.listElem.Cursor] != nil {
-		children[f.listElem.Cursor].SetBorderStyle(lipgloss.NewStyle().Foreground(ui.GetColor("ColorFocus")))
-		children[f.listElem.Cursor].SetDoubleBorder(true)
+		children[f.listElem.Cursor].SetBackground("#131316")
 	}
 	if f.listElem.Cursor > 0 {
-		children[f.listElem.Cursor-1].ResetBorderStyle()
-		children[f.listElem.Cursor-1].SetDoubleBorder(false)
+		children[f.listElem.Cursor-1].ClearBackground()
 	}
 
 	if f.listElem.Cursor < len(children)-1 {
-		children[f.listElem.Cursor+1].ResetBorderStyle()
-		children[f.listElem.Cursor+1].SetDoubleBorder(false)
+		children[f.listElem.Cursor+1].ClearBackground()
 	}
 }
 
@@ -85,15 +81,15 @@ func (f *Feed) AddPosts(posts []npf.Post) {
 		f.posts = append(f.posts, post)
 		item := component.NewBox("Feed post")
 		item.SetBorder(true).
-			SetBorderPadding(1).
-			SetBorderCorner(true).
-			SetH(4).
+			SetBorders(false, true, false, false).
+			SetBorderCorner(false).
+			SetH(3).
 			SetWidthInherit(true)
 
 		blogName := component.NewLine("User name : " + post.Blog.Name)
 		blogName.SetText(post.Blog.Name)
 		blogName.SetWidthInherit(true)
-		blogName.SetForeground("#a0a4fa")
+		blogName.SetForeground("#90e4fa")
 
 		summary := component.NewLine("Post summary")
 		summary.SetText(post.GetSummary())
