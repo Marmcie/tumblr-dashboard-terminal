@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/rand"
 	"slices"
+	"sort"
 	"strings"
 	"time"
 	"tumblr-dt/modules"
@@ -285,6 +286,7 @@ func (d *Dashboard) LoadPosts() {
 		return
 	}
 
+	sort.Sort(npf.SortPostById(posts))
 	d.root.SetBorderLabel("BottomLeft", "")
 
 	d.timestamp = posts[len(posts)-1].Timestamp
