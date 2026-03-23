@@ -5,8 +5,8 @@ import (
 	"tumblr-dt/modules"
 	component "tumblr-dt/ui/components"
 
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 	"github.com/mattn/go-runewidth"
 )
 
@@ -30,7 +30,7 @@ func NewContents(dashboard *Dashboard) *Contents {
 func (f *Contents) InitEvents() {
 	f.contentElem.AddEventListener("onUpdate", func(msg tea.Msg, i int) {
 		switch msg := msg.(type) {
-		case tea.KeyMsg:
+		case tea.KeyPressMsg:
 			switch msg.String() {
 			case "h":
 				f.dashboard.FocusFeed()
@@ -83,7 +83,7 @@ func (f *Contents) DisplayPost(post modules.Post) {
 				style = style.Foreground(lipgloss.Color("#f0f000"))
 
 			default:
-				style = style.Foreground(lipgloss.Color("#ffffff"))
+				// style = style.Foreground(lipgloss.Color("#ffffff"))
 			}
 
 			//INFO: Divide the text into lines, while preventing word break

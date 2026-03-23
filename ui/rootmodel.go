@@ -3,13 +3,15 @@ package ui
 import (
 	"tumblr-dt/modules"
 
-	tea "github.com/charmbracelet/bubbletea"
+	tea "charm.land/bubbletea/v2"
 	tsize "github.com/kopoli/go-terminal-size"
 )
 
 type RootModel struct {
 	App *App
 }
+
+type TickMsg struct{}
 
 func NewRootModel() RootModel {
 
@@ -30,7 +32,6 @@ func NewRootModel() RootModel {
 }
 
 func (m RootModel) Init() tea.Cmd {
-	// Just return `nil`, which means "no I/O right now, please."
 	return nil
 }
 func (m RootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -49,7 +50,7 @@ func (m RootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 
 	// Is it a key press?
-	case tea.KeyMsg:
+	case tea.KeyPressMsg:
 
 		// Cool, what was the actual key pressed?
 		switch msg.String() {
@@ -63,9 +64,11 @@ func (m RootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 		}
 	}
+
 	return m, m.App.Update(msg)
 }
 
-func (m RootModel) View() string {
-	return m.App.Render()
+func (m RootModel) View() tea.View {
+	v := tea.NewView(m.App.Render())
+	return v
 }

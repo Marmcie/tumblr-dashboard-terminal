@@ -2,6 +2,8 @@ package component
 
 import (
 	"strings"
+
+	"github.com/mattn/go-runewidth"
 )
 
 type Line struct {
@@ -35,22 +37,19 @@ func (l *Line) PrepareFrame() {
 	innerWidth := l.GetInnerWidth()
 
 	str = strings.ReplaceAll(str, "\n", "")
-	str = strings.ReplaceAll(str, ".", "")
-	str = strings.ReplaceAll(str, ",", "")
-	str = strings.ReplaceAll(str, "\"", "")
-	str = strings.ReplaceAll(str, "'", "")
 
 	var res []string
 	style := l.GetStyle()
 	ct := 0
-	for _, c := range str {
+	for c := range strings.SplitSeq(str, "") {
 		if ct >= innerWidth {
 			break
 		}
-		if c != '\u200b' {
+
+		if runewidth.StringWidth(c) > 0 {
 			ct++
 		}
-		res = append(res, style.Render(string(c)))
+		res = append(res, style.Render(c))
 	}
 	result = append(result, res)
 

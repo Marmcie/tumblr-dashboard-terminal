@@ -291,11 +291,11 @@ func (c *Content) RenderWithData() struct {
 		case "heading2":
 			str.WriteString("② " + c.Text)
 			cType = "Heading2"
-			
+
 		case "heading3":
 			str.WriteString("③ " + c.Text)
 			cType = "Heading3"
-			
+
 		case "quote":
 			str.WriteString("> " + c.Text)
 			cType = "Quote"
@@ -339,7 +339,7 @@ func (c *Content) RenderWithData() struct {
 	}
 
 	postStr := str.String()
-	
+
 	for v := range strings.SplitSeq(postStr, "") {
 		info, _ := width.LookupString(v)
 		runeWidth := con.StringWidth(v)
@@ -377,15 +377,19 @@ func (p *Post) GetSummary() string {
 		  	rune count and actual string width are different
 		*/
 		runeWidth := con.StringWidth(v)
+		// stringWidth := len(strings.Split(v, ""))
 
-		//INFO: SUS EMOJIS LIST : 👨‍👩‍👧
+		//INFO: SUS EMOJIS LIST : 👨‍👩‍👧✌️
+		// String width
+		// ✌️ = 1 2
+		// 👨‍👩‍👧 = 2 0 2 0 2
 		if info.Kind() == width.EastAsianFullwidth || info.Kind() == width.EastAsianWide {
 			for range runeWidth - 1 {
 				// INFO: Output 0 width character to account for full width chars
 				result.WriteRune('\u200b')
-				// result.WriteRune('#')
 			}
 		}
+
 		result.WriteString(v)
 	}
 	return result.String()

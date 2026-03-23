@@ -4,7 +4,7 @@ import (
 	"strings"
 	component "tumblr-dt/ui/components"
 
-	tea "github.com/charmbracelet/bubbletea"
+	tea "charm.land/bubbletea/v2"
 	tsize "github.com/kopoli/go-terminal-size"
 )
 

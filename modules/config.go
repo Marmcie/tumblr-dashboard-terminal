@@ -9,13 +9,21 @@ import (
 type Config struct {
 	Consumer_key string
 	Secret_key   string
+	Timezone     string
 	Debug        bool
 }
 
-var debug bool
+var config Config
+var initialized bool
 
 func GetConfig() Config {
 
+	if !initialized {
+		loadConfig()
+	}
+	return config
+}
+func loadConfig() {
 	dir, _ := os.UserHomeDir()
 
 	path := dir + "\\.config\\tumblr-dt.json"
@@ -25,8 +33,8 @@ func GetConfig() Config {
 		log.Fatal(err)
 	}
 
-	config := Config{Debug: false}
-	err = json.Unmarshal(configBytes, &config)
+	c := Config{Debug: false}
+	err = json.Unmarshal(configBytes, &c)
 
 	if err != nil {
 		print("Error reading config file.\n")
@@ -34,11 +42,15 @@ func GetConfig() Config {
 		log.Fatal(err)
 	}
 
-	debug = config.Debug
+	config = c
 
-	return config
+	if len(config.Timezone) == 0 {
+		config.Timezone = "Local"
+	}
+
+	initialized = true
 }
 
 func IsDebug() bool {
-	return debug
+	return config.Debug
 }

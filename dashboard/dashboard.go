@@ -1,12 +1,14 @@
 package dashboard
 
 import (
+	"fmt"
 	"strings"
+	"time"
 	"tumblr-dt/modules"
 	"tumblr-dt/ui"
 	component "tumblr-dt/ui/components"
 
-	tea "github.com/charmbracelet/bubbletea"
+	tea "charm.land/bubbletea/v2"
 	tsize "github.com/kopoli/go-terminal-size"
 )
 
@@ -141,8 +143,28 @@ func (d *Dashboard) UpdateControlText() {
 
 func (d *Dashboard) DisplayPost(post modules.Post) {
 	d.contents.DisplayPost(post)
+	d.UpdateInfo(post)
+}
+
+func (d *Dashboard) UpdateInfo(post modules.Post) {
+	config := modules.GetConfig()
+	loc, err := time.LoadLocation(config.Timezone)
+	if err != nil {
+		panic(err)
+	}
+	timestamp := post.Timestamp
+	t := time.Unix(timestamp, 0).In(loc)
+	now := time.Now()
+	diff := now.Sub(t)
+	diffStr := ""
+	hours := int(diff.Hours())
+	minutes := int(diff.Minutes()) - (hours * 60)
+	seconds := int(diff.Seconds()) - ((hours * 60 * 60) + (minutes * 60))
+
+	diffStr = fmt.Sprintf("%02d:%02d:%02d", hours, minutes, seconds)
+
 	str := ""
-	str += "Date      :  " + post.Date + "\n"
+	str += "Date      :  " + t.Format("2006-01-02 15:04:05 MST") + " (" + diffStr + " ago)" + "\n"
 	str += "URL       :  " + post.Short_url + "\n"
 	str += "Blog name :  " + post.Blog_name + "\n"
 	str += "Tags      :  "

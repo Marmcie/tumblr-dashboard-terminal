@@ -1,7 +1,7 @@
 package component
 
 import (
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/lipgloss/v2"
 )
 
 type Selectlist struct {
@@ -20,7 +20,7 @@ func NewSelectlist(name string) *Selectlist {
 	s.ComponentName = "Selectlist"
 	s.SizeList = append(s.SizeList, 0)
 
-	s.SelectBgStyle = lipgloss.NewStyle().Background(lipgloss.Color("#444444"))
+	s.SelectBgStyle = lipgloss.NewStyle()
 	return s
 }
 

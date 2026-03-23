@@ -4,8 +4,8 @@ import (
 	"tumblr-dt/modules"
 	component "tumblr-dt/ui/components"
 
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 )
 
 type Feed struct {
@@ -28,7 +28,7 @@ func (f *Feed) InitEvents() {
 
 	f.listElem.AddEventListener("onUpdate", func(msg tea.Msg, i int) {
 		switch msg := msg.(type) {
-		case tea.KeyMsg:
+		case tea.KeyPressMsg:
 			switch msg.String() {
 			case "enter", "l":
 				f.dashboard.FocusContents()
