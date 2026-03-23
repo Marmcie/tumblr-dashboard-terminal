@@ -30,7 +30,7 @@ go build .
 ### High priority
 - [x] Figure out how to display asks.
 - [ ] Fix post count on initial render.
-## Continuing
+### Continuing
 - [ ] Render various NPF posts.
 - [ ] Update README.md
 ### Low priority
