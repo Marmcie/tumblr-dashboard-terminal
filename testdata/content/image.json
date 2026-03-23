@@ -1,0 +1,34 @@
+{
+  "type": "image",
+  "media": [
+    {
+      "media_key": "mediakey",
+      "type": "image/gif",
+      "width": 500,
+      "height": 300,
+      "poster": {
+        "media_key": "mediakey",
+        "type": "image/gif",
+        "width": 500,
+        "height": 300,
+        "url": "https://44.media.tumblr.com/image.gif"
+      },
+      "url": "https://44.media.tumblr.com/image.gif",
+      "has_original_dimensions": true
+    },
+    {
+      "media_key": "mediakey",
+      "type": "image/gif",
+      "width": 400,
+      "height": 240,
+      "poster": {
+        "media_key": "mediakey",
+        "type": "image/gif",
+        "width": 400,
+        "height": 240,
+        "url": "https://44.media.tumblr.com/image.gif"
+      },
+      "url": "https://44.media.tumblr.com/image.gif"
+    }
+  ]
+}

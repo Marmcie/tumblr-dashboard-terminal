@@ -1,0 +1,36 @@
+{
+  "name": "Blog name",
+  "title": "Blog title",
+  "description": "<p>Blog description</p>",
+  "url": "https://example.tumblr.com/",
+  "uuid": "t:a",
+  "updated": 1772611399,
+  "avatar": [
+    {
+      "width": 512,
+      "height": 512,
+      "url": "https://44.media.tumblr.com/a/a/a/a.gif",
+      "accessories": []
+    },
+    {
+      "width": 128,
+      "height": 128,
+      "url": "https://44.media.tumblr.com/a/a/a/a.gif",
+      "accessories": []
+    },
+    {
+      "width": 96,
+      "height": 96,
+      "url": "https://44.media.tumblr.com/a/a/a/a.gif",
+      "accessories": []
+    },
+    {
+      "width": 64,
+      "height": 64,
+      "url": "https://44.media.tumblr.com/a/a/a/a.gif",
+      "accessories": []
+    }
+  ],
+  "tumblrmart_accessories": {},
+  "can_show_badges": false
+}
