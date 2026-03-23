@@ -28,8 +28,7 @@ func RenderUnicode(str string) string {
 					Use StringWidth instead of RuneWidth because sometimes
 			  	rune count and actual string width are different
 			*/
-			strWidth := con.StringWidth(v)
-			for range strWidth - 1 {
+			for range con.StringWidth(v) - 1 {
 				// INFO: Output 0 width character to account for full width chars
 				result.WriteRune('\u200b')
 			}
