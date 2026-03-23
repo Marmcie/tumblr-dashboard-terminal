@@ -50,7 +50,7 @@ func UpdateGlobalValues(msg tea.Msg, time int) {
 }
 
 type Component interface {
-	Initialize()
+	Initialize(string)
 	//X,Y,Width,Height
 	GetRect() (int, int, int, int)
 	PrepareFrame()
@@ -151,7 +151,7 @@ type ComponentState struct {
 	Title            string
 }
 
-func (c *ComponentState) Initialize() {
+func (c *ComponentState) Initialize(name string) {
 	c.x = 0
 	c.y = 0
 	c.InheritWidth = false
@@ -162,7 +162,7 @@ func (c *ComponentState) Initialize() {
 	c.FitWidth = false
 	c.ShowBorder = false
 	c.BorderPadWidth = 0
-	c.Name = "Name"
+	c.Name = name
 	c.ComponentName = "Base component"
 	c.Absolute = false
 	c.Parent = nil
@@ -461,7 +461,7 @@ func (c *ComponentState) addBorder(arr [][]string) [][]string {
 			arr[hei-1][wid-1] = helper.Dictionary(helper.BorderBottomRight)
 		}
 
-		title := c.Title
+		title := c.GetName()
 		for i, char := range title {
 			arr[0][i+1] = string(char)
 		}

@@ -50,38 +50,41 @@ func main() {
 		panic(err)
 	}
 
-	main := component.NewFlex()
-	main.SetSize(s.Width, s.Height)
+	main := component.NewFlex("Main")
+	main.SetSize(s.Width, s.Height-1)
 	main.Direction = 1
+	main.Gap = 0
+	main.SetBorder(true).SetBorderPadding(1)
 
-	left := component.NewFlex()
-	left.ShowBorder = true
-	left.BorderPadWidth = 1
-	left.ShowBorderCorner = true
+	left := component.NewFlex("Left")
 	left.InheritHeight = true
 	left.SetDirection(0)
 
-	right := component.NewFlex()
-	right.ShowBorder = true
-	right.BorderPadWidth = 1
-	right.ShowBorderCorner = true
+	right := component.NewFlex("Right")
 	right.InheritHeight = true
 	right.SetDirection(0)
 
-	slist := component.NewSelectlist()
+	slist := component.NewSelectlist("Select")
 	slist.ShowBorder = true
 	slist.BorderPadWidth = 1
 	slist.SetPos(0, 0)
 	slist.SetWidthInherit(true)
 
-	content := component.NewText()
-	content.ShowBorder = true
-	content.BorderPadWidth = 1
+	scroll := component.NewScrollable("Content scroll")
+	scroll.SetHeightInherit(true).SetWidthInherit(true)
+	scroll.SetBorder(true).SetBorderPadding(1)
+	scroll.AddEventListener("onChange", func(m tea.Msg, i int) {
+		scroll.OffsetY = 0
+	})
+
+	content := component.NewText("Content")
+	// content.ShowBorder = true
+	// content.BorderPadWidth = 1
 	content.InheritWidth = true
 	content.InheritHeight = true
 
 	for i := range 3 {
-		option := component.NewBox()
+		option := component.NewBox("Option :" + strconv.Itoa(i))
 		option.
 			SetBorder(true).
 			SetBorderCorner(true).
@@ -89,11 +92,11 @@ func main() {
 			SetH(4).
 			SetWidthInherit(true)
 
-		postTitle := component.NewLine().
+		postTitle := component.NewLine("Post title").
 			SetText(strconv.Itoa(i))
 		postTitle.SetWidthInherit(true)
 
-		postDate := component.NewLine().
+		postDate := component.NewLine("Post date").
 			SetText("2026-02-20")
 
 		postDate.SetWidthInherit(true)
@@ -109,19 +112,12 @@ func main() {
 		slist.OptionCallbacks[slist.Cursor]()
 	})
 
+	scroll.AddChild(content)
 	left.AddItem(slist, component.NewFlexDescriptor(0, 3))
-	right.AddItem(content, component.NewFlexDescriptor(0, 3))
+	right.AddItem(scroll, component.NewFlexDescriptor(0, 3))
 
 	main.AddItem(left, component.NewFlexDescriptor(0, 1))
 	main.AddItem(right, component.NewFlexDescriptor(0, 3))
-
-	content.SetName("content")
-	right.SetName("right")
-	main.SetName("main")
-	left.SetName("left")
-	slist.SetName("list")
-	slist.SetTitle("0")
-	main.SetTitle("0")
 
 	main.AddEventListener("onUpdate", func(msg tea.Msg, i int) {
 		switch msg := msg.(type) {
@@ -129,7 +125,7 @@ func main() {
 			switch msg.String() {
 			case "tab":
 				if slist.GetFocusState() {
-					content.Focus()
+					scroll.Focus()
 				} else {
 					slist.Focus()
 				}

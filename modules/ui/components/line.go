@@ -9,9 +9,9 @@ type Line struct {
 	Text string
 }
 
-func NewLine() *Line {
+func NewLine(name string) *Line {
 	l := &Line{}
-	l.Initialize()
+	l.Initialize(name)
 	l.SetComponentName("Line")
 	l.SetH(1)
 	l.SetW(0)

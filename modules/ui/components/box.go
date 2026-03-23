@@ -5,9 +5,9 @@ type Box struct {
 	ComponentState
 }
 
-func NewBox() *Box {
+func NewBox(name string) *Box {
 	b := &Box{}
-	b.Initialize()
+	b.Initialize(name)
 	b.SetComponentName("Box")
 	return b
 }

@@ -25,7 +25,7 @@ func (m *App) UpdateSize() {
 	if err != nil {
 		panic(err)
 	}
-	(*m.root).SetSize(s.Width, s.Height)
+	(*m.root).SetSize(s.Width, s.Height-1)
 }
 
 func (m *App) SetRoot(child component.Component) {

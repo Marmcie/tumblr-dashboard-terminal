@@ -10,9 +10,9 @@ type Text struct {
 	Text string
 }
 
-func NewText() *Text {
+func NewText(name string) *Text {
 	l := &Text{}
-	l.Initialize()
+	l.Initialize(name)
 	l.SetComponentName("Text")
 	l.SetPos(0, 0)
 	return l
@@ -20,6 +20,7 @@ func NewText() *Text {
 
 func (t *Text) SetText(v string) *Text {
 	t.Text = v
+	t.DispatchEvent("onChange")
 	return t
 }
 

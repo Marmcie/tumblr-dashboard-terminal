@@ -1,5 +1,9 @@
 package component
 
+import (
+	tea "github.com/charmbracelet/bubbletea"
+)
+
 type Scrollable struct {
 	ComponentState
 	OffsetY     int
@@ -8,41 +12,33 @@ type Scrollable struct {
 	InnerWidth  int
 }
 
-func NewScrollable() *Scrollable {
+func NewScrollable(name string) *Scrollable {
 	flex := &Scrollable{}
-	flex.Initialize()
+	flex.Initialize(name)
 	flex.OffsetX = 0
 	flex.OffsetY = 0
 	flex.SetComponentName("Scrollable")
 
-	// flex.AddEventListener("onUpdate", func(msg tea.Msg, time int) {
-	//
-	// 	switch msg := msg.(type) {
-	//
-	// 	// Is it a key press?
-	// 	case tea.KeyMsg:
-	//
-	// 		// Cool, what was the actual key pressed?
-	// 		switch msg.String() {
-	//
-	// 		// These keys should exit the program.
-	// 		case "j":
-	// 			flex.OffsetY = min(flex.InnerHeight-1, flex.OffsetY+1)
-	// 		case "k":
-	// 			flex.OffsetY = max(0, flex.OffsetY-1)
-	//
-	// 		case "l":
-	// 			flex.OffsetX = min(flex.InnerWidth-1, flex.OffsetX+1)
-	// 		case "h":
-	// 			flex.OffsetX = max(0, flex.OffsetX-1)
-	// 		}
-	// 	}
-	// })
-	// flex.AddEventListener("onAddChild", func(msg tea.Msg, time int) {
-	// 	w, h := flex.GetContentsSize()
-	// 	flex.InnerHeight = h
-	// 	flex.InnerWidth = w
-	// })
+	flex.AddEventListener("onUpdate", func(msg tea.Msg, time int) {
+		switch msg := msg.(type) {
+		case tea.KeyMsg:
+			switch msg.String() {
+			case "j":
+				flex.OffsetY = min(flex.InnerHeight-1, flex.OffsetY+1)
+			case "k":
+				flex.OffsetY = max(0, flex.OffsetY-1)
+			case "l":
+				flex.OffsetX = min(flex.InnerWidth-1, flex.OffsetX+1)
+			case "h":
+				flex.OffsetX = max(0, flex.OffsetX-1)
+			}
+		}
+	})
+	flex.AddEventListener("onAddChild", func(msg tea.Msg, time int) {
+		w, h := flex.GetContentsSize()
+		flex.InnerHeight = h
+		flex.InnerWidth = w
+	})
 
 	return flex
 }

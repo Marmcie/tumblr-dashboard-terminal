@@ -5,6 +5,7 @@ type Flex struct {
 	Direction   int
 	InnerHeight int
 	Descriptors []FlexDescriptor
+	Gap         int
 }
 
 type FlexDescriptor struct {
@@ -19,11 +20,12 @@ func NewFlexDescriptor(fixedsize int, proportion int) FlexDescriptor {
 	}
 }
 
-func NewFlex() *Flex {
+func NewFlex(name string) *Flex {
 	flex := &Flex{}
-	flex.Initialize()
+	flex.Initialize(name)
 	flex.Direction = 0
 	flex.SetComponentName("Flex")
+	flex.Gap = 0
 	return flex
 }
 
@@ -53,9 +55,11 @@ func (b *Flex) SetDirection(dir int) *Flex {
 }
 
 func (b *Flex) UpdateChildSize() {
+
+	gapSize := b.Gap * (len(b.GetChildren()) - 1)
 	if b.Direction == 0 {
 
-		flexH := b.GetInnerHeight()
+		flexH := b.GetInnerHeight() - gapSize
 		// Proportion should  fixed size
 
 		proportionSum := b.GetProportionSum()
@@ -72,7 +76,7 @@ func (b *Flex) UpdateChildSize() {
 			}
 		}
 	} else {
-		flexW := b.GetInnerWidth()
+		flexW := b.GetInnerWidth() - gapSize
 		// Proportion should  fixed size
 
 		proportionSum := b.GetProportionSum()
@@ -84,7 +88,7 @@ func (b *Flex) UpdateChildSize() {
 				ratio := float64(descriptor.Proportion) / float64(proportionSum)
 				childSize := int(float64(flexW) * ratio)
 				child.SetW(childSize)
-				
+
 			} else {
 				child.SetW(descriptor.FixedSize)
 			}
@@ -102,10 +106,11 @@ func (b *Flex) PrepareFrame() {
 
 	top, _, left, _ := b.GetBorderPaddings()
 	cursor := top
-	sideOffset := 0
+	sideOffset := left
 
+	// Row
 	if b.Direction == 1 {
-		cursor = 0
+		// cursor = 0
 	}
 
 	for _, c := range b.GetChildren() {
@@ -128,21 +133,25 @@ func (b *Flex) PrepareFrame() {
 					break
 				}
 				for i, char := range line {
-					index := i + left
+					index := i
 					if index > b.GetInnerWidth() {
 						break
 					}
-					result[cursor][index+left+sideOffset] = style.Render(char)
+					result[cursor][index+sideOffset] = style.Render(char)
 				}
 				cursor++
 			}
 		}
 		if b.Direction == 1 {
-			cursor = 0
+			cursor = top
 			sideOffset += c.GetWidth()
+			sideOffset += b.Gap
+		} else {
+			cursor += b.Gap
 		}
 	}
 
+	result = b.addBorder(result)
 	b.Canvas = result
 	b.DispatchEvent("onRenderReady")
 }
