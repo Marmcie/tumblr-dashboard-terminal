@@ -104,9 +104,7 @@ func (f *Contents) DisplayPost(post npf.Post) {
 			switch contentType {
 			case "Heading1":
 				col = ui.GetColorStr(ui.ColorH1)
-			case "Image":
-				col = ui.GetColorStr(ui.ColorImage)
-			case "Video":
+			case "Image", "Video", "Audio":
 				col = ui.GetColorStr(ui.ColorImage)
 			case "Heading2":
 				col = ui.GetColorStr(ui.ColorH2)
