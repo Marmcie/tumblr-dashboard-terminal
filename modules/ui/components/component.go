@@ -5,6 +5,7 @@ import (
 	"tumblr-dt/modules/ui/helper"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
 
 type GlobalValues struct {
@@ -59,6 +60,9 @@ type Component interface {
 	SetName(string)
 	SetComponentName(string)
 	AddEventListener(string, func(tea.Msg, int))
+	SetStyle(lipgloss.Style)
+	ClearStyle()
+	GetStyle() lipgloss.Style
 }
 
 type ComponentState struct {
@@ -83,6 +87,7 @@ type ComponentState struct {
 	EventCallbacks map[string][]func(tea.Msg, int)
 	Absolute       bool
 	Overflow       bool
+	Style          lipgloss.Style
 }
 
 func (c *ComponentState) Initialize() {
@@ -234,6 +239,7 @@ func (b *ComponentState) PrepareFrame() {
 	for _, c := range b.GetChildren() {
 		c.PrepareFrame()
 		output := c.GetCanvas()
+		style := c.GetStyle()
 		if c.IsAbsolute() == true {
 			childX, childY := c.GetPos()
 			globalX := pad + childX
@@ -254,7 +260,7 @@ func (b *ComponentState) PrepareFrame() {
 					if index > b.GetInnerWidth() {
 						break
 					}
-					result[cursor][index+pad] = char
+					result[cursor][index+pad] = style.Render(char)
 				}
 				cursor++
 			}
@@ -401,4 +407,16 @@ func (c *ComponentState) SetName(n string) {
 
 func (c *ComponentState) SetComponentName(n string) {
 	c.ComponentName = n
+}
+
+func (c *ComponentState) SetStyle(s lipgloss.Style) {
+	c.Style = s
+}
+
+func (c *ComponentState) ClearStyle() {
+	c.Style = lipgloss.NewStyle()
+}
+
+func (c *ComponentState) GetStyle() lipgloss.Style {
+	return c.Style
 }

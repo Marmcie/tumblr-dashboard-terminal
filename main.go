@@ -41,11 +41,11 @@ import (
 func main() {
 	root := ui.NewRootModel()
 
-	scroll := component.NewScrollable()
-	scroll.ShowBorder = true
-	scroll.BorderPadWidth = 1
-	scroll.SetSize(100, 30)
-	scroll.SetPos(0, 0)
+	slist := component.NewSelectlist()
+	slist.ShowBorder = true
+	slist.BorderPadWidth = 1
+	slist.SetSize(100, 30)
+	slist.SetPos(0, 0)
 
 	flex := component.NewFlex()
 	flex.ShowBorder = true
@@ -63,15 +63,16 @@ func main() {
 		box.InheritWidth = true
 		box.SetPos(0, 0)
 
-		// var line = component.NewLine()
-		// line.Text = "aaa"
-		// box.AddChild(line)
-		flex.AddItem(box, component.NewFlexDescriptor(0, 1))
+		var line = component.NewLine()
+		line.Text = "aaa"
+		box.AddChild(line)
+		slist.AddOption(box, func() {
+			line.Text = line.Text + line.Text
+		})
 	}
 
-	scroll.AddChild(flex)
-	scroll.Focus()
-	root.App.SetRoot(scroll)
+	slist.Focus()
+	root.App.SetRoot(slist)
 
 	p := tea.NewProgram(root)
 	if _, err := p.Run(); err != nil {
