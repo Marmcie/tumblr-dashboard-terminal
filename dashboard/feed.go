@@ -88,7 +88,11 @@ func (f *Feed) AddPosts(posts []npf.Post) {
 		blogName := component.NewLine("User name : " + post.Blog.Name)
 		blogName.SetText(post.Blog.Name)
 		blogName.SetWidthInherit(true)
-		blogName.SetForeground(ui.GetColorStr(ui.ColorH1))
+		if f.dashboard.config.Use_blog_avatar_color {
+			blogName.SetForeground(post.Blog.GetBlogColor())
+		} else {
+			blogName.SetForeground(ui.GetColorStr(ui.ColorH1))
+		}
 
 		summary := component.NewLine("Post summary")
 		summary.SetText(post.GetSummary())

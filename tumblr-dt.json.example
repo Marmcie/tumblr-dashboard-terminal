@@ -1,0 +1,5 @@
+{
+  "consumer_key": "Your tumblr app consumer key",
+  "secret_key": "Your tumblr app secret key",
+  "use_blog_avatar_color": false
+}

@@ -169,7 +169,10 @@ func (f *Contents) DisplayPost(post npf.Post) {
 		colors = append(colors, col)
 		parts = append(parts, str.String())
 
-		box.SetTitle(reblog.Blog.Name)
+		if f.dashboard.config.Use_blog_avatar_color {
+			box.SetBorderLabelColor("Top", reblog.Blog.GetBlogColor())
+		}
+		box.SetBorderLabel("Top", reblog.Blog.Name)
 		box.SetH(max(3, len(parts)))
 
 		//INFO: Convert each line into Line object, then apply corresponding style
@@ -181,6 +184,7 @@ func (f *Contents) DisplayPost(post npf.Post) {
 			if col != "" {
 				l.SetForeground(col)
 			}
+
 			l.SetWidthInherit(true)
 			box.AddChild(l)
 		}

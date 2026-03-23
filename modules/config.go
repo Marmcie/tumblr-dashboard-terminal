@@ -7,11 +7,12 @@ import (
 )
 
 type Config struct {
-	Consumer_key string
-	Secret_key   string
-	Timezone     string
-	Debug        bool
-	Testing      bool
+	Consumer_key          string
+	Secret_key            string
+	Use_blog_avatar_color bool
+	Timezone              string
+	Debug                 bool
+	Testing               bool
 }
 
 var config Config
@@ -35,9 +36,9 @@ func loadConfig() {
 	}
 
 	c := Config{
-    Debug: false,
+		Debug:   false,
 		Testing: false,
-  }
+	}
 	err = json.Unmarshal(configBytes, &c)
 
 	if err != nil {
