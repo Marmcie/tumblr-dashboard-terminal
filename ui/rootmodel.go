@@ -1,6 +1,8 @@
 package ui
 
 import (
+	"tumblr-dt/modules"
+
 	tea "github.com/charmbracelet/bubbletea"
 	tsize "github.com/kopoli/go-terminal-size"
 )
@@ -42,7 +44,7 @@ func (m RootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	m.App.Width = s.Width
 	m.App.Height = s.Height
 
-	(*m.App.root).SetSize(s.Width,s.Height)
+	(*m.App.root).SetSize(s.Width, s.Height)
 
 	switch msg := msg.(type) {
 
@@ -54,6 +56,10 @@ func (m RootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		// These keys should exit the program.
 		case "ctrl+c", "q":
+			return m, tea.Quit
+
+		case "ctrl+d":
+			modules.RemoveToken()
 			return m, tea.Quit
 		}
 	}

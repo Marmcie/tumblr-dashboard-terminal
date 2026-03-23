@@ -59,11 +59,11 @@ func NewDashboard() *Dashboard {
 	d.feed = NewFeed(d)
 	d.contents = NewContents(d)
 
-	d.left.AddItem(d.feed.listElem, component.NewFlexDescriptor(0, 5))
-	d.left.AddItem(d.control, component.NewFlexDescriptor(0, 1))
+	d.left.AddItem(d.feed.listElem, component.NewFlexDescriptor(0, 50))
+	d.left.AddItem(d.control, component.NewFlexDescriptor(0, 13))
 
-	d.right.AddItem(d.contents.contentElem, component.NewFlexDescriptor(0, 5))
-	d.right.AddItem(d.info, component.NewFlexDescriptor(0, 1))
+	d.right.AddItem(d.contents.contentElem, component.NewFlexDescriptor(0, 50))
+	d.right.AddItem(d.info, component.NewFlexDescriptor(0, 13))
 
 	d.root.AddItem(d.left, component.NewFlexDescriptor(0, 1))
 	d.root.AddItem(d.right, component.NewFlexDescriptor(0, 3))
@@ -76,7 +76,7 @@ func NewDashboard() *Dashboard {
 	d.initEvents()
 	d.LoadPosts()
 	d.UpdateControlText()
-	
+
 	return d
 }
 
@@ -103,7 +103,6 @@ func (d *Dashboard) GetCore() ui.RootModel {
 	return d.core
 }
 
-
 func (d *Dashboard) GetSelectedPost() modules.Post {
 	return d.feed.GetSelectedPost()
 }
@@ -127,12 +126,14 @@ func (d *Dashboard) UpdateControlText() {
 		str += "r        :  Load more posts    \n"
 		str += "o        :  Open post in browser    \n"
 		str += "Ctrl+c   :  Exit the program  \n"
+		str += "Ctrl+d   :  Log out of the account  \n"
 	} else {
 		str += "j/k      :  Scroll post contents  \n"
 		str += "h        :  Focus feed  \n"
 		str += "r        :  Load more posts     \n"
 		str += "o        :  Open post in browser    \n"
 		str += "Ctrl+c   :  Exit the program   \n"
+		str += "Ctrl+d   :  Log out of the account  \n"
 	}
 
 	d.control.SetText(str)
