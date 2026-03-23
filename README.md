@@ -29,10 +29,12 @@ go build .
 ## TODO
 ### High priority
 - [x] Figure out how to display asks.
-- [ ] Render various NPF posts.
 - [ ] Fix post count on initial render.
-### Low priority
+## Continuing
+- [ ] Render various NPF posts.
 - [ ] Update README.md
+### Low priority
+- [ ] Ability to switch feed? (e.g. user dashboard, tag search, likes etc.)
 - [ ] Possibly implement image viewer feature.
     - Decide on whether to use ASCII image or kitty protocol.
 - [ ] Possibly implement other Tumblr features as well.
