@@ -16,15 +16,17 @@ type Config struct {
 	Blacklist             []string
 	Redirect_port         string
 	Colors                struct {
-		Bg       string
-		Focus    string
-		White    string
-		Grey     string
-		H1       string
-		H2       string
-		Image    string
-		Quote    string
-		Filtered string
+		Bg           string
+		Focus        string
+		Focus_border string
+		White        string
+		Grey         string
+		H1           string
+		H2           string
+		Image        string
+		Quote        string
+		Filtered     string
+		Blacklisted     string
 	}
 }
 
@@ -32,6 +34,7 @@ func makeConfig() Config {
 	con := Config{}
 	con.Colors.Bg = "#060616"
 	con.Colors.Focus = "#135366"
+	con.Colors.Focus_border = "#30c0f0"
 	con.Colors.White = "#ffffff"
 	con.Colors.Grey = "#aaaaaa"
 	con.Colors.H1 = "#40f0f0"
@@ -39,6 +42,7 @@ func makeConfig() Config {
 	con.Colors.Image = "#40a0f0"
 	con.Colors.Quote = "#f0f000"
 	con.Colors.Filtered = "#ff0000"
+	con.Colors.Blacklisted = "#ff00ff"
 
 	con.Debug = false
 	con.Testing = false

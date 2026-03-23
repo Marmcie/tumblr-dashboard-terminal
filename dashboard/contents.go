@@ -23,6 +23,7 @@ func NewContents(dashboard *Dashboard) *Contents {
 	f.contentElem = component.NewScrollable("Contents")
 	f.contentElem.SetBorder(true).SetWidthInherit(true)
 	f.contentElem.SetForeground(ui.GetColorStr(ui.ColorWhite))
+	f.contentElem.SetBorderFocusForeground(ui.GetColorStr(ui.ColorFocusBorder))
 	f.dashboard = dashboard
 
 	f.InitEvents()

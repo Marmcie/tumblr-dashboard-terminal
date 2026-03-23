@@ -6,6 +6,7 @@ import (
 
 const ColorBG = "ColorBG"
 const ColorFocus = "ColorFocus"
+const ColorFocusBorder = "ColorFocusBorder"
 const ColorWhite = "ColorWhite"
 const ColorGrey = "ColorGrey"
 const ColorH1 = "ColorH1"
@@ -20,6 +21,7 @@ func GetColorStr(key string) string {
 	return map[string]string{
 		"ColorBG":       config.Colors.Bg,
 		"ColorFocus":    config.Colors.Focus,
+		"ColorFocusBorder":    config.Colors.Focus_border,
 		"ColorWhite":    config.Colors.White,
 		"ColorGrey":     config.Colors.Grey,
 		"ColorH1":       config.Colors.H1,
@@ -27,5 +29,6 @@ func GetColorStr(key string) string {
 		"ColorImage":    config.Colors.Image,
 		"ColorQuote":    config.Colors.Quote,
 		"ColorFiltered": config.Colors.Filtered,
+		"ColorBlacklisted": config.Colors.Blacklisted,
 	}[key]
 }

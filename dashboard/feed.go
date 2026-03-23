@@ -25,6 +25,7 @@ func NewFeed(dashboard *Dashboard) *Feed {
 	f.listElem.SetBorderLabel("BottomRight", "? For keybind")
 	f.listElem.SetSelectedOptionBackground(ui.GetColorStr(ui.ColorFocus))
 	f.listElem.SetSelectedOptionForeground(ui.GetColorStr(ui.ColorWhite))
+	f.listElem.SetBorderFocusForeground(ui.GetColorStr(ui.ColorFocusBorder))
 	f.showFilteredPost = false
 
 	f.InitEvents()

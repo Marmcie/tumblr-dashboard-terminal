@@ -14,6 +14,10 @@ import (
 
 type Component interface {
 	SetBorder(bool) *BaseComponent
+	SetBorderForeground(string) *BaseComponent
+	ClearBorderForeground() *BaseComponent
+	SetBorderFocusForeground(string) *BaseComponent
+	ClearBorderFocusForeground() *BaseComponent
 	SetBorderCorner(bool) *BaseComponent
 	SetPadding(int) *BaseComponent
 	SetPaddings(int, int, int, int) *BaseComponent
@@ -145,11 +149,13 @@ type BaseComponent struct {
 	BorderLabels      map[string]string
 	BorderLabelColors map[string]string
 	//Index of the component within global element list
-	GlobalIndex        int
-	BackgroundGradient []color.Color
-	ForegroundGradient []color.Color
-	Background         string
-	Foreground         string
+	GlobalIndex           int
+	BackgroundGradient    []color.Color
+	ForegroundGradient    []color.Color
+	Background            string
+	Foreground            string
+	BorderForeground      string
+	BorderFocusForeground string
 }
 
 type EventCb struct {
@@ -184,6 +190,8 @@ func (c *BaseComponent) Initialize(name string) {
 	c.TitleAlignment = "center"
 	c.Foreground = ""
 	c.Background = ""
+	c.BorderForeground = ""
+	c.BorderFocusForeground = ""
 	c.SetPadding(0)
 
 	c.BorderLabels = map[string]string{
@@ -733,6 +741,7 @@ func (c *BaseComponent) addBorder(arr [][]string, fg [][]string, bg [][]string) 
 		return arr, fg, bg
 	}
 
+	foreground := c.BorderForeground
 	side := (helper.Dictionary(helper.BorderSide))
 	top := (helper.Dictionary(helper.BorderTop))
 	tl := (helper.Dictionary(helper.BorderTopLeft))
@@ -741,6 +750,7 @@ func (c *BaseComponent) addBorder(arr [][]string, fg [][]string, bg [][]string) 
 	br := (helper.Dictionary(helper.BorderBottomRight))
 
 	if c.GetFocusState() || c.GetDoubleBorder() {
+		foreground = c.BorderFocusForeground
 		side = (helper.Dictionary(helper.BorderSideDouble))
 		top = (helper.Dictionary(helper.BorderTopDouble))
 		tl = (helper.Dictionary(helper.BorderTopLeftDouble))
@@ -757,18 +767,22 @@ func (c *BaseComponent) addBorder(arr [][]string, fg [][]string, bg [][]string) 
 		for i := range c.GetWidth() {
 			if c.ShowTopBorder {
 				arr[0][i] = top
+				fg[0][i] = foreground
 			}
 			if c.ShowBottomBorder {
 				arr[hei-1][i] = top
+				fg[hei-1][i] = foreground
 			}
 		}
 
 		for i := range c.GetHeight() {
 			if c.ShowLeftBorder {
 				arr[i][0] = side
+				fg[i][0] = foreground
 			}
 			if c.ShowRightBorder {
 				arr[i][wid-1] = side
+				fg[i][wid-1] = foreground
 			}
 		}
 		if c.ShowBorderCorner {
@@ -866,6 +880,22 @@ func (c *BaseComponent) addBorder(arr [][]string, fg [][]string, bg [][]string) 
 // Set if border should be visible
 func (c *BaseComponent) SetBorder(show bool) *BaseComponent {
 	c.ShowBorder = show
+	return c
+}
+func (c *BaseComponent) SetBorderForeground(v string) *BaseComponent {
+	c.BorderForeground = v
+	return c
+}
+func (c *BaseComponent) ClearBorderForeground() *BaseComponent {
+	c.BorderForeground = ""
+	return c
+}
+func (c *BaseComponent) SetBorderFocusForeground(v string) *BaseComponent {
+	c.BorderFocusForeground = v
+	return c
+}
+func (c *BaseComponent) ClearBorderFocusForeground() *BaseComponent {
+	c.BorderFocusForeground = ""
 	return c
 }
 
