@@ -226,6 +226,9 @@ func (d *Dashboard) LoadPosts() {
 			d.TagTrie.Insert(tag)
 		}
 		d.BlogTrie.Insert(p.Blog.GetName())
+		for _, t := range p.Trail {
+			d.BlogTrie.Insert(t.Blog.Name)
+		}
 	}
 }
 
