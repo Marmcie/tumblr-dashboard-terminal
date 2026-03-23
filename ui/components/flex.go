@@ -123,7 +123,7 @@ func (c *Flex) Propagate() {
 }
 
 func (b *Flex) PrepareFrame() {
-	var result = b.CreateCanvas()
+	var result, fg, bg = b.CreateCanvas()
 
 	top, _, left, _ := b.GetBorderPaddings()
 	cursor := top
@@ -131,7 +131,7 @@ func (b *Flex) PrepareFrame() {
 
 	for _, c := range b.GetChildren() {
 		c.PrepareFrame()
-		output := c.GetCanvas()
+		output, childFG, childBG := c.GetCanvas()
 		if c.IsAbsolute() == true {
 			if !c.GetVisibility() {
 				continue
@@ -142,7 +142,9 @@ func (b *Flex) PrepareFrame() {
 			for ind, line := range output {
 				posY := ind + b.GetY() + childY + top
 				for index, char := range line {
-					result[posY][globalX+index] = b.ApplyStyle(char)
+					result[posY][globalX+index] = char
+					fg[posY][globalX+index] = childFG[ind][index]
+					bg[posY][globalX+index] = childBG[ind][index]
 				}
 			}
 		} else {
@@ -150,7 +152,9 @@ func (b *Flex) PrepareFrame() {
 				line := output[i]
 				for a := 0; a < min(len(line), len(result[cursor])); a++ {
 					char := line[a]
-					result[cursor][a+sideOffset] = b.ApplyStyle(char)
+					result[cursor][a+sideOffset] = char
+					fg[cursor][a+sideOffset] = childFG[i][a]
+					bg[cursor][a+sideOffset] = childBG[i][a]
 				}
 				cursor++
 			}
@@ -166,6 +170,5 @@ func (b *Flex) PrepareFrame() {
 	}
 
 	result = b.addBorder(result)
-	b.Canvas = result
-	b.DispatchEvent("onRenderReady")
+	b.SetCanvas(result, fg, bg)
 }

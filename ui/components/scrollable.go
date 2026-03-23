@@ -47,8 +47,10 @@ func (b *Scrollable) findBottom(canvas [][]string) {
 	}
 }
 
-func (c *Scrollable) CreateCanvas() [][]string {
+func (c *Scrollable) CreateCanvas() ([][]string, [][]string, [][]string) {
 	var arr [][]string
+	var fg [][]string
+	var bg [][]string
 	height := c.GetHeight()
 	width := c.GetWidth()
 
@@ -56,42 +58,45 @@ func (c *Scrollable) CreateCanvas() [][]string {
 
 	for range height {
 		arr = append(arr, strings.Split(strings.Repeat(" ", width), ""))
+		fg = append(fg, strings.Split(strings.Repeat(" ", width), ""))
+		bg = append(bg, strings.Split(strings.Repeat(" ", width), ""))
 	}
 
-	return arr
+	return arr, fg, bg
 }
 
 // Returns Line per line contents,x,y
 func (b *Scrollable) PrepareFrame() {
 
-	
 	if !b.Visibility {
-		b.Canvas = [][]string{{""}}
-		b.DispatchEvent("onRenderReady")
+		b.SetCanvas([][]string{{""}}, [][]string{{""}}, [][]string{{""}})
 		return
 	}
-	var result = b.CreateCanvas()
+	result, fg, bg := b.CreateCanvas()
 	b.ComponentState.PrepareFrame()
 
-	var output = b.GetCanvas()
+	output, childFG, childBG := b.GetCanvas()
 	boxHeight := b.GetInnerHeight()
 	boxWidth := b.GetInnerWidth()
 
 	b.findBottom(output)
 	bottomEdge := b.OffsetY + boxHeight + 1
+
 	for lineY := b.OffsetY; lineY < min(bottomEdge, len(output)); lineY++ {
 		line := output[lineY]
 		leftEdge := boxWidth + b.OffsetX + 1
 		for lineX := b.OffsetX; lineX < min(len(line), leftEdge); lineX++ {
 			char := line[lineX]
-			result[lineY-b.OffsetY][lineX-b.OffsetX] = b.ApplyStyle(char)
+			result[lineY-b.OffsetY][lineX-b.OffsetX] = char
+			fg[lineY-b.OffsetY][lineX-b.OffsetX] = childFG[lineY][lineX]
+			bg[lineY-b.OffsetY][lineX-b.OffsetX] = childBG[lineY][lineX]
 		}
+
 	}
 
 	result = b.addBorder(result)
 
-	b.Canvas = result
-	b.DispatchEvent("onRenderReady")
+	b.SetCanvas(result, fg, bg)
 }
 
 func (c *Scrollable) Propagate() {

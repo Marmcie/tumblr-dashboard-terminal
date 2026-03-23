@@ -6,6 +6,7 @@ import (
 	"image/color"
 	"strconv"
 	"strings"
+	"time"
 	"tumblr-dt/ui/helper"
 
 	tea "charm.land/bubbletea/v2"
@@ -24,7 +25,8 @@ type Component interface {
 	SetBorderStyle(lipgloss.Style) *ComponentState
 	ResetBorderStyle() *ComponentState
 	SetBorders(bool, bool, bool, bool) *ComponentState
-	GetCanvas() [][]string
+	GetCanvas() ([][]string, [][]string, [][]string)
+	SetCanvas([][]string, [][]string, [][]string)
 	AddChild(Component)
 	GetChildren() []Component
 	GetComponent() Component
@@ -97,6 +99,10 @@ type Component interface {
 	SetCentered(bool) *ComponentState
 	GetCentered() bool
 	ApplyStyle(string) string
+	SetForeground(string)
+	SetBackground(string)
+	GetForeground() string
+	GetBackground() string
 }
 
 // Base class for all components
@@ -117,8 +123,9 @@ type ComponentState struct {
 	Depth          int
 	FitHeight      bool
 	FitWidth       bool
-	OnRenderReady  ([]func(Component))
 	Canvas         [][]string
+	BGSheet        [][]string
+	FGSheet        [][]string
 	ShowBorder     bool
 	BorderPadWidth int
 	// Name of an individual component
@@ -145,6 +152,9 @@ type ComponentState struct {
 	GlobalIndex        int
 	BackgroundGradient []color.Color
 	ForegroundGradient []color.Color
+	styleActive        bool
+	Background         string
+	Foreground         string
 }
 
 // Initialized all shared values
@@ -173,6 +183,8 @@ func (c *ComponentState) Initialize(name string) {
 	c.UUID = uuid.New().String()
 	c.EventCallbacks = map[string]map[string]func(tea.Msg, int){}
 	c.TitleAlignment = "center"
+	c.Foreground = " "
+	c.Background = " "
 
 	c.BorderLabels = map[string]string{
 		"TopLeft":     "",
@@ -187,6 +199,7 @@ func (c *ComponentState) Initialize(name string) {
 	c.ClearStyle()
 	c.SetVisibility(true)
 
+	c.styleActive = false
 	c.ShowDoubleBorder = false
 	c.GlobalIndex = Global.AddElement(c)
 }
@@ -603,9 +616,17 @@ func (c *ComponentState) GetUUID() string {
 // Perform rendering for a component and all its child components.
 // Rendered result is written to the Canvas property
 func (b *ComponentState) PrepareFrame() {
-	var result = b.CreateCanvas()
+
+	// defer func() {
+	// 	if err := recover(); err != nil {
+	// 		println(b.ToString())
+	// 		panic(err)
+	// 	}
+	// }()
+	start := time.Now().UnixMilli()
+	var result, fg, bg = b.CreateCanvas()
 	if !b.Visibility {
-		b.Canvas = [][]string{{""}}
+		b.SetCanvas([][]string{{""}}, [][]string{{""}}, [][]string{{""}})
 		return
 	}
 
@@ -615,8 +636,14 @@ func (b *ComponentState) PrepareFrame() {
 	innerWidth := b.GetInnerWidth() + 1
 
 	for _, c := range b.GetChildren() {
+		childHeight := c.GetHeight()
+		childWidth := c.GetWidth()
+		if !c.GetVisibility() {
+			cursor += childHeight
+			continue
+		}
 		c.PrepareFrame()
-		output := c.GetCanvas()
+		output, childFG, childBG := c.GetCanvas()
 
 		if c.IsAbsolute() == true {
 			childX, childY := c.GetPos()
@@ -625,34 +652,39 @@ func (b *ComponentState) PrepareFrame() {
 			for ind, line := range output {
 				posY := ind + b.GetY() + childY + top
 				for index, char := range line {
-					result[posY][globalX+index] = c.ApplyStyle(char)
+					result[posY][globalX+index] = char
 				}
 			}
 		} else {
 			// Loop through lines
 			pt := cursor
-			for y := 0; y < min(c.GetHeight(), len(result), len(output)); y++ {
+			for y := 0; y < min(childHeight, len(result), len(output)); y++ {
 				line := output[y]
 				// Loop through characters
-				for x := range min(c.GetWidth(), innerWidth-left, len(line)) {
+				for x := range min(childWidth, innerWidth-left, len(line)) {
 					// If canvas is smaller than the horizontal pointer, break
 					char := line[x]
 					// Check if the character is over the drawable area
-					result[pt][x+left] = c.ApplyStyle(char)
+					result[pt][x+left] = char
+					fg[pt][x+left] = childFG[y][x]
+					bg[pt][x+left] = childBG[y][x]
 				}
 				pt++
 			}
-			cursor += c.GetHeight()
+			cursor += childHeight
 		}
 	}
 
-	b.Canvas = result
-	b.DispatchEvent("onRenderReady")
+	b.SetCanvas(result, fg, bg)
+	end := time.Now().UnixMilli()
+	b.SetBorderLabel("BottomRight", strconv.Itoa(int(end-start))+"ms")
 }
 
 // Create a 2D array of string the size of component
-func (c *ComponentState) CreateCanvas() [][]string {
+func (c *ComponentState) CreateCanvas() ([][]string, [][]string, [][]string) {
 	var arr [][]string
+	var fg [][]string
+	var bg [][]string
 	height := c.GetContentsHeight() + 1
 	width := c.GetWidth()
 
@@ -660,14 +692,27 @@ func (c *ComponentState) CreateCanvas() [][]string {
 
 	for range height {
 		arr = append(arr, strings.Split(strings.Repeat(" ", width), ""))
+		fg = append(fg, strings.Split(strings.Repeat(c.Foreground, width), ""))
+		bg = append(bg, strings.Split(strings.Repeat(c.Background, width), ""))
 	}
 
-	return arr
+	return arr, fg, bg
 }
 
 // Get the rendered canvas
-func (c *ComponentState) GetCanvas() [][]string {
-	return c.Canvas
+func (c *ComponentState) GetCanvas() ([][]string, [][]string, [][]string) {
+	return c.Canvas, c.FGSheet, c.BGSheet
+}
+
+// Get the rendered canvas
+func (c *ComponentState) SetCanvas(
+	canvas [][]string,
+	fg [][]string,
+	bg [][]string,
+) {
+	c.Canvas = canvas
+	c.FGSheet = fg
+	c.BGSheet = bg
 }
 
 // Add border to a component if applicable
@@ -803,6 +848,7 @@ func (c *ComponentState) addBorder(arr [][]string) [][]string {
 
 // Set the lipgloss style for a component
 func (c *ComponentState) SetStyle(s lipgloss.Style) *ComponentState {
+	c.styleActive = true
 	c.Style = s
 	return c
 }
@@ -810,6 +856,7 @@ func (c *ComponentState) SetStyle(s lipgloss.Style) *ComponentState {
 // Clear the lipgloss style of a component
 func (c *ComponentState) ClearStyle() {
 	c.Style = lipgloss.NewStyle()
+	c.styleActive = false
 }
 
 // Get the lipgloss style of a component
@@ -906,15 +953,23 @@ func (c *ComponentState) UpdateVisibility(ytop int, hei int) {
 	top := 0
 	y := ytop
 	h := hei
+	hidden := 0
 	for _, child := range c.GetChildren() {
 		childHeight := child.GetHeight()
 		child.SetVisibility(!(top+childHeight < y || top > y+h))
+		if top+childHeight < y || top > y+h {
+			hidden++
+		}
 		top += childHeight
 	}
 }
 
 func (c *ComponentState) ApplyStyle(str string) string {
-	return c.GetStyle().Render(str)
+	if c.styleActive {
+		return c.GetStyle().Render(str)
+	} else {
+		return str
+	}
 }
 
 func (c *ComponentState) SetBackgroundGradient(v []color.Color) *ComponentState {
@@ -936,6 +991,23 @@ func (c *ComponentState) ClearBackgroundGradient() {
 }
 func (c *ComponentState) ClearForegroundGradient() {
 	c.ForegroundGradient = []color.Color{}
+}
+func (c *ComponentState) SetForeground(v string) {
+	if len(v) > 0 {
+		c.Foreground = v
+	}
+}
+func (c *ComponentState) SetBackground(v string) {
+	if len(v) > 0 {
+		c.Background = v
+	}
+}
+
+func (c *ComponentState) GetForeground()string {
+		return c.Foreground
+}
+func (c *ComponentState) GetBackground()string {
+		return c.Background
 }
 
 //#endregion Rendering

@@ -33,9 +33,9 @@ func (l *Line) SetText(text string) *Line {
 
 // Returns Line per line contents,x,y
 func (l *Line) PrepareFrame() {
+
 	if !l.Visibility {
-		l.Canvas = [][]string{{""}}
-		l.DispatchEvent("onRenderReady")
+		l.SetCanvas([][]string{{""}}, [][]string{{""}}, [][]string{{""}})
 		return
 	}
 
@@ -43,6 +43,8 @@ func (l *Line) PrepareFrame() {
 	innerWidth := l.GetInnerWidth()
 
 	var result [][]string
+	var fg [][]string
+	var bg [][]string
 	str = strings.ReplaceAll(str, "\n", "")
 
 	var res []string
@@ -58,10 +60,11 @@ func (l *Line) PrepareFrame() {
 		if runewidth.StringWidth(c) > 0 {
 			ct++
 		}
-		res[i] = l.ApplyStyle(c)
+		res[i] = c
 	}
 	result = append(result, res)
+	fg = append(fg, strings.Split(strings.Repeat(l.GetForeground()+",", len(res)), ","))
+	bg = append(bg, strings.Split(strings.Repeat(l.GetBackground()+",", len(res)), ","))
 
-	l.Canvas = result
-	l.DispatchEvent("onRenderReady")
+	l.SetCanvas(result, fg, bg)
 }

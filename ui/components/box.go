@@ -1,6 +1,5 @@
 package component
 
-
 // Basic component that displays its child.
 type Box struct {
 	ComponentState
@@ -15,9 +14,8 @@ func NewBox(name string) *Box {
 
 func (b *Box) PrepareFrame() {
 	b.ComponentState.PrepareFrame()
-	var result = b.GetCanvas()
+	var result, fg, bg = b.GetCanvas()
 	result = b.addBorder(result)
-	b.Canvas = result
-	b.DispatchEvent("onRenderReady")
+	b.SetCanvas(result, fg, bg)
+	// b.DispatchEvent("onRenderReady")
 }
-

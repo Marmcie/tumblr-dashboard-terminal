@@ -6,6 +6,7 @@ import (
 	component "tumblr-dt/ui/components"
 
 	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 )
 
 type App struct {
@@ -43,11 +44,25 @@ func (m *App) Render() string {
 	(*m.root).Propagate()
 
 	(*m.root).PrepareFrame()
-	result := (*m.root).GetCanvas()
+	result, foreground, _ := (*m.root).GetCanvas()
 	var res bytes.Buffer
 	for i := 0; i < min(len(result), m.Height); i++ {
 		line := result[i]
-		res.WriteString(strings.Join(line, "") + "\n")
+		lineFG := foreground[i]
+		currentFG := lineFG[0]
+		left := 0
+		ranges := []lipgloss.Range{}
+		for ind, fg := range lineFG {
+			if currentFG != fg {
+				ranges = append(ranges, lipgloss.NewRange(left, ind-1, lipgloss.NewStyle().Foreground(lipgloss.Color(currentFG))))
+				currentFG = fg
+				left = ind
+			}
+		}
+		ranges = append(ranges, lipgloss.NewRange(left, len(lineFG)-1, lipgloss.NewStyle().Foreground(lipgloss.Color(currentFG))))
+
+		str := lipgloss.StyleRanges(strings.Join(line, ""), ranges...)
+		res.WriteString(str + "\n")
 	}
 	return res.String()
 }

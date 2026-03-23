@@ -74,7 +74,8 @@ func (f *Contents) DisplayPost(post npf.Post) {
 		//INFO: Array of each lines
 		parts := []string{}
 		//INFO: Array of styles for each lines
-		styles := []lipgloss.Style{}
+		colors := []string{}
+		col := " "
 
 		// INFO: Loop through rendered NPF content blocks
 		for _, contents := range reblog.Contents {
@@ -83,14 +84,19 @@ func (f *Contents) DisplayPost(post npf.Post) {
 			switch contentType {
 			case "Heading1":
 				style = style.Foreground(ui.GetColor("ColorH1"))
+				col = "#00a000"
 			case "Image":
 				style = style.Foreground(ui.GetColor("ColorImage"))
+				col = "#00a000"
 			case "Heading2":
 				style = style.Foreground(ui.GetColor("ColorH2"))
+				col = "#00a000"
 			case "Quote":
 				style = style.Foreground(ui.GetColor("ColorQuote"))
+				col = "#00a000"
 			default:
 				style = lipgloss.NewStyle()
+				col = " "
 			}
 
 			//INFO: Divide the text into lines, while preventing word break
@@ -98,7 +104,7 @@ func (f *Contents) DisplayPost(post npf.Post) {
 				for word := range strings.SplitSeq(lines, " ") {
 					if runewidth.StringWidth(str)+runewidth.StringWidth(word)+1 >= innerWidth {
 						parts = append(parts, str)
-						styles = append(styles, style)
+						colors = append(colors, col)
 						str = word + " "
 					} else {
 						str += word + " "
@@ -106,18 +112,18 @@ func (f *Contents) DisplayPost(post npf.Post) {
 				}
 			}
 			parts = append(parts, str)
-			styles = append(styles, style)
+			colors = append(colors, col)
 			str = ""
 		}
-		styles = append(styles, style)
+		colors = append(colors, col)
 		parts = append(parts, str)
 
 		//INFO: Convert each line into Line object, then apply corresponding style
 		for i, line := range parts {
-			style := styles[i]
+			col := colors[i]
 			l := component.NewLine("Post text")
 			l.SetText(line)
-			l.SetStyle(style)
+			l.SetForeground(col)
 			l.SetWidthInherit(true)
 			box.AddChild(l)
 		}
