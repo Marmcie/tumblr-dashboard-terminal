@@ -120,6 +120,8 @@ type Component interface {
 	GetComponent() Component
 	AddChild(Component)
 	GetUUID() string
+	SetTitleAlignment(string) *ComponentState
+	GetTitleAlignment() string
 }
 
 type ComponentState struct {
@@ -153,6 +155,7 @@ type ComponentState struct {
 	ShowBorderCorner bool
 	IsFlexItem       bool
 	Title            string
+	TitleAlignment   string
 }
 
 func (c *ComponentState) Initialize(name string) {
@@ -178,6 +181,7 @@ func (c *ComponentState) Initialize(name string) {
 	c.IsFlexItem = false
 	c.UUID = uuid.New().String()
 	c.EventCallbacks = map[string][]func(tea.Msg, int){}
+	c.TitleAlignment = "center"
 
 	Global.Elements = append(Global.Elements, c)
 }
@@ -491,9 +495,19 @@ func (c *ComponentState) addBorder(arr [][]string) [][]string {
 		}
 
 		title := c.GetTitle()
-		for i := range min(wid-1, len(title)) {
-			char := title[i]
-			arr[0][i+1] = string(char)
+		switch c.GetTitleAlignment() {
+		case "left":
+			for i := range min(wid-1, len(title)) {
+				char := title[i]
+				arr[0][i+1] = string(char)
+			}
+
+		case "center":
+			length := len(title)
+			for i := range min(wid-1, len(title)) {
+				char := title[i]
+				arr[0][i+max(1, (wid-length)/2)] = string(char)
+			}
 		}
 
 	}
@@ -612,8 +626,21 @@ func (c *ComponentState) GetStyle() lipgloss.Style {
 
 func (c *ComponentState) SetBorder(show bool) *ComponentState {
 	c.ShowBorder = show
+	if show && c.BorderPadWidth == 0 {
+		c.SetBorderPadding(1)
+	}
 	return c
 }
+
+func (c *ComponentState) SetTitleAlignment(str string) *ComponentState {
+	c.Title = str
+	return c
+}
+
+func (c *ComponentState) GetTitleAlignment() string {
+	return c.TitleAlignment
+}
+
 func (c *ComponentState) SetBorders(top bool, bottom bool, left bool, right bool) *ComponentState {
 	c.ShowTopBorder = top
 	c.ShowBottomBorder = bottom
