@@ -14,6 +14,7 @@ func main() {
 
 	// Load first sets of posts.
 	dashboard.Update()
+	dashboard.RenderPost()
 
 	if err := app.SetRoot(dashboard.Root, true).Run(); err != nil {
 		print("Error in tview loop\n")
