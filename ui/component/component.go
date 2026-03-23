@@ -674,6 +674,9 @@ func (b *BaseComponent) RenderToCanvas() {
 			pt := cursor
 			for y := 0; y < min(childHeight, len(result), len(output)); y++ {
 				line := output[y]
+				if len(result) <= pt {
+					break
+				}
 				// Loop through characters
 				for x := range min(childWidth, innerWidth-left, len(line), len(result[pt])) {
 					// If canvas is smaller than the horizontal pointer, break
@@ -698,7 +701,7 @@ func (b *BaseComponent) RenderToCanvas() {
 
 // Create a 2D array of string the size of component
 func (c *BaseComponent) CreateCanvas() ([][]string, [][]string, [][]string) {
-	height := c.GetContentsHeight() + 1
+	height := max(c.GetContentsHeight()+1, 1)
 	width := c.GetWidth()
 
 	var arr [][]string = make([][]string, height)
