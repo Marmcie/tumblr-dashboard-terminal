@@ -24,7 +24,7 @@ func getAuthConfig() *oauth2.Config {
 			AuthURL:  "https://www.tumblr.com/oauth2/authorize",
 			TokenURL: "https://api.tumblr.com/v2/oauth2/token",
 		},
-		RedirectURL: "http://localhost:6969/",
+		RedirectURL: "http://localhost:" + config.Redirect_port + "/",
 		Scopes: []string{
 			"basic",
 			"offline_access",
@@ -48,7 +48,7 @@ func GetClient() *http.Client {
 
 	// get password
 	tokenStr, _ := keyring.Get(service, user)
-	
+
 	var token *OAuth2Token
 	if len(tokenStr) == 0 {
 		//INFO:Create new token
@@ -84,13 +84,14 @@ func RemoveToken() {
 func Auth(ctx context.Context) *oauth2.Token {
 
 	conf := getAuthConfig()
+	config := GetConfig()
 
 	verifier := oauth2.GenerateVerifier()
 
 	requestUrl := conf.AuthCodeURL("state", oauth2.AccessTypeOffline, oauth2.S256ChallengeOption(verifier))
 
 	fmt.Printf("Visit the URL for the auth dialog: %v", requestUrl)
-	srv := &http.Server{Addr: ":6969"}
+	srv := &http.Server{Addr: ":" + config.Redirect_port}
 	var token *oauth2.Token
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		code := r.URL.Query().Get("code")

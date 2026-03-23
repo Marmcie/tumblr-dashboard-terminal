@@ -14,6 +14,7 @@ type Config struct {
 	Debug                 bool
 	Testing               bool
 	Blacklist             []string
+	Redirect_port         string
 }
 
 var config Config
