@@ -14,8 +14,10 @@ func main() {
 
 	dashboard := modules.NewDashboard(&client, app)
 
-	// Black and white dashboard
-	dashboard.BWMode = os.Args[1] == "BW"
+	if len(os.Args) > 1 {
+		// Black and white dashboard
+		dashboard.BWMode = os.Args[1] == "BW"
+	}
 
 	// Load first sets of posts.
 	dashboard.Update()
