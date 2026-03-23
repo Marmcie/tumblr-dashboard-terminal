@@ -1013,13 +1013,9 @@ func (c *BaseComponent) UpdateVisibility(ytop int, hei int) {
 	top := 0
 	y := ytop
 	h := hei
-	hidden := 0
 	for _, child := range c.GetChildren() {
 		childHeight := child.GetHeight()
 		child.SetVisibility(!(top+childHeight < y || top > y+h))
-		if top+childHeight < y || top > y+h {
-			hidden++
-		}
 		top += childHeight
 	}
 }
