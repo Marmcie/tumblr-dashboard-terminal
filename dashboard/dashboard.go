@@ -220,25 +220,31 @@ func (d *Dashboard) filterPosts(posts []npf.Post) []*npf.Post {
 	for _, postObject := range posts {
 		post := &postObject
 		result = append(result, post)
+		post.FilteredContents = mapset.NewSet[string]()
+		post.FilteredTags = mapset.NewSet[string]()
 
-		if len(post.Tags) > 0 && d.FilteredTags.ContainsAny(post.Tags...) {
-			post.IsFiltered = true
-			continue
+		if len(post.Tags) > 0 {
+			for _, tag := range post.Tags {
+				if d.FilteredTags.Contains(tag) {
+					post.IsFiltered = true
+					post.FilteredTags.Add(tag)
+				}
+			}
 		}
 		reblogs := post.Render()
-		for i := 0; i < len(reblogs) && !post.IsFiltered; i++ {
+		for i := 0; i < len(reblogs); i++ {
 			reblog := reblogs[i]
-			for a := 0; a < len(filteredContents) && !post.IsFiltered; a++ {
+			for a := 0; a < len(filteredContents); a++ {
 				filteredWord := filteredContents[a]
 				if strings.Contains(reblog.Blog.Name, filteredWord) {
 					post.IsFiltered = true
-					break
+					post.FilteredContents.Add(filteredWord)
 				}
-				for b := 0; b < len(reblog.Contents) && !post.IsFiltered; b++ {
+				for b := 0; b < len(reblog.Contents); b++ {
 					content := reblog.Contents[b]
 					if strings.Contains(content.Str, filteredWord) {
 						post.IsFiltered = true
-						break
+						post.FilteredContents.Add(filteredWord)
 					}
 				}
 			}
@@ -372,14 +378,37 @@ func (d *Dashboard) UpdateInfo(post *npf.Post) {
 		}
 	}
 
+	//TODO: Implement this better
+	//Perhaps use line objects?
 	var str = bytes.Buffer{}
-	str.WriteString("Date      :  " + t.Format("2006-01-02 15:04:05 MST") + " (" + diffStr + " ago)" + "\n")
-	str.WriteString("URL       :  " + post.Short_url + "\n")
-	str.WriteString("Blog name :  " + post.Blog_name + "\n")
-	str.WriteString("Tags      :  ")
-	if len(post.Tags) > 0 {
-		str.WriteString("#")
-		str.WriteString(strings.Join(post.Tags, " #"))
+	if !post.IsFiltered {
+		str.WriteString("Date      :  " + t.Format("2006-01-02 15:04:05 MST") + " (" + diffStr + " ago)" + "\n")
+		str.WriteString("URL       :  " + post.Short_url + "\n")
+		str.WriteString("Blog name :  " + post.Blog_name + "\n")
+		str.WriteString("Tags      :  ")
+		if len(post.Tags) > 0 {
+			str.WriteString("#")
+			str.WriteString(strings.Join(post.Tags, " #"))
+		}
+	} else {
+
+		filteredContents := post.FilteredContents.ToSlice()
+		filteredTags := post.FilteredTags.ToSlice()
+
+		str.WriteString("Date              :  " + t.Format("2006-01-02 15:04:05 MST") + " (" + diffStr + " ago)" + "\n")
+		str.WriteString("URL               :  " + post.Short_url + "\n")
+		str.WriteString("Blog name         :  " + post.Blog_name + "\n")
+		if len(filteredContents) > 0 {
+			str.WriteString("Filtered contents :  " + strings.Join(filteredContents, ", ") + "\n")
+		}
+		if len(filteredTags) > 0 {
+			str.WriteString("Filtered tags     :  #" + strings.Join(filteredTags, " #") + "\n")
+		}
+		str.WriteString("Tags              :  ")
+		if len(post.Tags) > 0 {
+			str.WriteString("#")
+			str.WriteString(strings.Join(post.Tags, " #"))
+		}
 	}
 
 	d.info.SetText(str.String())

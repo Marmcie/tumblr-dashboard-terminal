@@ -3,6 +3,8 @@ package npf
 import (
 	"sort"
 	"strconv"
+
+	mapset "github.com/deckarep/golang-set/v2"
 )
 
 type Post struct {
@@ -60,6 +62,8 @@ type Post struct {
 	Rendered                   bool
 	Result                     []TrailData
 	IsFiltered                 bool
+	FilteredContents           mapset.Set[string]
+	FilteredTags               mapset.Set[string]
 }
 
 var orderedListIndex = 1
