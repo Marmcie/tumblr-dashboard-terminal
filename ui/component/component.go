@@ -16,7 +16,7 @@ type Component interface {
 	SetBorder(bool) *BaseComponent
 	SetBorderCorner(bool) *BaseComponent
 	SetPadding(int) *BaseComponent
-	SetPaddings(int,int,int,int) *BaseComponent
+	SetPaddings(int, int, int, int) *BaseComponent
 	GetPaddings() (int, int, int, int)
 	SetBorders(bool, bool, bool, bool) *BaseComponent
 	GetCanvas() ([][]string, [][]string, [][]string)
@@ -83,6 +83,7 @@ type Component interface {
 	GetVisibility() bool
 	ToString() string
 	SetBorderLabel(string, string)
+	SetBorderLabelColor(string, string)
 	UpdateVisibility(int, int)
 	Delete()
 	SetGlobalIndex(int)
@@ -127,21 +128,22 @@ type BaseComponent struct {
 	// Name of an individual component
 	Name string
 	// Name of a component type
-	ComponentName    string
-	EventCallbacks   map[string]map[string]EventCb
-	Absolute         bool
-	Overflow         bool
-	ShowTopBorder    bool
-	ShowBottomBorder bool
-	ShowLeftBorder   bool
-	ShowRightBorder  bool
-	ShowBorderCorner bool
-	IsFlexItem       bool
-	Title            string
-	TitleAlignment   string
-	ShowDoubleBorder bool
-	Visibility       bool
-	BorderLabels     map[string]string
+	ComponentName     string
+	EventCallbacks    map[string]map[string]EventCb
+	Absolute          bool
+	Overflow          bool
+	ShowTopBorder     bool
+	ShowBottomBorder  bool
+	ShowLeftBorder    bool
+	ShowRightBorder   bool
+	ShowBorderCorner  bool
+	IsFlexItem        bool
+	Title             string
+	TitleAlignment    string
+	ShowDoubleBorder  bool
+	Visibility        bool
+	BorderLabels      map[string]string
+	BorderLabelColors map[string]string
 	//Index of the component within global element list
 	GlobalIndex        int
 	BackgroundGradient []color.Color
@@ -185,6 +187,14 @@ func (c *BaseComponent) Initialize(name string) {
 	c.SetPadding(0)
 
 	c.BorderLabels = map[string]string{
+		"TopLeft":     "",
+		"Top":         "",
+		"TopRight":    "",
+		"BottomRight": "",
+		"Bottom":      "",
+		"BottomLeft":  "",
+	}
+	c.BorderLabelColors = map[string]string{
 		"TopLeft":     "",
 		"Top":         "",
 		"TopRight":    "",
@@ -718,9 +728,9 @@ func (c *BaseComponent) SetCanvas(
 }
 
 // Add border to a component if applicable
-func (c *BaseComponent) addBorder(arr [][]string) [][]string {
+func (c *BaseComponent) addBorder(arr [][]string, fg [][]string, bg [][]string) ([][]string, [][]string, [][]string) {
 	if !c.ShowBorder || len(arr) <= 1 || len(arr[0]) <= 1 {
-		return arr
+		return arr, fg, bg
 	}
 
 	side := (helper.Dictionary(helper.BorderSide))
@@ -802,6 +812,7 @@ func (c *BaseComponent) addBorder(arr [][]string) [][]string {
 				for i := range min(wid-1, runewidth.StringWidth(str)) {
 					char := title[i]
 					arr[0][i+1] = (string(char))
+					fg[0][i+1] = c.BorderLabelColors[key]
 				}
 
 			case "Top":
@@ -809,6 +820,7 @@ func (c *BaseComponent) addBorder(arr [][]string) [][]string {
 				for i := range min(wid-1, runewidth.StringWidth(str)) {
 					char := str[i]
 					arr[0][i+max(1, (wid-length)/2)] = (string(char))
+					fg[0][i+max(1, (wid-length)/2)] = c.BorderLabelColors[key]
 				}
 
 			case "TopRight":
@@ -816,12 +828,14 @@ func (c *BaseComponent) addBorder(arr [][]string) [][]string {
 				for i := 0; i < min(wid-2, strWidth); i++ {
 					char := str[strWidth-(i+1)]
 					arr[0][wid-(i+2)] = (string(char))
+					fg[0][wid-(i+2)] = c.BorderLabelColors[key]
 				}
 
 			case "BottomLeft":
 				for i := range min(wid-1, runewidth.StringWidth(str)) {
 					char := str[i]
 					arr[hei-1][i+1] = (string(char))
+					fg[hei-1][i+1] = c.BorderLabelColors[key]
 				}
 
 			case "Bottom":
@@ -830,6 +844,7 @@ func (c *BaseComponent) addBorder(arr [][]string) [][]string {
 				for i := range min(wid-1, runewidth.StringWidth(str)) {
 					char := str[i]
 					arr[hei-1][i+max(1, center)] = (string(char))
+					fg[hei-1][i+max(1, center)] = c.BorderLabelColors[key]
 				}
 
 			case "BottomRight":
@@ -837,6 +852,7 @@ func (c *BaseComponent) addBorder(arr [][]string) [][]string {
 				for i := 0; i < min(wid-2, strWidth); i++ {
 					char := str[strWidth-(i+1)]
 					arr[hei-1][wid-(i+2)] = (string(char))
+					fg[hei-1][wid-(i+2)] = c.BorderLabelColors[key]
 				}
 			}
 
@@ -844,7 +860,7 @@ func (c *BaseComponent) addBorder(arr [][]string) [][]string {
 
 	}
 
-	return arr
+	return arr, fg, bg
 }
 
 // Set if border should be visible
@@ -887,7 +903,7 @@ func (c *BaseComponent) SetPadding(v int) *BaseComponent {
 	c.PaddingRight = v
 	return c
 }
-func (c *BaseComponent) SetPaddings(t int,b int,l int,r int) *BaseComponent {
+func (c *BaseComponent) SetPaddings(t int, b int, l int, r int) *BaseComponent {
 	c.PaddingTop = t
 	c.PaddingBottom = b
 	c.PaddingLeft = l
@@ -919,6 +935,11 @@ func (c *BaseComponent) GetVisibility() bool {
 // Set a label to be displayed on corners of the border
 func (c *BaseComponent) SetBorderLabel(key string, str string) {
 	c.BorderLabels[key] = str
+}
+
+// Set a label to be displayed on corners of the border
+func (c *BaseComponent) SetBorderLabelColor(key string, str string) {
+	c.BorderLabelColors[key] = str
 }
 
 // Recursively hide all elements invisible to the parent element

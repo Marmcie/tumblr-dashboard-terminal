@@ -15,6 +15,6 @@ func NewBox(name string) *Box {
 func (b *Box) RenderToCanvas() {
 	b.BaseComponent.RenderToCanvas()
 	var result, fg, bg = b.GetCanvas()
-	result = b.addBorder(result)
+	result, fg, bg = b.addBorder(result, fg, bg)
 	b.SetCanvas(result, fg, bg)
 }

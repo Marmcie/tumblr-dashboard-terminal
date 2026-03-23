@@ -91,7 +91,7 @@ func (b *Scrollable) RenderToCanvas() {
 		}
 	}
 
-	result = b.addBorder(result)
+	result, fg, bg = b.addBorder(result, fg, bg)
 
 	b.SetCanvas(result, fg, bg)
 }
