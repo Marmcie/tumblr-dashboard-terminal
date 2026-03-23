@@ -1,6 +1,8 @@
 package ui
 
-import ()
+import (
+	"tumblr-dt/modules"
+)
 
 const ColorBG = "ColorBG"
 const ColorFocus = "ColorFocus"
@@ -14,15 +16,16 @@ const ColorFiltered = "ColorFiltered"
 const ColorBlacklisted = "ColorBlacklisted"
 
 func GetColorStr(key string) string {
+	config := modules.GetConfig()
 	return map[string]string{
-		"ColorBG":       "#060616",
-		"ColorFocus":    "#135366",
-		"ColorWhite":    "#ffffff",
-		"ColorGrey":     "#aaaaaa",
-		"ColorH1":       "#40f0f0",
-		"ColorH2":       "#a0f000",
-		"ColorImage":    "#40a0f0",
-		"ColorQuote":    "#f0f000",
-		"ColorFiltered": "#ff0000",
+		"ColorBG":       config.Colors.Bg,
+		"ColorFocus":    config.Colors.Focus,
+		"ColorWhite":    config.Colors.White,
+		"ColorGrey":     config.Colors.Grey,
+		"ColorH1":       config.Colors.H1,
+		"ColorH2":       config.Colors.H2,
+		"ColorImage":    config.Colors.Image,
+		"ColorQuote":    config.Colors.Quote,
+		"ColorFiltered": config.Colors.Filtered,
 	}[key]
 }

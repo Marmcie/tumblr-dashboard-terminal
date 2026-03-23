@@ -7,5 +7,16 @@
     "discourse tag",
     "Your ex's blog",
     "Any term you don't want to search"
-  ]
+  ],
+  "colors": {
+    "bg": "#060616",
+    "focus": "#135366",
+    "white": "#ffffff",
+    "grey": "#aaaaaa",
+    "h1": "#40f0f0",
+    "h2": "#a0f000",
+    "image": "#40a0f0",
+    "quote": "#f0f000",
+    "filtered": "#ff0000"
+  }
 }
