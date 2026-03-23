@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/rivo/tview"
 	"github.com/tumblr/tumblrclient.go"
-	"tumblr2/modules"
+	"tumblr-terminal/modules"
 )
 
 func main() {
