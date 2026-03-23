@@ -123,7 +123,7 @@ func (c *Content) RenderWithData() ContentData {
 		}
 
 	case "poll":
-		str.WriteString("Question : " + c.Question + "\n")
+		str.WriteString("Poll : " + c.Question + "\n")
 		for _, a := range c.Answers {
 			str.WriteString("- " + a.Answer_text + "\n")
 		}

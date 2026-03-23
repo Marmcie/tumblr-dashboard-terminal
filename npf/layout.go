@@ -5,7 +5,7 @@ type Layout struct {
 	Truncate_after int64
 	Blocks         []int64
 
-	Attribution struct {
+	Attribution *struct {
 		Type string
 		Url  string
 		Blog Blog

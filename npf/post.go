@@ -67,6 +67,7 @@ type ContentData struct {
 type TrailData struct {
 	Contents []ContentData
 	Blog     Blog
+	Layout   []Layout
 }
 
 func (p *Post) Render() []TrailData {
@@ -90,6 +91,7 @@ func (p *Post) Render() []TrailData {
 		result = append(result, TrailData{
 			Contents: res,
 			Blog:     p.Blog,
+			Layout:   p.Layout,
 		})
 	}
 	for _, t := range p.Trail {
@@ -105,6 +107,7 @@ func (p *Post) Render() []TrailData {
 		result = append(result, TrailData{
 			Contents: res,
 			Blog:     t.Blog,
+			Layout:   t.Layout,
 		})
 	}
 	renderResults[p.Id_string] = result

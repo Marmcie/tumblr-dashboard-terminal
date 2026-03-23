@@ -1,6 +1,8 @@
 package dashboard
 
 import (
+	"bytes"
+	"fmt"
 	"strings"
 	"tumblr-dt/npf"
 	"tumblr-dt/ui"
@@ -60,7 +62,7 @@ func (f *Contents) DisplayPost(post npf.Post) {
 		box.SetWidthInherit(true)
 		f.contentElem.AddChild(box)
 		innerWidth := box.GetInnerWidth()
-		str := ""
+		var str bytes.Buffer
 
 		//INFO: Array of each lines
 		parts := []string{}
@@ -68,32 +70,64 @@ func (f *Contents) DisplayPost(post npf.Post) {
 		colors := []string{}
 		col := " "
 
+		var askLayout npf.Layout
+		var askStart = -100
+		var askEnd = -100
+		for _, layout := range reblog.Layout {
+			if layout.Type == "ask" {
+				askLayout = layout
+				askStart = int(layout.Blocks[0])
+				askEnd = int(layout.Blocks[len(layout.Blocks)-1])
+				break
+			}
+		}
+		isAsk := false
 		// INFO: Loop through rendered NPF content blocks
-		for _, contents := range reblog.Contents {
+		for i, contents := range reblog.Contents {
+			contentStr := contents.Str
+			if i == askStart {
+				isAsk = true
+				blogName := "Anonymous"
+				if askLayout.Attribution != nil {
+					blogName = askLayout.Attribution.Blog.GetName()
+				}
+				contentStr = fmt.Sprintf("Ask by %s :\n %s", blogName, contentStr)
+			}
+
+			if i == askEnd+1 {
+				isAsk = false
+				contentStr = fmt.Sprintf("Answer by %s :\n %s", reblog.Blog.GetName(), contentStr)
+			}
+
 			contentType := contents.ContentType
 			//INFO: Change text color based on content type
 			switch contentType {
 			case "Heading1":
 				col = ui.GetColorStr(ui.ColorH1)
-
 			case "Image":
 				col = ui.GetColorStr(ui.ColorImage)
-
 			case "Video":
 				col = ui.GetColorStr(ui.ColorImage)
 			case "Heading2":
 				col = ui.GetColorStr(ui.ColorH2)
 			case "Quote":
 				col = ui.GetColorStr(ui.ColorQuote)
+			case "Poll":
+				col = ui.GetColorStr(ui.ColorQuote)
 			default:
 				col = ""
 			}
+			if isAsk {
+				col = ui.GetColorStr(ui.ColorQuote)
+			}
 
 			//INFO: Divide the text into lines, while preventing word break
-			for lines := range strings.SplitSeq(contents.Str, "\n") {
-				for word := range strings.SplitSeq(lines, " ") {
-					if runewidth.StringWidth(str)+runewidth.StringWidth(word)+1 >= innerWidth {
-						parts = append(parts, str)
+			for line := range strings.SplitSeq(contentStr, "\n") {
+				for word := range strings.SplitSeq(line, " ") {
+					word = strings.Trim(word, " ")
+					strString:=str.String()
+					if runewidth.StringWidth(strString)+runewidth.StringWidth(word)+1 >= innerWidth {
+						parts = append(parts, strString)
 						colors = append(colors, col)
 						//INFO: If the single word is wider than the box,
 						//or the language doesn't use white space as separator,
@@ -112,24 +146,28 @@ func (f *Contents) DisplayPost(post npf.Post) {
 							}
 							parts = append(parts, w)
 							colors = append(colors, col)
-							str = ""
+							str.Reset()
 						} else {
-							str = word + " "
+							str.Reset()
+							str.WriteString(word+" ")
 						}
 					} else {
-						str += word + " "
+						str.WriteString(word + " ")
 					}
 				}
+
+				if len(strings.Trim(str.String(), " ")) > 0 {
+					parts = append(parts, strings.Trim(str.String(), " "))
+					colors = append(colors, col)
+					str.Reset()
+				}
 			}
-			parts = append(parts, str)
-			colors = append(colors, col)
-			str = ""
 
 			parts = append(parts, "")
 			colors = append(colors, "")
 		}
 		colors = append(colors, col)
-		parts = append(parts, str)
+		parts = append(parts, str.String())
 
 		top, _, _, _ := box.GetBorderPaddings()
 
