@@ -2,7 +2,8 @@
 include .env
 deploy:
 	go build .
-	mv ./tumblr-dt.exe "${BIN_PATH}\tumblr-dt.exe"
+	test ! -d "$(BIN_PATH)" || 	mv ./tumblr-dt.exe "${BIN_PATH}\tumblr-dt.exe"
+
 test:
 	go test  .\...
 bench:
