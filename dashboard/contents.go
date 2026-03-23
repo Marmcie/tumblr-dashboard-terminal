@@ -125,7 +125,7 @@ func (f *Contents) DisplayPost(post npf.Post) {
 			for line := range strings.SplitSeq(contentStr, "\n") {
 				for word := range strings.SplitSeq(line, " ") {
 					word = strings.Trim(word, " ")
-					strString:=str.String()
+					strString := str.String()
 					if runewidth.StringWidth(strString)+runewidth.StringWidth(word)+1 >= innerWidth {
 						parts = append(parts, strString)
 						colors = append(colors, col)
@@ -140,19 +140,19 @@ func (f *Contents) DisplayPost(post npf.Post) {
 								for i := 0; l < innerWidth && i < len(w); i++ {
 									l += runewidth.StringWidth(string(w[i]))
 								}
-								parts = append(parts, strings.Trim(w[:l]," "))
+								parts = append(parts, strings.Trim(w[:l], " "))
 								colors = append(colors, col)
 								w = w[l:]
 							}
-							parts = append(parts, strings.Trim(w," "))
+							parts = append(parts, strings.Trim(w, " "))
 							colors = append(colors, col)
 							str.Reset()
 						} else {
 							str.Reset()
-							str.WriteString(strings.TrimLeft(word+" "," "))
+							str.WriteString(strings.TrimLeft(word+" ", " "))
 						}
 					} else {
-						str.WriteString(strings.TrimLeft(word + " "," "))
+						str.WriteString(strings.TrimLeft(word+" ", " "))
 					}
 				}
 
@@ -169,13 +169,11 @@ func (f *Contents) DisplayPost(post npf.Post) {
 		colors = append(colors, col)
 		parts = append(parts, str.String())
 
-		top, _, _, _ := box.GetPaddings()
-
 		box.SetTitle(reblog.Blog.Name)
-		box.SetH(max(3, len(parts)+1))
+		box.SetH(max(3, len(parts)))
 
 		//INFO: Convert each line into Line object, then apply corresponding style
-		for i := 0; i < min(len(parts), box.GetInnerHeight()-top); i++ {
+		for i := 0; i < min(len(parts), box.GetInnerHeight()); i++ {
 			line := parts[i]
 			col := colors[i]
 			l := component.NewLine("Post text")
