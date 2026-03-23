@@ -51,14 +51,14 @@ func (t *Text) GetStringArray() [][]string {
 }
 
 // Returns Text per line contents,x,y
-func (l *Text) PrepareFrame() {
+func (l *Text) RenderToCanvas() {
 	if !l.Visibility {
 		l.SetCanvas([][]string{{""}}, [][]string{{""}}, [][]string{{""}})
 		l.DispatchEvent("onRenderReady")
 		return
 	}
 	arr := l.GetStringArray()
-	top, bottom, left, _ := l.GetBorderPaddings()
+	top, bottom, left, _ := l.GetPaddings()
 
 	innerWidth := l.GetInnerWidth()
 	result, fg, bg := l.CreateCanvas()

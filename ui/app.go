@@ -41,9 +41,9 @@ func initializeDepth(comp component.Component, depth int) {
 }
 
 func (m *App) Render() string {
-	(*m.root).Propagate()
+	(*m.root).BeforeRender()
 
-	(*m.root).PrepareFrame()
+	(*m.root).RenderToCanvas()
 	result, foreground, background := (*m.root).GetCanvas()
 	var res bytes.Buffer
 	style := lipgloss.NewStyle()

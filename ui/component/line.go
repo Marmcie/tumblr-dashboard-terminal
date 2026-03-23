@@ -33,7 +33,7 @@ func (l *Line) SetText(text string) *Line {
 }
 
 // Returns Line per line contents,x,y
-func (l *Line) PrepareFrame() {
+func (l *Line) RenderToCanvas() {
 
 	if !l.Visibility {
 		l.SetCanvas([][]string{{""}}, [][]string{{""}}, [][]string{{""}})

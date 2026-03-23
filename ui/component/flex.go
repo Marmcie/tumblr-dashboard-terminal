@@ -117,21 +117,21 @@ func (b *Flex) UpdateChildSize() {
 	}
 }
 
-func (c *Flex) Propagate() {
+func (c *Flex) BeforeRender() {
 	c.UpdateChildSize()
-	c.BaseComponent.Propagate()
+	c.BaseComponent.BeforeRender()
 }
 
-func (b *Flex) PrepareFrame() {
+func (b *Flex) RenderToCanvas() {
 	// start := time.Now().UnixMilli()
 	var result, fg, bg = b.CreateCanvas()
 
-	top, _, left, _ := b.GetBorderPaddings()
+	top, _, left, _ := b.GetPaddings()
 	cursor := top
 	sideOffset := left
 
 	for _, c := range b.GetChildren() {
-		c.PrepareFrame()
+		c.RenderToCanvas()
 		output, childFG, childBG := c.GetCanvas()
 		if c.IsAbsolute() == true {
 			if !c.GetVisibility() {
