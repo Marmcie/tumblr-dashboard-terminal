@@ -1,6 +1,7 @@
 package dashboard
 
 import (
+	"fmt"
 	"tumblr-dt/npf"
 	"tumblr-dt/ui"
 	component "tumblr-dt/ui/component"
@@ -28,6 +29,10 @@ func NewFeed(dashboard *Dashboard) *Feed {
 	return f
 }
 
+func (f *Feed) UpdatePostCounter() {
+	f.listElem.SetBorderLabel("BottomLeft", fmt.Sprintf("%d/%d", f.listElem.Cursor+1, len(f.listElem.GetChildren())))
+}
+
 func (f *Feed) InitEvents() {
 
 	f.listElem.AddEventListener("onUpdate", func(msg tea.Msg) {
@@ -40,16 +45,20 @@ func (f *Feed) InitEvents() {
 			case "j":
 				f.listElem.IncrementCursor()
 				f.listElem.RunSelectedOption()
+				f.UpdatePostCounter()
 			case "k":
 				f.listElem.DecrementCursor()
 				f.listElem.RunSelectedOption()
+				f.UpdatePostCounter()
 			case "G":
 				f.listElem.SetCursor(len(f.posts) - 1)
 				f.listElem.RunSelectedOption()
+				f.UpdatePostCounter()
 			case "g":
 				if f.prev == "g" {
 					f.listElem.SetCursor(0)
 					f.listElem.RunSelectedOption()
+					f.UpdatePostCounter()
 				}
 			}
 			f.prev = msg.String()
@@ -92,6 +101,7 @@ func (f *Feed) AddPosts(posts []npf.Post) {
 		})
 	}
 	f.listElem.SetCursor(f.listElem.Cursor)
+	f.UpdatePostCounter()
 }
 
 func (f *Feed) Focus() {
