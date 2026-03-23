@@ -61,6 +61,7 @@ func (m RootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case "ctrl+d":
 			modules.RemoveToken()
+
 			return m, tea.Quit
 		}
 	}
@@ -70,5 +71,6 @@ func (m RootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m RootModel) View() tea.View {
 	v := tea.NewView(m.App.Render())
+	v.AltScreen = true
 	return v
 }
