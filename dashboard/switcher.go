@@ -1,6 +1,7 @@
 package dashboard
 
 import (
+	"tumblr-dt/ui"
 	component "tumblr-dt/ui/components"
 
 	tea "charm.land/bubbletea/v2"
@@ -9,8 +10,10 @@ import (
 type Switcher struct {
 	Window     *component.Flex
 	DashOption *component.Box
-	TagOption  *component.Box
+	DashLabel  *component.Line
+	TagOption  *component.Flex
 	TagInput   *component.Line
+	TagLabel   *component.Line
 	dashboard  *Dashboard
 }
 
@@ -21,24 +24,42 @@ func NewSwitcher(dashboard *Dashboard) *Switcher {
 	s.Window.
 		SetAbsolute(true).
 		SetCentered(true).
-		SetSize(40, 8).
-		SetBorder(true)
+		SetSize(30, 7).
+		SetBorder(true).
+		SetBorderPadding(2)
+	s.Window.SetTitle("Feed picker")
+	s.Window.SetBorderLabel("BottomRight", "Esc to close")
+
 	s.DashOption = component.NewBox("Dash option")
 	s.DashOption.SetBorder(true).
-		SetWidthInherit(true)
-	s.DashOption.SetTitle("Dashboard")
+		SetWidthInherit(true).
+		SetBorders(false, false, true, false).
+		SetBorderCorner(false)
 
-	s.TagOption = component.NewBox("Tag option")
+	s.DashLabel = component.NewLine("Dash label")
+	s.DashLabel.SetText("Dashboard")
+
+	s.DashOption.AddChild(s.DashLabel)
+
+	s.TagLabel = component.NewLine("Tag label")
+	s.TagLabel.SetText("Tag : ")
+
+	s.TagOption = component.NewFlex("Tag option")
+	s.TagOption.Direction = 1
 	s.TagOption.SetBorder(true).
-		SetWidthInherit(true)
-	s.TagOption.SetTitle("Tag")
+		SetWidthInherit(true).
+		SetBorders(false, false, true, false).
+		SetBorderCorner(false)
 
 	s.TagInput = component.NewLine("Tag input")
 	s.TagInput.SetWidthInherit(true)
+	s.TagInput.SetBackground(ui.GetColorStr(ui.ColorFocus))
 
-	s.TagOption.AddChild(s.TagInput)
-	s.Window.AddItem(s.DashOption, component.NewFlexDescriptor(0, 1))
-	s.Window.AddItem(s.TagOption, component.NewFlexDescriptor(0, 2))
+	s.TagOption.AddItem(s.TagLabel, component.NewFlexDescriptor(0, 1))
+	s.TagOption.AddItem(s.TagInput, component.NewFlexDescriptor(0, 3))
+
+	s.Window.AddItem(s.DashOption, component.NewFlexDescriptor(1, 0))
+	s.Window.AddItem(s.TagOption, component.NewFlexDescriptor(1, 0))
 	s.InitEvents()
 
 	return s
@@ -59,9 +80,12 @@ func (s *Switcher) InitEvents() {
 		switch msg := msg.(type) {
 		case tea.KeyPressMsg:
 			switch msg.String() {
-			case "tab":
+			case "tab", "up", "down":
 				s.ToggleOption()
+			case "esc":
+				s.dashboard.toggleSwitcher()
 			}
+
 		}
 	}, false)
 
@@ -69,8 +93,6 @@ func (s *Switcher) InitEvents() {
 		switch msg := msg.(type) {
 		case tea.KeyPressMsg:
 			switch msg.String() {
-			case "tab":
-				s.ToggleOption()
 			case "enter":
 				s.dashboard.SwitchMode("dashboard", "")
 			}
@@ -84,17 +106,18 @@ func (s *Switcher) InitEvents() {
 			case "enter":
 				s.dashboard.SwitchMode("tag", s.TagInput.Text)
 				s.TagInput.Text = ""
-			case "tab":
-				s.ToggleOption()
 			case "backspace":
 				if len(s.TagInput.Text) > 0 {
 					s.TagInput.SetText(s.TagInput.Text[:len(s.TagInput.Text)-1])
 				}
 
 			default:
-				s.TagInput.SetText(s.TagInput.Text + string(msg.Code))
+				str := string(msg.Code)
+				if len(str) == 1 {
+					s.TagInput.SetText(s.TagInput.Text + str)
+				}
 			}
 		}
-	}, false)
+	}, true)
 
 }

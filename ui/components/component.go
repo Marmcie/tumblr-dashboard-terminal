@@ -508,6 +508,7 @@ func (c *ComponentState) AddEventListener(event string, cb func(tea.Msg, int), b
 func (c *ComponentState) DispatchEvent(event string) {
 	var bubble []Component
 	pt := c.GetParent()
+	bubble = append(bubble, c)
 
 	for pt != nil {
 		bubble = append(bubble, pt)
@@ -515,15 +516,16 @@ func (c *ComponentState) DispatchEvent(event string) {
 	}
 
 	for _, element := range bubble {
+		continueBubble := true
 		for callbackUUID, cb := range element.GetEventCallbacks(event) {
-			if cb.Bubble {
-				Global.AddEventCallback(event, element.GetUUID(), callbackUUID, cb.Cb)
+			if !cb.Bubble {
+				continueBubble = false
 			}
+			Global.AddEventCallback(event, element.GetUUID(), callbackUUID, cb.Cb)
 		}
-	}
-
-	for callbackUUID, cb := range c.GetEventCallbacks(event) {
-		Global.AddEventCallback(event, c.GetUUID(), callbackUUID, cb.Cb)
+		if !continueBubble {
+			break
+		}
 	}
 }
 
@@ -723,7 +725,7 @@ func (c *ComponentState) SetCanvas(
 
 // Add border to a component if applicable
 func (c *ComponentState) addBorder(arr [][]string) [][]string {
-	if !c.ShowBorder || c.GetBorderPadding() == 0 || len(arr) < 3 || len(arr[0]) < 3 {
+	if !c.ShowBorder || c.GetBorderPadding() == 0 || len(arr) <= 1 || len(arr[0]) <= 1 {
 		return arr
 	}
 

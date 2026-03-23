@@ -1,6 +1,5 @@
 package component
 
-
 // Flex box component
 type Flex struct {
 	ComponentState
@@ -156,7 +155,7 @@ func (b *Flex) PrepareFrame() {
 		} else {
 			for i := 0; i < min(len(result), len(output)); i++ {
 				line := output[i]
-				for a := 0; a < min(len(line), len(result[cursor])); a++ {
+				for a := 0; a < min(len(line), len(result[cursor])-sideOffset); a++ {
 					char := line[a]
 					result[cursor][a+sideOffset] = char
 					if len(childFG[i][a]) > 0 {
@@ -181,7 +180,7 @@ func (b *Flex) PrepareFrame() {
 
 	result = b.addBorder(result)
 	b.SetCanvas(result, fg, bg)
-	
+
 	// end := time.Now().UnixMilli()
 	// b.SetBorderLabel("Top", strconv.Itoa(int(end-start)))
 }

@@ -92,7 +92,7 @@ func NewDashboard() *Dashboard {
 	d.client = modules.NewTumblrClient()
 	d.offset = 0
 	d.initEvents()
-	d.SwitchMode("dashboard","")
+	d.SwitchMode("dashboard", "")
 	d.UpdateControlText()
 
 	return d
@@ -148,6 +148,7 @@ func (d *Dashboard) SwitchMode(mode string, tag string) {
 
 	d.feed.ClearPosts()
 	d.feed.listElem.ClearChildren()
+	d.offset = 0
 	d.LoadPosts()
 }
 
@@ -194,6 +195,7 @@ func (d *Dashboard) UpdateControlText() {
 		str += "j/k      :  Scroll post on feed  \n"
 		str += "l/Enter  :  Focus post window   \n"
 		str += "r        :  Load more posts    \n"
+		str += "]        :  Open feed switcher    \n"
 		str += "o        :  Open post in browser    \n"
 		str += "Ctrl+c   :  Exit the program  \n"
 		str += "Ctrl+d   :  Log out of the account  \n"
@@ -201,6 +203,7 @@ func (d *Dashboard) UpdateControlText() {
 		str += "j/k      :  Scroll post contents  \n"
 		str += "h        :  Focus feed  \n"
 		str += "r        :  Load more posts     \n"
+		str += "]        :  Open feed switcher    \n"
 		str += "o        :  Open post in browser    \n"
 		str += "Ctrl+c   :  Exit the program   \n"
 		str += "Ctrl+d   :  Log out of the account  \n"
