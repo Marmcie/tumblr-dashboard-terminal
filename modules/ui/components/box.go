@@ -1,6 +1,5 @@
 package component
 
-import ()
 
 type Box struct {
 	ComponentState

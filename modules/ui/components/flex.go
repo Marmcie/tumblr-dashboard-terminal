@@ -28,11 +28,13 @@ func NewFlex() *Flex {
 }
 
 func (c *Flex) AddChild(child Component) {
+	child.SetIsFlexItem(true)
 	c.ComponentState.AddChild(child)
 	c.Descriptors = append(c.Descriptors, NewFlexDescriptor(1, 1))
 }
 
 func (c *Flex) AddItem(child Component, desc FlexDescriptor) {
+	child.SetIsFlexItem(true)
 	c.ComponentState.AddChild(child)
 	c.Descriptors = append(c.Descriptors, desc)
 }
@@ -43,6 +45,11 @@ func (f *Flex) GetProportionSum() int {
 		res += p.Proportion
 	}
 	return res
+}
+
+func (b *Flex) SetDirection(dir int) *Flex {
+	b.Direction = dir
+	return b
 }
 
 func (b *Flex) UpdateChildSize() {
@@ -77,6 +84,7 @@ func (b *Flex) UpdateChildSize() {
 				ratio := float64(descriptor.Proportion) / float64(proportionSum)
 				childSize := int(float64(flexW) * ratio)
 				child.SetW(childSize)
+				
 			} else {
 				child.SetW(descriptor.FixedSize)
 			}

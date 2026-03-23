@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"strconv"
 	"tumblr-dt/modules/ui"
 	component "tumblr-dt/modules/ui/components"
 
@@ -50,42 +51,57 @@ func main() {
 	}
 
 	main := component.NewFlex()
-	main.ShowBorder = true
-	main.BorderPadWidth = 1
-	main.SetPos(0, 0)
 	main.SetSize(s.Width, s.Height)
 	main.Direction = 1
+
+	left := component.NewFlex()
+	left.ShowBorder = true
+	left.BorderPadWidth = 1
+	left.ShowBorderCorner = true
+	left.InheritHeight = true
+	left.SetDirection(0)
+
+	right := component.NewFlex()
+	right.ShowBorder = true
+	right.BorderPadWidth = 1
+	right.ShowBorderCorner = true
+	right.InheritHeight = true
+	right.SetDirection(0)
 
 	slist := component.NewSelectlist()
 	slist.ShowBorder = true
 	slist.BorderPadWidth = 1
-	slist.InheritHeight=true
 	slist.SetPos(0, 0)
+	slist.SetWidthInherit(true)
 
-	b := component.NewBox()
-	b.InheritHeight = true
-	b.ShowBorder = true
-	b.BorderPadWidth = 1
-	bt := component.NewLine()
-	bt.Text = "123"
-	b.AddChild(bt)
+	content := component.NewText()
+	content.ShowBorder = true
+	content.BorderPadWidth = 1
+	content.InheritWidth = true
+	content.InheritHeight = true
 
-	for  range 2 {
-		var box = component.NewBox()
-		box.Width = 10
-		box.Height = 2
-		box.ShowBorder = true
-		box.BorderPadWidth = 1
-		box.InheritWidth = true
-		box.SetBorders(false, true, false, false)
-		box.SetBorderCorner(false)
-		box.SetPos(0, 0)
+	for i := range 3 {
+		option := component.NewBox()
+		option.
+			SetBorder(true).
+			SetBorderCorner(true).
+			SetBorderPadding(1).
+			SetH(4).
+			SetWidthInherit(true)
 
-		var line = component.NewLine()
-		line.Text = "aaa"
-		box.AddChild(line)
-		slist.AddOption(box, func() {
-			bt.Text = line.Text
+		postTitle := component.NewLine().
+			SetText(strconv.Itoa(i))
+		postTitle.SetWidthInherit(true)
+
+		postDate := component.NewLine().
+			SetText("2026-02-20")
+
+		postDate.SetWidthInherit(true)
+
+		option.AddChild(postTitle)
+		option.AddChild(postDate)
+		slist.AddOption(option, func() {
+			content.SetText(postTitle.Text + "\n" + postDate.Text)
 		})
 	}
 
@@ -93,8 +109,33 @@ func main() {
 		slist.OptionCallbacks[slist.Cursor]()
 	})
 
-	main.AddItem(slist, component.NewFlexDescriptor(0, 1))
-	main.AddItem(b, component.NewFlexDescriptor(0, 2))
+	left.AddItem(slist, component.NewFlexDescriptor(0, 3))
+	right.AddItem(content, component.NewFlexDescriptor(0, 3))
+
+	main.AddItem(left, component.NewFlexDescriptor(0, 1))
+	main.AddItem(right, component.NewFlexDescriptor(0, 3))
+
+	content.SetName("content")
+	right.SetName("right")
+	main.SetName("main")
+	left.SetName("left")
+	slist.SetName("list")
+	slist.SetTitle("0")
+	main.SetTitle("0")
+
+	main.AddEventListener("onUpdate", func(msg tea.Msg, i int) {
+		switch msg := msg.(type) {
+		case tea.KeyMsg:
+			switch msg.String() {
+			case "tab":
+				if slist.GetFocusState() {
+					content.Focus()
+				} else {
+					slist.Focus()
+				}
+			}
+		}
+	})
 
 	slist.Focus()
 	root.App.SetRoot(main)

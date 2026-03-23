@@ -1,19 +1,48 @@
 package component
 
 import (
+	"strconv"
 	"strings"
 	"tumblr-dt/modules/ui/helper"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/google/uuid"
 )
 
 type GlobalValues struct {
-	Msg  tea.Msg
-	Time int
+	Msg             tea.Msg
+	Time            int
+	Elements        []Component
+	EventDispatches map[string]map[string]func(tea.Msg, int)
 }
 
 var Global = &GlobalValues{}
+
+func (g *GlobalValues) BlurAll() {
+	for _, v := range g.Elements {
+		v.Blur()
+	}
+}
+
+func (g *GlobalValues) AddEventCallback(event string, uuid string, cb func(tea.Msg, int)) {
+	if g.EventDispatches == nil {
+		g.EventDispatches = map[string]map[string]func(tea.Msg, int){}
+	}
+	if g.EventDispatches[event] == nil {
+		g.EventDispatches[event] = map[string]func(tea.Msg, int){}
+	}
+	g.EventDispatches[event][uuid] = cb
+}
+
+func (g *GlobalValues) CallEvents() {
+	for _, v := range g.EventDispatches {
+		for _, cb := range v {
+			cb(g.Msg, g.Time)
+		}
+	}
+	g.EventDispatches = map[string]map[string]func(tea.Msg, int){}
+}
 
 func UpdateGlobalValues(msg tea.Msg, time int) {
 	Global.Msg = msg
@@ -35,18 +64,20 @@ type Component interface {
 	GetContentsSize() (int, int)
 	GetContentsWidth() int
 	GetContentsHeight() int
-	SetX(int)
-	SetY(int)
-	SetPos(int, int)
-	SetW(int)
-	SetH(int)
-	SetSize(int, int)
+	SetX(int) *ComponentState
+	SetY(int) *ComponentState
+	SetPos(int, int) *ComponentState
+	SetW(int) *ComponentState
+	SetH(int) *ComponentState
+	SetWidthInherit(bool) *ComponentState
+	SetHeightInherit(bool) *ComponentState
+	SetSize(int, int) *ComponentState
 	Update()
 	Focus()
 	Blur()
 	GetFocusState() bool
-	SetDepth(int)
-	SetParent(*ComponentState)
+	SetDepth(int) *ComponentState
+	SetParent(*ComponentState) *ComponentState
 	GetSiblings() []Component
 	GetChildren() []Component
 	GetParent() Component
@@ -57,23 +88,40 @@ type Component interface {
 	GetName() string
 	GetComponentName() string
 
-	SetName(string)
-	SetComponentName(string)
+	SetName(string) *ComponentState
+	SetComponentName(string) *ComponentState
 	AddEventListener(string, func(tea.Msg, int))
-	SetStyle(lipgloss.Style)
+	SetStyle(lipgloss.Style) *ComponentState
 	ClearStyle()
 	GetStyle() lipgloss.Style
 
-	SetBorder(bool)
-	SetBorders(bool, bool, bool, bool)
-	SetBorderCorner(bool)
+	SetBorder(bool) *ComponentState
+	SetBorders(bool, bool, bool, bool) *ComponentState
+	SetBorderCorner(bool) *ComponentState
+	SetBorderPadding(int) *ComponentState
 
 	GetBorderPaddings() (int, int, int, int)
+
+	SetTitle(string) *ComponentState
+	GetTitle() string
+	DispatchEvent(string)
+
+	SetIsFlexItem(bool) *ComponentState
+	GetIsFlexItem() bool
+
+	Trace([]string) []string
+	GetTrace() []string
+
+	GetEventCallbacks(string) []func(tea.Msg, int)
+	GetComponent() Component
+
+	GetUUID() string
 }
 
 type ComponentState struct {
 	x                int
 	y                int
+	UUID             string
 	Width            int
 	Height           int
 	InheritWidth     bool
@@ -99,6 +147,8 @@ type ComponentState struct {
 	ShowLeftBorder   bool
 	ShowRightBorder  bool
 	ShowBorderCorner bool
+	IsFlexItem       bool
+	Title            string
 }
 
 func (c *ComponentState) Initialize() {
@@ -121,6 +171,11 @@ func (c *ComponentState) Initialize() {
 	c.ShowLeftBorder = true
 	c.ShowRightBorder = true
 	c.ShowBorderCorner = true
+	c.IsFlexItem = false
+	c.UUID = uuid.New().String()
+	c.EventCallbacks = map[string][]func(tea.Msg, int){}
+
+	Global.Elements = append(Global.Elements, c)
 }
 
 func (c *ComponentState) AddChild(child Component) {
@@ -130,12 +185,14 @@ func (c *ComponentState) AddChild(child Component) {
 	c.DispatchEvent("onAddChild")
 }
 
-func (c *ComponentState) SetParent(parent *ComponentState) {
+func (c *ComponentState) SetParent(parent *ComponentState) *ComponentState {
 	c.Parent = parent
+	return c
 }
 
-func (c *ComponentState) SetDepth(v int) {
+func (c *ComponentState) SetDepth(v int) *ComponentState {
 	c.Depth = v
+	return c
 }
 
 func (c *ComponentState) GetRect() (int, int, int, int) {
@@ -163,30 +220,46 @@ func (c *ComponentState) GetPos() (int, int) {
 	return c.GetX(), c.GetY()
 }
 
-func (c *ComponentState) SetX(v int) {
+func (c *ComponentState) SetX(v int) *ComponentState {
 	c.x = v
+	return c
 }
 
-func (c *ComponentState) SetY(v int) {
+func (c *ComponentState) SetY(v int) *ComponentState {
 	c.y = v
+	return c
 }
 
-func (c *ComponentState) SetPos(x int, y int) {
+func (c *ComponentState) SetPos(x int, y int) *ComponentState {
 	c.SetX(x)
 	c.SetY(y)
+	return c
 }
 
-func (c *ComponentState) SetW(v int) {
+func (c *ComponentState) SetW(v int) *ComponentState {
 	c.Width = v
+	return c
 }
 
-func (c *ComponentState) SetH(v int) {
+func (c *ComponentState) SetH(v int) *ComponentState {
 	c.Height = v
+	return c
 }
 
-func (c *ComponentState) SetSize(w int, h int) {
+func (c *ComponentState) SetHeightInherit(v bool) *ComponentState {
+	c.InheritHeight = v
+	return c
+}
+
+func (c *ComponentState) SetWidthInherit(v bool) *ComponentState {
+	c.InheritWidth = v
+	return c
+}
+
+func (c *ComponentState) SetSize(w int, h int) *ComponentState {
 	c.SetW(w)
 	c.SetH(h)
+	return c
 }
 
 func (c *ComponentState) GetWidth() int {
@@ -205,7 +278,6 @@ func (c *ComponentState) GetHeight() int {
 
 func (c *ComponentState) GetInnerWidth() int {
 	if c.ShowBorder {
-
 		_, _, l, r := c.GetBorderPaddings()
 		return c.GetWidth() - (l + r)
 	}
@@ -221,20 +293,17 @@ func (c *ComponentState) GetInnerHeight() int {
 }
 
 func (c *ComponentState) Update() {
+	for _, child := range c.GetChildren() {
+		child.Update()
+	}
+
 	if c.GetFocusState() {
 		c.DispatchEvent("onUpdate")
-	}
-	for _, child := range c.GetChildren() {
-		if child.GetFocusState() {
-			child.Update()
-		}
 	}
 }
 
 func (c *ComponentState) Focus() {
-	for _, child := range c.GetChildren() {
-		child.Focus()
-	}
+	Global.BlurAll()
 	c.Focused = true
 }
 
@@ -255,10 +324,14 @@ func (b *ComponentState) PrepareFrame() {
 	top, _, left, _ := b.GetBorderPaddings()
 	cursor := top
 
+	innerWidth := b.GetInnerWidth()
+	innerHeight := b.GetInnerHeight()
+
 	for _, c := range b.GetChildren() {
 		c.PrepareFrame()
 		output := c.GetCanvas()
 		style := c.GetStyle()
+
 		if c.IsAbsolute() == true {
 			childX, childY := c.GetPos()
 			globalX := left + childX
@@ -271,12 +344,12 @@ func (b *ComponentState) PrepareFrame() {
 			}
 		} else {
 			for _, line := range output {
-				if cursor > b.GetInnerHeight() {
+				if cursor > innerHeight {
 					break
 				}
 				for i, char := range line {
-					index := i + left
-					if index > b.GetInnerWidth() {
+					index := i
+					if index >= innerWidth {
 						break
 					}
 					result[cursor][index+left] = style.Render(char)
@@ -295,8 +368,8 @@ func (c *ComponentState) GetChildren() []Component {
 }
 
 func (c *ComponentState) GetSiblings() []Component {
-	if c.Parent != nil {
-		return c.Parent.GetChildren()
+	if c.GetParent() != nil {
+		return c.GetParent().GetChildren()
 	}
 
 	return []Component{}
@@ -308,7 +381,9 @@ func (c *ComponentState) GetParent() Component {
 
 func (c *ComponentState) CreateCanvas() [][]string {
 	var arr [][]string
-	width, height := c.GetContentsSize()
+	// width, height := c.GetContentsSize()
+	width := c.GetWidth()
+	height := c.GetHeight()
 
 	for range height {
 		arr = append(arr, strings.Split(strings.Repeat(" ", width), ""))
@@ -318,23 +393,30 @@ func (c *ComponentState) CreateCanvas() [][]string {
 }
 
 func (c *ComponentState) AddEventListener(event string, cb func(tea.Msg, int)) {
-	if c.EventCallbacks == nil {
-		c.EventCallbacks = map[string][]func(tea.Msg, int){}
-	}
-	list := c.EventCallbacks[event]
+	list := c.GetEventCallbacks(event)
 	list = append(list, cb)
 	c.EventCallbacks[event] = list
-
-	if c.Parent != nil {
-		c.Parent.AddEventListener(event, cb)
-	}
-
 }
 
 func (c *ComponentState) DispatchEvent(event string) {
-	for _, v := range c.EventCallbacks[event] {
-		v(Global.Msg, Global.Time)
+	var bubble []Component
+	bubble = append(bubble, c)
+	pt := c.GetParent()
+
+	for pt != nil {
+		bubble = append(bubble, pt)
+		pt = pt.GetParent()
 	}
+
+	for _, element := range bubble {
+		for _, cb := range element.GetEventCallbacks(event) {
+			Global.AddEventCallback(event, element.GetUUID(), cb)
+		}
+	}
+}
+
+func (c *ComponentState) bubbleEvent(event string) {
+
 }
 
 func (c *ComponentState) GetCanvas() [][]string {
@@ -342,40 +424,54 @@ func (c *ComponentState) GetCanvas() [][]string {
 }
 
 func (c *ComponentState) addBorder(arr [][]string) [][]string {
-	if !c.ShowBorder || c.GetBorderPadding() == 0  {
+	if !c.ShowBorder || c.GetBorderPadding() == 0 {
 		return arr
 	}
 
 	side := helper.Dictionary(helper.BorderSide)
 	top := helper.Dictionary(helper.BorderTop)
+
 	wid := c.GetWidth()
 	hei := c.GetHeight()
-	for i := range c.GetHeight() {
-		if c.ShowLeftBorder {
-			arr[i][0] = side
+
+	if len(arr) > 0 && len(arr[0]) > 0 {
+
+		for i := range c.GetWidth() {
+			if c.ShowTopBorder {
+				arr[0][i] = top
+			}
+			if c.ShowBottomBorder {
+				arr[hei-1][i] = top
+			}
 		}
-		if c.ShowRightBorder {
-			arr[i][wid-1] = side
+
+		for i := range c.GetHeight() {
+			if c.ShowLeftBorder {
+				arr[i][0] = side
+			}
+			if c.ShowRightBorder {
+				arr[i][wid-1] = side
+			}
 		}
+		if c.ShowBorderCorner {
+			arr[0][0] = helper.Dictionary(helper.BorderTopLeft)
+			arr[0][wid-1] = helper.Dictionary(helper.BorderTopRight)
+
+			arr[hei-1][0] = helper.Dictionary(helper.BorderBottomLeft)
+			arr[hei-1][wid-1] = helper.Dictionary(helper.BorderBottomRight)
+		}
+
+		title := c.Title
+		for i, char := range title {
+			arr[0][i+1] = string(char)
+		}
+
+		if c.GetFocusState() {
+			arr[0][0] = "!"
+		}
+
 	}
 
-	for i := range c.GetWidth() {
-		if c.ShowTopBorder {
-			arr[0][i] = top
-		}
-		if c.ShowBottomBorder {
-			arr[hei-1][i] = top
-		}
-	}
-
-	if c.ShowBorderCorner {
-		arr[0][0] = helper.Dictionary(helper.BorderTopLeft)
-		arr[0][wid-1] = helper.Dictionary(helper.BorderTopRight)
-
-		arr[hei-1][0] = helper.Dictionary(helper.BorderBottomLeft)
-		arr[hei-1][wid-1] = helper.Dictionary(helper.BorderBottomRight)
-
-	}
 	return arr
 }
 
@@ -392,7 +488,7 @@ func (c *ComponentState) GetContentsSize() (int, int) {
 			w = max(cx+cw, w)
 			h = max(cy+ch, h)
 		} else {
-			// w = w + cw
+			w = max(w, cw)
 			h = h + ch
 		}
 	}
@@ -457,16 +553,19 @@ func (c *ComponentState) GetComponentName() string {
 	return c.ComponentName
 }
 
-func (c *ComponentState) SetName(n string) {
+func (c *ComponentState) SetName(n string) *ComponentState {
 	c.Name = n
+	return c
 }
 
-func (c *ComponentState) SetComponentName(n string) {
+func (c *ComponentState) SetComponentName(n string) *ComponentState {
 	c.ComponentName = n
+	return c
 }
 
-func (c *ComponentState) SetStyle(s lipgloss.Style) {
+func (c *ComponentState) SetStyle(s lipgloss.Style) *ComponentState {
 	c.Style = s
+	return c
 }
 
 func (c *ComponentState) ClearStyle() {
@@ -477,16 +576,68 @@ func (c *ComponentState) GetStyle() lipgloss.Style {
 	return c.Style
 }
 
-func (c *ComponentState) SetBorder(show bool) {
+func (c *ComponentState) SetBorder(show bool) *ComponentState {
 	c.ShowBorder = show
+	return c
 }
-func (c *ComponentState) SetBorders(top bool, bottom bool, left bool, right bool) {
+func (c *ComponentState) SetBorders(top bool, bottom bool, left bool, right bool) *ComponentState {
 	c.ShowTopBorder = top
 	c.ShowBottomBorder = bottom
 	c.ShowLeftBorder = left
 	c.ShowRightBorder = right
+	return c
 }
 
-func (c *ComponentState) SetBorderCorner(show bool) {
+func (c *ComponentState) SetBorderCorner(show bool) *ComponentState {
 	c.ShowBorderCorner = show
+	return c
+}
+
+func (c *ComponentState) SetBorderPadding(v int) *ComponentState {
+	c.BorderPadWidth = v
+	return c
+}
+
+func (c *ComponentState) SetTitle(str string) *ComponentState {
+	c.Title = str
+	return c
+}
+
+func (c *ComponentState) GetTitle() string {
+	return c.Title
+}
+
+func (c *ComponentState) SetIsFlexItem(flex bool) *ComponentState {
+	c.IsFlexItem = flex
+	return c
+}
+
+func (c *ComponentState) GetIsFlexItem() bool {
+	return c.IsFlexItem
+}
+
+func (c *ComponentState) Trace(list []string) []string {
+
+	if c.GetParent() != nil {
+		list = append(list, c.GetParent().Trace(list)...)
+	}
+
+	list = append(list, strconv.Itoa(c.Depth)+":"+c.GetComponentName()+"("+c.GetName()+")")
+	return list
+}
+
+func (c *ComponentState) GetTrace() []string {
+	return c.Trace([]string{})
+}
+
+func (c *ComponentState) GetEventCallbacks(event string) []func(tea.Msg, int) {
+	return c.EventCallbacks[event]
+}
+
+func (c *ComponentState) GetComponent() Component {
+	return c
+}
+
+func (c *ComponentState) GetUUID() string {
+	return c.UUID
 }

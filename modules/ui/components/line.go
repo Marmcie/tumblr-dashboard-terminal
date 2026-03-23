@@ -15,7 +15,11 @@ func NewLine() *Line {
 	l.SetComponentName("Line")
 	l.SetH(1)
 	l.SetW(0)
-	l.SetPos(0,0)
+	l.SetPos(0, 0)
+	return l
+}
+func (l *Line) SetText(text string) *Line {
+	l.Text = text
 	return l
 }
 
@@ -26,9 +30,10 @@ func (l *Line) GetRect() (int, int, int, int) {
 // Returns Line per line contents,x,y
 func (l *Line) PrepareFrame() {
 	var result [][]string
-	l.Width = len(l.Text)
 
-	result = append(result, strings.Split(l.Text, ""))
+	str := l.Text[:min(l.GetInnerWidth(), len(l.Text))]
+	str = strings.ReplaceAll(str, "\n", "")
+	result = append(result, strings.Split(str, ""))
 
 	l.Canvas = result
 	l.DispatchEvent("onRenderReady")

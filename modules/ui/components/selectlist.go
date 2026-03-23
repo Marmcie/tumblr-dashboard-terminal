@@ -16,6 +16,7 @@ func NewSelectlist() *Selectlist {
 	s := &Selectlist{}
 	s.Scrollable.Initialize()
 	s.Cursor = 0
+	s.ComponentName="Selectlist"
 
 	s.AddEventListener("onUpdate", func(msg tea.Msg, time int) {
 
@@ -40,8 +41,9 @@ func NewSelectlist() *Selectlist {
 				s.OptionCallbacks[s.Cursor]()
 			}
 		}
-		
+
 	})
+	
 	return s
 }
 
@@ -51,6 +53,7 @@ func (c *Selectlist) AddOption(child Component, cb func()) {
 }
 
 func (s *Selectlist) Propagate() {
+	
 	for i, c := range s.GetChildren() {
 		if i == s.Cursor {
 			style := lipgloss.NewStyle().Background(lipgloss.Color("#444444"))
@@ -60,4 +63,5 @@ func (s *Selectlist) Propagate() {
 		}
 	}
 
+	s.Scrollable.Propagate()
 }

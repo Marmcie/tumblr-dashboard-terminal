@@ -75,4 +75,5 @@ func (b *Scrollable) PrepareFrame() {
 
 	b.Canvas = result
 	b.DispatchEvent("onRenderReady")
+
 }
