@@ -2,7 +2,7 @@ package dashboard
 
 import (
 	"strings"
-	"tumblr-dt/modules"
+	"tumblr-dt/npf"
 	component "tumblr-dt/ui/components"
 
 	tea "charm.land/bubbletea/v2"
@@ -59,7 +59,7 @@ func (f *Contents) InitEvents() {
 	})
 }
 
-func (f *Contents) DisplayPost(post modules.Post) {
+func (f *Contents) DisplayPost(post npf.Post) {
 	f.contentElem.ClearChildren()
 	for _, reblog := range post.Render() {
 		box := component.NewBox("Post")

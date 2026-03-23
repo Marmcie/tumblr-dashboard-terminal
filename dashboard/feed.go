@@ -2,6 +2,7 @@ package dashboard
 
 import (
 	"tumblr-dt/modules"
+	"tumblr-dt/npf"
 	component "tumblr-dt/ui/components"
 
 	tea "charm.land/bubbletea/v2"
@@ -11,7 +12,7 @@ import (
 type Feed struct {
 	listElem  *component.Selectlist
 	dashboard *Dashboard
-	posts     []modules.Post
+	posts     []npf.Post
 }
 
 func NewFeed(dashboard *Dashboard) *Feed {
@@ -23,6 +24,7 @@ func NewFeed(dashboard *Dashboard) *Feed {
 	f.listElem.SelectedOptionStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#ffffff"))
 
 	f.InitEvents()
+	component.Global.SubscribeLogger(f.listElem.ToString)
 	return f
 }
 
@@ -74,11 +76,11 @@ func (f *Feed) UpdateSelectedOptionBorder() {
 	}
 }
 
-func (f *Feed) GetSelectedPost() modules.Post {
+func (f *Feed) GetSelectedPost() npf.Post {
 	return f.posts[f.listElem.Cursor]
 }
 
-func (f *Feed) AddPosts(posts []modules.Post) {
+func (f *Feed) AddPosts(posts []npf.Post) {
 	for _, post := range posts {
 		f.posts = append(f.posts, post)
 		item := component.NewBox("Feed post")

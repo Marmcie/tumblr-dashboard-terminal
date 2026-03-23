@@ -19,3 +19,4 @@ func (b *Box) PrepareFrame() {
 	b.Canvas = result
 	b.DispatchEvent("onRenderReady")
 }
+

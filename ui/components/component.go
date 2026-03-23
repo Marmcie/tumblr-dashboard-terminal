@@ -1,6 +1,8 @@
 package component
 
 import (
+	"bytes"
+	"fmt"
 	"strconv"
 	"strings"
 	"tumblr-dt/ui/helper"
@@ -10,59 +12,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/mattn/go-runewidth"
 )
-
-type GlobalValues struct {
-	Msg             tea.Msg
-	Time            int
-	Elements        []Component
-	EventDispatches map[string]map[string]map[string]func(tea.Msg, int)
-	Command         tea.Cmd
-}
-
-var Global = &GlobalValues{}
-
-func (g *GlobalValues) BlurAll() {
-	for _, v := range g.Elements {
-		v.Blur()
-	}
-}
-
-func (g *GlobalValues) SetCmd(cmd tea.Cmd) {
-	g.Command = cmd
-}
-
-func (g *GlobalValues) Log(args ...interface{}) {
-	g.Command = tea.Println(args...)
-}
-func (g *GlobalValues) AddEventCallback(event string, uuid string, callbackUUID string, cb func(tea.Msg, int)) {
-	if g.EventDispatches == nil {
-		g.EventDispatches = map[string]map[string]map[string]func(tea.Msg, int){}
-	}
-	if g.EventDispatches[event] == nil {
-		g.EventDispatches[event] = map[string]map[string]func(tea.Msg, int){}
-	}
-
-	if g.EventDispatches[event][uuid] == nil {
-		g.EventDispatches[event][uuid] = map[string]func(tea.Msg, int){}
-	}
-	g.EventDispatches[event][uuid][callbackUUID] = cb
-}
-
-func (g *GlobalValues) CallEvents() {
-	for _, v := range g.EventDispatches {
-		for _, cbs := range v {
-			for _, cb := range cbs {
-				cb(g.Msg, g.Time)
-			}
-		}
-	}
-	g.EventDispatches = map[string]map[string]map[string]func(tea.Msg, int){}
-}
-
-func UpdateGlobalValues(msg tea.Msg, time int) {
-	Global.Msg = msg
-	Global.Time = time
-}
 
 type Component interface {
 	SetBorder(bool) *ComponentState
@@ -132,6 +81,9 @@ type Component interface {
 	Initialize(string)
 	Focus()
 	SetVisibility(bool)
+	ToString() string
+	SetBorderLabel(string, string)
+	UpdateVisibility(int, int)
 }
 
 type ComponentState struct {
@@ -168,7 +120,8 @@ type ComponentState struct {
 	TitleAlignment   string
 	BorderStyle      lipgloss.Style
 	ShowDoubleBorder bool
-	Visibility           bool
+	Visibility       bool
+	BorderLabels     map[string]string
 }
 
 func (c *ComponentState) Initialize(name string) {
@@ -195,6 +148,15 @@ func (c *ComponentState) Initialize(name string) {
 	c.UUID = uuid.New().String()
 	c.EventCallbacks = map[string]map[string]func(tea.Msg, int){}
 	c.TitleAlignment = "center"
+
+	c.BorderLabels = map[string]string{
+		"TopLeft":     "",
+		"Top":         "",
+		"TopRight":    "",
+		"BottomRight": "",
+		"Bottom":      "",
+		"BottomLeft":  "",
+	}
 
 	c.ResetBorderStyle()
 	c.ClearStyle()
@@ -351,7 +313,7 @@ func (c *ComponentState) GetFocusState() bool {
 func (b *ComponentState) PrepareFrame() {
 	var result = b.CreateCanvas()
 	if !b.Visibility {
-		b.Canvas = result
+		b.Canvas = [][]string{{""}}
 		return
 	}
 
@@ -378,28 +340,19 @@ func (b *ComponentState) PrepareFrame() {
 			}
 		} else {
 			// Loop through lines
-			for y := range c.GetHeight() {
+			pt := cursor
+			for y := 0; y < min(c.GetHeight(), len(result), len(output)); y++ {
 				line := output[y]
-				// If the vertical cursor is larger than the provided canvas, break
-				if cursor >= len(result) {
-					break
-				}
 				// Loop through characters
-				for x := range c.GetWidth() {
+				for x := range min(c.GetWidth(), innerWidth-left, len(line)) {
 					// If canvas is smaller than the horizontal pointer, break
-					if x >= len(line) {
-						break
-					}
 					char := line[x]
-					index := x + left
 					// Check if the character is over the drawable area
-					if index >= innerWidth {
-						break
-					}
-					result[cursor][index] = style.Render(char)
+					result[pt][x+left] = style.Render(char)
 				}
-				cursor++
+				pt++
 			}
+			cursor += c.GetHeight()
 		}
 	}
 
@@ -469,7 +422,7 @@ func (c *ComponentState) GetCanvas() [][]string {
 }
 
 func (c *ComponentState) addBorder(arr [][]string) [][]string {
-	if !c.ShowBorder || c.GetBorderPadding() == 0 {
+	if !c.ShowBorder || c.GetBorderPadding() == 0 || len(arr) < 3 || len(arr[0]) < 3 {
 		return arr
 	}
 
@@ -537,10 +490,60 @@ func (c *ComponentState) addBorder(arr [][]string) [][]string {
 			}
 
 		case "right":
-			for i := range min(wid-1, runewidth.StringWidth(title)) {
-				char := title[runewidth.StringWidth(title)-(i+1)]
-				arr[0][(wid-2)-i] = style.Render(string(char))
+			strWidth := len(title)
+			for i := 0; i < min(wid-2, strWidth); i++ {
+				char := title[strWidth-(i+1)]
+				arr[0][wid-(i+2)] = style.Render(string(char))
 			}
+		}
+
+		for key, str := range c.BorderLabels {
+			if len(str) == 0 {
+				continue
+			}
+			switch key {
+			case "TopLeft":
+				for i := range min(wid-1, runewidth.StringWidth(str)) {
+					char := title[i]
+					arr[0][i+1] = style.Render(string(char))
+				}
+
+			case "Top":
+				length := len(str)
+				for i := range min(wid-1, runewidth.StringWidth(str)) {
+					char := str[i]
+					arr[0][i+max(1, (wid-length)/2)] = style.Render(string(char))
+				}
+
+			case "TopRight":
+				strWidth := len(str)
+				for i := 0; i < min(wid-2, strWidth); i++ {
+					char := str[strWidth-(i+1)]
+					arr[0][wid-(i+2)] = style.Render(string(char))
+				}
+
+			case "BottomLeft":
+				for i := range min(wid-1, runewidth.StringWidth(str)) {
+					char := str[i]
+					arr[hei-1][i+1] = style.Render(string(char))
+				}
+
+			case "Bottom":
+				length := len(str)
+				center := wid - length/2
+				for i := range min(wid-1, runewidth.StringWidth(str)) {
+					char := str[i]
+					arr[hei-1][i+max(1, center)] = style.Render(string(char))
+				}
+
+			case "BottomRight":
+				strWidth := len(str)
+				for i := 0; i < min(wid-2, strWidth); i++ {
+					char := str[strWidth-(i+1)]
+					arr[hei-1][wid-(i+2)] = style.Render(string(char))
+				}
+			}
+
 		}
 
 	}
@@ -767,4 +770,54 @@ func (c *ComponentState) GetDoubleBorder() bool {
 
 func (c *ComponentState) SetVisibility(v bool) {
 	c.Visibility = v
+}
+
+func (c *ComponentState) SetBorderLabel(key string, str string) {
+	c.BorderLabels[key] = str
+}
+func (c *ComponentState) ToString() string {
+	var res bytes.Buffer
+
+	inherited := ""
+	fmt.Fprintf(&res, "----------------\n")
+	fmt.Fprintf(&res, "Name : %s", c.GetName())
+	fmt.Fprintf(&res, "\n")
+	fmt.Fprintf(&res, "Component Name : %s", c.GetComponentName())
+	fmt.Fprintf(&res, "\n")
+	fmt.Fprintf(&res, "Children count : %d", len(c.GetChildren()))
+	fmt.Fprintf(&res, "\n")
+
+	if c.InheritWidth {
+		inherited = "(Inherited)"
+	} else {
+		inherited = ""
+	}
+	fmt.Fprintf(&res, "Width : %d %s", c.GetWidth(), inherited)
+	fmt.Fprintf(&res, "\n")
+	fmt.Fprintf(&res, "Inner width : %d %s", c.GetInnerWidth(), inherited)
+	fmt.Fprintf(&res, "\n")
+
+	if c.InheritHeight {
+		inherited = "(Inherited)"
+	} else {
+		inherited = ""
+	}
+	fmt.Fprintf(&res, "Height : %d %s", c.GetHeight(), inherited)
+	fmt.Fprintf(&res, "\n")
+	fmt.Fprintf(&res, "Inner height : %d %s", c.GetInnerHeight(), inherited)
+	fmt.Fprintf(&res, "\n")
+	fmt.Fprintf(&res, "----------------\n")
+
+	return res.String()
+}
+
+func (c *ComponentState) UpdateVisibility(ytop int, hei int) {
+	top := 0
+	y := ytop
+	h := hei
+	for _, child := range c.GetChildren() {
+		childHeight := child.GetHeight()
+		child.SetVisibility(!(top+childHeight < y || top > y+h))
+		top += childHeight
+	}
 }

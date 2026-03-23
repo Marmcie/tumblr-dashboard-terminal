@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"bytes"
 	"strings"
 	component "tumblr-dt/ui/components"
 
@@ -46,15 +47,14 @@ func (m *App) Render() string {
 
 	(*m.root).PrepareFrame()
 	result := (*m.root).GetCanvas()
-	str := ""
+	var res bytes.Buffer
 	for i, line := range result {
 		if i >= m.Height-1 {
 			break
 		}
-		str += strings.Join(line, "")
-		str += "\n"
+		res.WriteString(strings.Join(line, "") + "\n")
 	}
-	return str
+	return res.String()
 }
 
 func (m *App) Update(msg tea.Msg) tea.Cmd {

@@ -1,7 +1,9 @@
 package ui
 
 import (
+	"time"
 	"tumblr-dt/modules"
+	component "tumblr-dt/ui/components"
 
 	tea "charm.land/bubbletea/v2"
 	tsize "github.com/kopoli/go-terminal-size"
@@ -11,7 +13,17 @@ type RootModel struct {
 	App *App
 }
 
-type TickMsg struct{}
+func TickCmd() tea.Cmd {
+	return tea.Tick(time.Second/60, func(t time.Time) tea.Msg {
+		return TickMsg{
+			Ms: t.UnixMilli(),
+		}
+	})
+}
+
+type TickMsg struct {
+	Ms int64
+}
 
 func NewRootModel() RootModel {
 
@@ -32,7 +44,9 @@ func NewRootModel() RootModel {
 }
 
 func (m RootModel) Init() tea.Cmd {
-	return nil
+	return tea.Batch(
+	// TickCmd(),
+	)
 }
 func (m RootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
@@ -61,12 +75,17 @@ func (m RootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case "ctrl+d":
 			modules.RemoveToken()
-
 			return m, tea.Quit
-		}
-	}
 
-	return m, m.App.Update(msg)
+		case "ctrl+l":
+			component.Global.PrintLog()
+
+		}
+
+		return m, m.App.Update(msg)
+	}
+	return m, nil
+
 }
 
 func (m RootModel) View() tea.View {

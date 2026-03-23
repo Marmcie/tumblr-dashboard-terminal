@@ -6,11 +6,12 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"tumblr-dt/npf"
 )
 
 type dashboardResponse struct {
 	Response struct {
-		Posts []Post
+		Posts []npf.Post
 	}
 	meta struct {
 		status int
@@ -28,7 +29,7 @@ func NewTumblrClient() TumblrClient {
 	return c
 }
 
-func (c *TumblrClient) GetDashboard(offset int) []Post {
+func (c *TumblrClient) GetDashboard(offset int) []npf.Post {
 
 	defer func() {
 		if err := recover(); err != nil {
@@ -49,7 +50,6 @@ func (c *TumblrClient) GetDashboard(offset int) []Post {
 
 	resp, _ := c.Client.Get(u.String())
 	bytes, _ := io.ReadAll(resp.Body)
-
 
 	dash := dashboardResponse{}
 	json.Unmarshal(bytes, &dash)

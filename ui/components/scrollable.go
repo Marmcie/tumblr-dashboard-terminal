@@ -71,21 +71,13 @@ func (b *Scrollable) PrepareFrame() {
 	style := b.GetStyle()
 
 	b.findBottom(output)
-	for lineY, line := range output {
-		if lineY < b.OffsetY {
-			continue
-		}
-		if lineY-b.OffsetY > boxHeight {
-			break
-		}
-		for lineX, char := range line {
-			if lineX-b.OffsetX > boxWidth {
-				break
-			}
-
-			if lineX >= b.OffsetX {
-				result[lineY-b.OffsetY][lineX-b.OffsetX] = style.Render(char)
-			}
+	bottomEdge := b.OffsetY + boxHeight + 1
+	for lineY := b.OffsetY; lineY < min(bottomEdge, len(output)); lineY++ {
+		line := output[lineY]
+		leftEdge := boxWidth + b.OffsetX + 1
+		for lineX := b.OffsetX; lineX < min(len(line), leftEdge); lineX++ {
+			char := line[lineX]
+			result[lineY-b.OffsetY][lineX-b.OffsetX] = style.Render(char)
 		}
 	}
 
@@ -95,28 +87,14 @@ func (b *Scrollable) PrepareFrame() {
 	b.DispatchEvent("onRenderReady")
 }
 
-func (c *Scrollable) UpdateVisibility() {
-	top := 0
-	y := c.OffsetY
-	h := c.GetInnerHeight()
-	for _, child := range c.GetChildren() {
-		childHeight := child.GetHeight()
-		if top+childHeight < y {
-			child.SetVisibility(false)
-		} else {
-
-			if top > y+h {
-				child.SetVisibility(false)
-			} else {
-				child.SetVisibility(true)
-			}
-		}
-		top += childHeight
-
-	}
-}
-
 func (c *Scrollable) Propagate() {
-	c.UpdateVisibility()
+	hei := c.GetInnerHeight()
+	c.UpdateVisibility(c.OffsetY, hei)
+	pt := 0
+	for _, child := range c.GetChildren() {
+		child.UpdateVisibility(c.OffsetY-pt, hei)
+		pt += child.GetHeight()
+	}
+
 	c.ComponentState.Propagate()
 }

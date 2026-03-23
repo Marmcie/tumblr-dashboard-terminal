@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 	"tumblr-dt/modules"
+	"tumblr-dt/npf"
 	"tumblr-dt/ui"
 	component "tumblr-dt/ui/components"
 
@@ -105,7 +106,7 @@ func (d *Dashboard) GetCore() ui.RootModel {
 	return d.core
 }
 
-func (d *Dashboard) GetSelectedPost() modules.Post {
+func (d *Dashboard) GetSelectedPost() npf.Post {
 	return d.feed.GetSelectedPost()
 }
 
@@ -141,12 +142,12 @@ func (d *Dashboard) UpdateControlText() {
 	d.control.SetText(str)
 }
 
-func (d *Dashboard) DisplayPost(post modules.Post) {
+func (d *Dashboard) DisplayPost(post npf.Post) {
 	d.contents.DisplayPost(post)
 	d.UpdateInfo(post)
 }
 
-func (d *Dashboard) UpdateInfo(post modules.Post) {
+func (d *Dashboard) UpdateInfo(post npf.Post) {
 	config := modules.GetConfig()
 	loc, err := time.LoadLocation(config.Timezone)
 	if err != nil {

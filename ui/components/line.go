@@ -31,6 +31,11 @@ func (l *Line) GetRect() (int, int, int, int) {
 
 // Returns Line per line contents,x,y
 func (l *Line) PrepareFrame() {
+	if !l.Visibility {
+		l.Canvas = [][]string{{""}}
+		l.DispatchEvent("onRenderReady")
+		return
+	}
 	var result [][]string
 
 	str := l.Text

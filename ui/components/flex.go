@@ -132,16 +132,11 @@ func (b *Flex) PrepareFrame() {
 				}
 			}
 		} else {
-			for _, line := range output {
-				if cursor >= len(result) {
-					break
-				}
-				for i, char := range line {
-					index := i
-					if index >= len(result[cursor]) {
-						break
-					}
-					result[cursor][index+sideOffset] = style.Render(char)
+			for i := 0; i < min(len(result), len(output)); i++ {
+				line := output[i]
+				for a := 0; a < min(len(line), len(result[cursor])); a++ {
+					char := line[a]
+					result[cursor][a+sideOffset] = style.Render(char)
 				}
 				cursor++
 			}
