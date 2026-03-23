@@ -1,30 +1,19 @@
 package main
 
 import (
+	"fmt"
 	"os"
-	"tumblr-dt/modules"
+	"tumblr-dt/dashboard"
 
-	"github.com/rivo/tview"
+	tea "github.com/charmbracelet/bubbletea"
 )
 
 func main() {
-	client := modules.NewTumblrClient()
+	dashboard := dashboard.NewDashboard()
 
-	app := tview.NewApplication()
-
-	dashboard := modules.NewDashboard(&client, app)
-
-	if len(os.Args) > 1 {
-		// Black and white dashboard
-		dashboard.BWMode = os.Args[1] == "BW"
-	}
-
-	// Load first sets of posts.
-	dashboard.Update()
-	dashboard.RenderPost()
-
-	if err := app.SetRoot(dashboard.Root, true).Run(); err != nil {
-		print("Error in tview loop\n")
-		panic(err)
+	p := tea.NewProgram(dashboard.GetCore())
+	if _, err := p.Run(); err != nil {
+		fmt.Printf("Bubbletea event loop error: %v", err)
+		os.Exit(1)
 	}
 }

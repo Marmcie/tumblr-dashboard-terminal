@@ -1,6 +1,12 @@
 package modules
 
-import "strconv"
+import (
+	"bytes"
+	"strconv"
+
+	"github.com/mattn/go-runewidth"
+	"golang.org/x/text/width"
+)
 
 type Post struct {
 	Type                       string
@@ -173,26 +179,47 @@ type Badge struct {
 
 var orderedListIndex = 1
 
-func (p *Post) Render() []string {
-	var result []string
+type ContentData struct {
+	ContentType string
+	Str         string
+}
+
+type TrailData struct {
+	Contents []ContentData
+	Blog     Blog
+}
+
+func (p *Post) Render() []TrailData {
+	var result []TrailData
 	if len(p.Content) > 0 {
-		str := ""
+		var res []ContentData
 		orderedListIndex = 1
 		for _, c := range p.Content {
-			str += c.Render()
-			str += "\n"
+			data := c.RenderWithData()
+			res = append(res, ContentData{
+				ContentType: data.contentType,
+				Str:         data.str,
+			})
 		}
-		result = append(result, str)
+		result = append(result, TrailData{
+			Contents: res,
+			Blog:     p.Blog,
+		})
 	}
 	for _, t := range p.Trail {
-		str := ""
+		var res []ContentData
 		orderedListIndex = 1
 		for _, c := range t.Content {
-			str += c.Render()
-			str += "\n"
+			data := c.RenderWithData()
+			res = append(res, ContentData{
+				ContentType: data.contentType,
+				Str:         data.str,
+			})
 		}
-		str += "\n"
-		result = append(result, str)
+		result = append(result, TrailData{
+			Contents: res,
+			Blog:     t.Blog,
+		})
 	}
 
 	return result
@@ -234,6 +261,117 @@ func (p *Post) RenderString() string {
 	}
 
 	return str
+}
+
+func (c *Content) RenderWithData() struct {
+	contentType string
+	str         string
+} {
+	var str bytes.Buffer
+	var cType = ""
+
+	switch c.Type {
+	case "image":
+		alt := c.Alt_text
+		if len(alt) == 0 {
+			alt = "No alt"
+		}
+		str.WriteString("[Image : " + alt + "]")
+		cType = "Image"
+	case "text":
+
+		cType = "Text"
+		switch c.Subtype {
+
+		case "heading1":
+			str.WriteString("① " + c.Text)
+			cType = "Heading1"
+
+		case "heading2":
+			str.WriteString("② " + c.Text)
+			cType = "Heading2"
+
+		case "ordered-list-item":
+			str.WriteString(strconv.Itoa(orderedListIndex) + ". ")
+			str.WriteString(c.Text)
+			orderedListIndex = orderedListIndex + 1
+			cType = "OrderedList"
+
+		case "unordered-list-item":
+			str.WriteString("- ")
+			str.WriteString(c.Text)
+			cType = "UnOrderedList"
+
+		default:
+			str.WriteString(c.Text)
+		}
+
+		if c.Subtype != "ordered-list-item" {
+			orderedListIndex = 1
+		}
+
+	case "poll":
+		str.WriteString("Question : " + c.Question + "\n")
+		for _, a := range c.Answers {
+			str.WriteString("- " + a.Answer_text + "\n")
+		}
+		str.WriteString(c.Text)
+		cType = "Poll"
+
+	default:
+		str.WriteString(c.Text)
+	}
+
+	var result bytes.Buffer
+
+	con := runewidth.Condition{
+		EastAsianWidth:     false,
+		StrictEmojiNeutral: false,
+	}
+	for _, v := range str.String() {
+		info := width.LookupRune(v)
+		runeWidth := con.RuneWidth(v)
+
+		if info.Kind() == width.EastAsianFullwidth || info.Kind() == width.EastAsianWide {
+			for range runeWidth - 1 {
+				// INFO: Output 0 width character to account for full width chars
+				result.WriteRune('\u200b')
+				// result.WriteString(strconv.Itoa(runeWidth))
+				// result.WriteRune('#')
+			}
+		}
+		result.WriteRune(v)
+	}
+
+	return struct {
+		contentType string
+		str         string
+	}{
+		contentType: cType,
+		str:         result.String(),
+	}
+}
+
+func (p *Post) GetSummary() string {
+	con := runewidth.Condition{
+		EastAsianWidth:     true,
+		StrictEmojiNeutral: false,
+	}
+	var result bytes.Buffer
+	for _, v := range p.Summary {
+		info := width.LookupRune(v)
+		runeWidth := con.RuneWidth(v)
+
+		if info.Kind() == width.EastAsianFullwidth || info.Kind() == width.EastAsianWide {
+			for range runeWidth - 1 {
+				// INFO: Output 0 width character to account for full width chars
+				result.WriteRune('\u200b')
+				// result.WriteRune('#')
+			}
+		}
+		result.WriteRune(v)
+	}
+	return result.String()
 }
 
 func (c *Content) Render() string {

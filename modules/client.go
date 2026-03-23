@@ -3,7 +3,6 @@ package modules
 import (
 	"encoding/json"
 	"io"
-	"log"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -35,7 +34,7 @@ func (c *TumblrClient) GetDashboard(offset int) []Post {
 		if err := recover(); err != nil {
 			RemoveToken()
 			print("Failed to retrieve posts\n")
-			log.Fatal(err)
+			panic(err)
 		}
 	}()
 

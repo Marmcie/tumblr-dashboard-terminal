@@ -8,7 +8,7 @@ import (
 
 // Source: https://stackoverflow.com/questions/39320371/how-start-web-server-to-open-page-in-browser-in-golang
 
-func openInBrowser(url string) error {
+func OpenInBrowser(url string) error {
 	var cmd string
 	var args []string
 

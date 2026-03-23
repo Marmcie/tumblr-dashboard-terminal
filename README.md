@@ -5,7 +5,7 @@ Your Tumblr dashboard on terminal.
 1. Register a new application at [Registration page](https://www.tumblr.com/oauth/apps).
 2. Copy the consumer key and secret key.
 3. Create "tumblr-dt.json" in "~/.config" folder.
-4. Fill the necessary fields.
+4. Fill out the necessary fields.
 ```json
 {
   "consumer_key": "consumer key",
@@ -30,6 +30,7 @@ go build .
 ### High priority
 - [x] Figure out how to display asks.
 - [ ] Fix post count on initial render.
+- [x] Switch to bubletea.
 ### Continuing
 - [ ] Render various NPF posts.
 - [ ] Update README.md
