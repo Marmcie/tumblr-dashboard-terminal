@@ -1,6 +1,10 @@
 package component
 
-import tea "charm.land/bubbletea/v2"
+import (
+	"tumblr-dt/ui/helper"
+
+	tea "charm.land/bubbletea/v2"
+)
 
 // This class is there to keep track of the state information that should be accessible globally.
 type GlobalValues struct {
@@ -30,11 +34,9 @@ func (g *GlobalValues) DeleteElement(i int) {
 
 // Print all logs from callbacks subscribed to the global logger.
 func (g *GlobalValues) PrintLog() {
-	f, _ := tea.LogToFile("debug.log", "debug")
 	for _, cb := range g.Logger {
-		f.WriteString(cb())
+		helper.Log(cb())
 	}
-	f.Close()
 }
 
 // Subscribe a callbacks to be outputted to the log file on command.

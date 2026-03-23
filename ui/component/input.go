@@ -29,7 +29,6 @@ func NewInput(name string) *Input {
 
 func (i *Input) ApplyTopSuggestion() {
 	if len(i.Value) > 0 {
-		// helper.Log(strconv.Itoa(len(*l.Suggestions.Children)))
 		suggestions := i.Suggestions.Search(i.Value)
 		if len(suggestions) > 0 {
 			i.Value = suggestions[0]
@@ -87,7 +86,6 @@ func (l *Input) RenderToCanvas() {
 	canvas, fg, bg := l.GetCanvas()
 	suggestion := ""
 	if len(l.Value) > 0 {
-		// helper.Log(strconv.Itoa(len(*l.Suggestions.Children)))
 		suggestions := l.Suggestions.Search(l.Value)
 		if len(suggestions) > 0 {
 			suggestion = suggestions[0]

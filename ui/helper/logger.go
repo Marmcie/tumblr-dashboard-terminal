@@ -3,7 +3,7 @@ package helper
 import "os"
 
 func Log(text string) {
-	filename:="./log.txt"
+	filename:="./debug.log"
 	f, err := os.OpenFile(filename, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
 	if err != nil {
 		panic(err)
