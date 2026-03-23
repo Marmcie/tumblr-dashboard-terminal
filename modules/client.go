@@ -28,15 +28,22 @@ type taggedResponse struct {
 
 type TumblrClient struct {
 	Client *http.Client
+	Config Config
 }
 
-func NewTumblrClient() TumblrClient {
+func NewTumblrClient(config Config) TumblrClient {
 	c := TumblrClient{}
-	c.Client = GetClient()
+	c.Config = config
+	if !c.Config.Testing {
+		c.Client = GetClient()
+	}
 	return c
 }
 
 func (c *TumblrClient) GetDashboard(offset int) []npf.Post {
+	if c.Config.Testing {
+		return npf.TestPosts(20)
+	}
 
 	defer func() {
 		if err := recover(); err != nil {
@@ -64,6 +71,9 @@ func (c *TumblrClient) GetDashboard(offset int) []npf.Post {
 }
 
 func (c *TumblrClient) GetTaggedPosts(before int, tag string) []npf.Post {
+	if c.Config.Testing {
+		return npf.TestPosts(20)
+	}
 
 	defer func() {
 		if err := recover(); err != nil {
@@ -91,6 +101,9 @@ func (c *TumblrClient) GetTaggedPosts(before int, tag string) []npf.Post {
 }
 
 func (c *TumblrClient) GetBlogPosts(before int, blogName string) []npf.Post {
+	if c.Config.Testing {
+		return npf.TestPosts(20)
+	}
 
 	defer func() {
 		if err := recover(); err != nil {

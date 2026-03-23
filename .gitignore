@@ -1,5 +1,4 @@
 .env
 *.exe
-*.json
 log.txt
 *.log

@@ -58,7 +58,7 @@ func (m *App) Render() string {
 		str := strings.Join(line, "")
 		if len(lineFG) > 0 {
 			ranges := []lipgloss.Range{}
-			for i := 0; i < len(lineFG); i++ {
+			for i := range lineFG {
 				fg := lineFG[i]
 				bg := lineBG[i]
 				if currentFG != fg || currentBG != bg {

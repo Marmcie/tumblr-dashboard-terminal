@@ -11,6 +11,7 @@ type Config struct {
 	Secret_key   string
 	Timezone     string
 	Debug        bool
+	Testing      bool
 }
 
 var config Config
@@ -33,7 +34,10 @@ func loadConfig() {
 		log.Fatal(err)
 	}
 
-	c := Config{Debug: false}
+	c := Config{
+    Debug: false,
+		Testing: false,
+  }
 	err = json.Unmarshal(configBytes, &c)
 
 	if err != nil {

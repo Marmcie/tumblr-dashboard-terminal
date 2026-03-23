@@ -15,7 +15,8 @@ import (
 )
 
 type Dashboard struct {
-	rootModel      ui.RootModel
+	config    modules.Config
+	rootModel ui.RootModel
 	root      *component.Flex
 	left      *component.Flex
 	right     *component.Flex
@@ -31,25 +32,31 @@ type Dashboard struct {
 	option    string
 }
 
-func NewDashboard() *Dashboard {
+func NewDashboard(config modules.Config) *Dashboard {
 	d := &Dashboard{}
+	d.config = config
 
-	var s tsize.Size
+	d.root = component.NewFlex("Root")
+	d.root.SetDirection(1)
+	d.root.SetBorder(true)
+	d.root.SetBackground(ui.GetColorStr(ui.ColorBG))
+	d.root.SetForeground(ui.GetColorStr(ui.ColorWhite))
 
-	s, err := tsize.GetSize()
-	if err != nil {
-		panic(err)
+	if !d.config.Testing {
+
+		var s tsize.Size
+		s, err := tsize.GetSize()
+		if err != nil {
+			panic(err)
+		}
+		d.root.SetSize(s.Width, s.Height)
+	} else {
+
+		d.root.SetSize(120, 60)
 	}
 
 	d.rootModel = ui.NewRootModel()
 	d.timestamp = time.Now().Local().UnixMilli() / 1000
-
-	d.root = component.NewFlex("Root")
-	d.root.SetDirection(1)
-	d.root.SetSize(s.Width, s.Height)
-	d.root.SetBorder(true)
-	d.root.SetBackground(ui.GetColorStr(ui.ColorBG))
-	d.root.SetForeground(ui.GetColorStr(ui.ColorWhite))
 
 	d.left = component.NewFlex("Left")
 	d.left.SetHeightInherit(true)
@@ -90,7 +97,7 @@ func NewDashboard() *Dashboard {
 	d.switcher.Window.Focus()
 	d.rootModel.App.SetRoot(d.root)
 
-	d.client = modules.NewTumblrClient()
+	d.client = modules.NewTumblrClient(d.config)
 	d.offset = 0
 	d.initEvents()
 	d.SwitchMode("dashboard", "")
@@ -233,7 +240,7 @@ func (d *Dashboard) DisplayPost(post npf.Post) {
 }
 
 func (d *Dashboard) UpdateInfo(post npf.Post) {
-	config := modules.GetConfig()
+	config := d.config
 	loc, err := time.LoadLocation(config.Timezone)
 	if err != nil {
 		panic(err)

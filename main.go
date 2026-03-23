@@ -4,13 +4,14 @@ import (
 	"fmt"
 	"os"
 	"tumblr-dt/dashboard"
+	"tumblr-dt/modules"
 
 	tea "charm.land/bubbletea/v2"
 )
 
 func main() {
-
-	dashboard := dashboard.NewDashboard()
+	config := modules.GetConfig()
+	dashboard := dashboard.NewDashboard(config)
 
 	p := tea.NewProgram(dashboard.GetRootModel())
 	if _, err := p.Run(); err != nil {
@@ -18,4 +19,3 @@ func main() {
 		os.Exit(1)
 	}
 }
-
