@@ -8,6 +8,7 @@ import (
 	component "tumblr-dt/modules/ui/components"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 	tsize "github.com/kopoli/go-terminal-size"
 )
 
@@ -59,10 +60,13 @@ func main() {
 	left := component.NewFlex("Left")
 	left.InheritHeight = true
 	left.SetDirection(0)
+	style := lipgloss.NewStyle().Background(lipgloss.Color("#000000"))
+	left.SetStyle(style)
 
 	right := component.NewFlex("Right")
 	right.InheritHeight = true
 	right.SetDirection(0)
+	right.SetStyle(style)
 
 	slist := component.NewSelectlist("Select")
 	slist.ShowBorder = true

@@ -327,10 +327,10 @@ func (b *ComponentState) PrepareFrame() {
 	innerWidth := b.GetInnerWidth()
 	innerHeight := b.GetInnerHeight()
 
+	style := b.GetStyle()
 	for _, c := range b.GetChildren() {
 		c.PrepareFrame()
 		output := c.GetCanvas()
-		style := c.GetStyle()
 
 		if c.IsAbsolute() == true {
 			childX, childY := c.GetPos()
