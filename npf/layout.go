@@ -1,4 +1,5 @@
 package npf
+
 type Layout struct {
 	Type           string
 	Display        []map[string][]int64

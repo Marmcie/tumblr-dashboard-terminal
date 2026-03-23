@@ -173,7 +173,7 @@ func TestRenderChildrenTypes(t *testing.T) {
 		text.SetText("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
 		text.SetSize(10, 10)
 		(c).AddChild(text)
-		
+
 	}
 	t.Run("Box", func(t *testing.T) {
 		elem := component.NewBox("b")

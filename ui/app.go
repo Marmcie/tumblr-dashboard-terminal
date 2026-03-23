@@ -75,4 +75,3 @@ func (m *App) Update(msg tea.Msg) tea.Cmd {
 	component.Global.Command = nil
 	return cmd
 }
-

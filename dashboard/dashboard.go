@@ -252,7 +252,7 @@ func (d *Dashboard) LoadPosts() {
 		return
 	}
 	d.IsLoading = true
-	component.Global.TickInterval=time.Second/60
+	component.Global.TickInterval = time.Second / 60
 	var posts []npf.Post
 	switch d.mode {
 	case "dashboard":
@@ -266,6 +266,9 @@ func (d *Dashboard) LoadPosts() {
 		defer func() {
 			d.root.SetBorderLabel("BottomLeft", "Could not retrieve posts")
 		}()
+
+		d.IsLoading = false
+		component.Global.TickInterval = time.Second
 		return
 	}
 
@@ -287,7 +290,7 @@ func (d *Dashboard) LoadPosts() {
 		}
 	}
 	d.IsLoading = false
-	component.Global.TickInterval=time.Second
+	component.Global.TickInterval = time.Second
 }
 
 func (d *Dashboard) GetRootModel() ui.RootModel {

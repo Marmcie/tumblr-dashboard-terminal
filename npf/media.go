@@ -1,4 +1,5 @@
 package npf
+
 type Media struct {
 	Type   string
 	Url    string

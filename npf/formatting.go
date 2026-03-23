@@ -1,4 +1,5 @@
 package npf
+
 type Formatting struct {
 	Start int64
 	End   int64

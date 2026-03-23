@@ -13,4 +13,3 @@ func TestEmojistrip(t *testing.T) {
 		t.Errorf("Failed to strip emoji. Got : %s", res)
 	}
 }
-

@@ -29,11 +29,11 @@ func NewScrollable(name string) *Scrollable {
 
 func (b *Scrollable) findBottom() {
 
-	bottom:=0
+	bottom := 0
 	for _, c := range b.GetChildren() {
-		bottom+=c.GetHeight()
+		bottom += c.GetHeight()
 	}
-	b.Bottom=bottom
+	b.Bottom = bottom
 
 }
 

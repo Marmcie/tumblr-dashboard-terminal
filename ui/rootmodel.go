@@ -30,7 +30,7 @@ func TickCmd(duration time.Duration) tea.Cmd {
 	})
 }
 
-type TickMsg  int64
+type TickMsg int64
 
 func (m RootModel) Init() tea.Cmd {
 	return tea.Batch(

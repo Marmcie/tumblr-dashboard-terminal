@@ -154,7 +154,7 @@ func (s *Switcher) InitEvents() {
 				if len(str) == 1 {
 					if msg.Key().Mod.Contains(uv.ModShift) {
 						s.TagInput.AppendChar(string(msg.ShiftedCode))
-					}else{
+					} else {
 						s.TagInput.AppendChar(string(msg.Code))
 					}
 				}
@@ -182,7 +182,7 @@ func (s *Switcher) InitEvents() {
 				if len(str) == 1 {
 					if msg.Key().Mod.Contains(uv.ModShift) {
 						s.BlogInput.AppendChar(string(msg.ShiftedCode))
-					}else{
+					} else {
 						s.BlogInput.AppendChar(string(msg.Code))
 					}
 				}

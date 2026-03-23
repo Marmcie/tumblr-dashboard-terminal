@@ -1,4 +1,5 @@
 package npf
+
 type TrailPost struct {
 	Post struct {
 		Id            string
