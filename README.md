@@ -26,7 +26,7 @@ With this project you can:
 ### Steps
 Run the following command to build the program.
 ```sh
-git clone git@github.com:RayMatsuo/tumblr-dashboard-terminal.git
+git clone git@github.com:Marmcie/tumblr-dashboard-terminal.git
 
 cd tumblr-dashboard-terminal
 
