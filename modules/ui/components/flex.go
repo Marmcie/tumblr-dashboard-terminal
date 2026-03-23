@@ -1,89 +1,79 @@
 package component
 
-import (
-	tea "github.com/charmbracelet/bubbletea"
-)
-
 type Flex struct {
 	ComponentState
-	FitHeight bool
-	FitWidth  bool
-	Direction int
-	OffsetX   int
-	OffsetY   int
+	Direction   int
+	InnerHeight int
+	Descriptors []FlexDescriptor
+}
+
+type FlexDescriptor struct {
+	Proportion int
+	FixedSize  int
+}
+
+func NewFlexDescriptor(fixedsize int, proportion int) FlexDescriptor {
+	return FlexDescriptor{
+		FixedSize:  fixedsize,
+		Proportion: proportion,
+	}
 }
 
 func NewFlex() *Flex {
 	flex := &Flex{}
-	flex.FitHeight = true
-	flex.FitWidth = true
+	flex.Initialize()
 	flex.Direction = 0
-	flex.OffsetX = 0
-	flex.OffsetY = 0
-	flex.Name = "Flex"
-
-	flex.AddEventListener("onUpdate", func(msg tea.Msg, time int) {
-		
-		switch msg := msg.(type) {
-
-		// Is it a key press?
-		case tea.KeyMsg:
-
-			// Cool, what was the actual key pressed?
-			switch msg.String() {
-
-			// These keys should exit the program.
-			case "j":
-				flex.OffsetY += 1
-			case "k":
-				flex.OffsetY = max(0, flex.OffsetY-1)
-			}
-		}
-	})
-
+	flex.SetComponentName("Flex")
 	return flex
 }
 
-// Returns x,y,width,height
-func (c *Flex) GetRect() (int, int, int, int) {
-	return c.x, c.y, c.Width, c.Height
+func (c *Flex) AddChild(child Component) {
+	c.ComponentState.AddChild(child)
+	c.Descriptors = append(c.Descriptors, NewFlexDescriptor(1, 1))
+}
+
+func (c *Flex) AddItem(child Component, desc FlexDescriptor) {
+	c.ComponentState.AddChild(child)
+	c.Descriptors = append(c.Descriptors, desc)
+}
+
+func (f *Flex) GetProportionSum() int {
+	res := 0
+	for _, p := range f.Descriptors {
+		res += p.Proportion
+	}
+	return res
+}
+
+func (b *Flex) UpdateChildSize() {
+	flexH := b.GetInnerHeight()
+	// Proportion should  fixed size
+
+	proportionSum := b.GetProportionSum()
+
+	for i, child := range b.GetChildren() {
+		descriptor := b.Descriptors[i]
+
+		if descriptor.Proportion > 0 {
+			ratio := float64(descriptor.Proportion) / float64(proportionSum)
+			childSize := int(float64(flexH) * ratio)
+			child.SetH(childSize)
+		} else {
+			child.SetH(descriptor.FixedSize)
+		}
+	}
+}
+
+func (c *Flex) Propagate() {
+	c.UpdateChildSize()
+	c.ComponentState.Propagate()
 }
 
 // Returns Line per line contents,x,y
 func (b *Flex) PrepareFrame() {
-
-	// 0 col
-	// 1 row
-
-	var result = b.CreateCanvas()
-
-	pos := 0
-	renderPos := b.BorderPadWidth
-	for _, c := range b.Children {
-		c.PrepareFrame()
-		output := c.GetCanvas()
-		_, _, _, childH := c.GetRect()
-		if pos+childH < b.OffsetY {
-			pos += childH
-			continue
-		}
-
-		for _, line := range output {
-			pos++
-			renderPos++
-			for i, char := range line {
-				index := i + b.BorderPadWidth
-				if index >= b.Width-b.BorderPadWidth {
-					break
-				}
-				result[renderPos][index] = char
-			}
-		}
-
-	}
-
+	b.ComponentState.PrepareFrame()
+	var result = b.ComponentState.GetCanvas()
 	result = b.addBorder(result)
-
 	b.Canvas = result
 	b.DispatchEvent("onRenderReady")
 }

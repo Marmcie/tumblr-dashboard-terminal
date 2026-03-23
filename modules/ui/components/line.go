@@ -11,10 +11,11 @@ type Line struct {
 
 func NewLine() *Line {
 	l := &Line{}
-	l.Height = 1
-	l.x = 0
-	l.y = 0
-	l.Width = 0
+	l.Initialize()
+	l.SetComponentName("Line")
+	l.SetH(1)
+	l.SetW(0)
+	l.SetPos(0,0)
 	return l
 }
 
@@ -23,12 +24,12 @@ func (l *Line) GetRect() (int, int, int, int) {
 }
 
 // Returns Line per line contents,x,y
-func (l *Line) PrepareFrame()  {
+func (l *Line) PrepareFrame() {
 	var result [][]string
 	l.Width = len(l.Text)
 
 	result = append(result, strings.Split(l.Text, ""))
 
-	l.Canvas=result
+	l.Canvas = result
 	l.DispatchEvent("onRenderReady")
 }

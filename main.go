@@ -41,34 +41,37 @@ import (
 func main() {
 	root := ui.NewRootModel()
 
-	var box = component.NewBox()
-	box.Width = 10
-	box.Height = 10
-	box.ShowBorder = true
-	box.BorderPadWidth = 1
-	box.SetPos(0, 0)
-
-	line := component.NewLine()
-	line.Text = "aaaa"
-
-	line2 := component.NewLine()
-	line2.Text = "bbbb"
-	line2.SetX(3)
-	line2.SetY(3)
+	scroll := component.NewScrollable()
+	scroll.ShowBorder = true
+	scroll.BorderPadWidth = 1
+	scroll.SetSize(100, 30)
+	scroll.SetPos(0, 0)
 
 	flex := component.NewFlex()
 	flex.ShowBorder = true
 	flex.BorderPadWidth = 1
 	flex.SetPos(0, 0)
+	flex.InheritWidth = true
+	flex.InheritHeight = true
 
-	flex.AddChild(box)
-	flex.Width = 100
-	flex.Height = 30
-	flex.AddChild(line)
-	flex.Focus()
-	box.AddChild(line2)
+	for range 2 {
+		var box = component.NewBox()
+		box.Width = 10
+		box.Height = 10
+		box.ShowBorder = true
+		box.BorderPadWidth = 1
+		box.InheritWidth = true
+		box.SetPos(0, 0)
 
-	root.App.AddChild(flex)
+		// var line = component.NewLine()
+		// line.Text = "aaa"
+		// box.AddChild(line)
+		flex.AddItem(box, component.NewFlexDescriptor(0, 1))
+	}
+
+	scroll.AddChild(flex)
+	scroll.Focus()
+	root.App.SetRoot(scroll)
 
 	p := tea.NewProgram(root)
 	if _, err := p.Run(); err != nil {
