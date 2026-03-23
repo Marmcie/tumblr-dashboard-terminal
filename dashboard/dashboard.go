@@ -257,6 +257,7 @@ func (d *Dashboard) LoadPosts() {
 	if d.IsLoading {
 		return
 	}
+	d.feed.listElem.SetBorderLabel("Bottom","Loading...")
 	d.IsLoading = true
 	component.Global.TickInterval = time.Second / 60
 	var posts []npf.Post
@@ -297,6 +298,8 @@ func (d *Dashboard) LoadPosts() {
 	}
 	d.IsLoading = false
 	component.Global.TickInterval = time.Second
+	
+	d.feed.listElem.SetBorderLabel("Bottom","")
 }
 
 func (d *Dashboard) GetRootModel() ui.RootModel {
