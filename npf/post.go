@@ -77,6 +77,7 @@ type ContentData struct {
 type TrailData struct {
 	Contents []ContentData
 	Blog     Blog
+	BlogName string
 	Layout   []Layout
 	ID       int64
 }
@@ -114,6 +115,7 @@ func (p *Post) Render() []TrailData {
 		result = append(result, TrailData{
 			Contents: res,
 			Blog:     p.Blog,
+			BlogName: p.Blog.Name,
 			Layout:   p.Layout,
 			ID:       p.Id,
 		})
@@ -129,9 +131,14 @@ func (p *Post) Render() []TrailData {
 			})
 		}
 		tID, _ := strconv.ParseInt(t.Post.Id, 10, 64)
+		blogName := t.Blog.Name
+		if len(blogName) == 0 {
+			blogName = t.Broken_blog_name
+		}
 		result = append(result, TrailData{
 			Contents: res,
 			Blog:     t.Blog,
+			BlogName: blogName,
 			Layout:   t.Layout,
 			ID:       tID,
 		})

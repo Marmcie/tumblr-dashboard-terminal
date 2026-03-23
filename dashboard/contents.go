@@ -195,7 +195,7 @@ func (f *Contents) DisplayPost(post *npf.Post, showFiltered bool) {
 		if f.dashboard.config.Use_blog_avatar_color {
 			box.SetBorderLabelColor(labelAlignment, reblog.Blog.GetBlogColor())
 		}
-		box.SetBorderLabel(labelAlignment, reblog.Blog.Name)
+		box.SetBorderLabel(labelAlignment, reblog.BlogName)
 		box.SetH(max(3, len(parts)))
 
 		//INFO: Convert each line into Line object, then apply corresponding style
