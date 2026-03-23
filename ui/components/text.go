@@ -62,16 +62,15 @@ func (l *Text) PrepareFrame() {
 
 	innerWidth := l.GetInnerWidth()
 	var result = l.CreateCanvas()
-	style := l.GetStyle()
 	for i := range len(result) - (top + bottom) {
 		for a := range result[i] {
 			if a+left > innerWidth {
 				break
 			}
 			if i >= len(arr) || a >= len(arr[i]) {
-				result[i+top][a+left] = style.Render(" ")
+				result[i+top][a+left] = l.ApplyStyle(" ")
 			} else {
-				result[i+top][a+left] = style.Render(arr[i][a])
+				result[i+top][a+left] = l.ApplyStyle(arr[i][a])
 			}
 		}
 	}

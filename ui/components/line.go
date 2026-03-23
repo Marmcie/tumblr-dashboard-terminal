@@ -49,7 +49,6 @@ func (l *Line) PrepareFrame() {
 	parts := strings.Split(str, "")
 	res = strings.Split(strings.Repeat(" ", max(innerWidth, len(parts))), "")
 
-	style := l.GetStyle()
 	ct := 0
 	for i, c := range parts {
 		if ct >= innerWidth {
@@ -59,7 +58,7 @@ func (l *Line) PrepareFrame() {
 		if runewidth.StringWidth(c) > 0 {
 			ct++
 		}
-		res[i] = style.Render(c)
+		res[i] = l.ApplyStyle(c)
 	}
 	result = append(result, res)
 

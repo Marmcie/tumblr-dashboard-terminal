@@ -128,7 +128,6 @@ func (b *Flex) PrepareFrame() {
 	top, _, left, _ := b.GetBorderPaddings()
 	cursor := top
 	sideOffset := left
-	style := b.GetStyle()
 
 	for _, c := range b.GetChildren() {
 		c.PrepareFrame()
@@ -143,7 +142,7 @@ func (b *Flex) PrepareFrame() {
 			for ind, line := range output {
 				posY := ind + b.GetY() + childY + top
 				for index, char := range line {
-					result[posY][globalX+index] = style.Render(char)
+					result[posY][globalX+index] = b.ApplyStyle(char)
 				}
 			}
 		} else {
@@ -151,7 +150,7 @@ func (b *Flex) PrepareFrame() {
 				line := output[i]
 				for a := 0; a < min(len(line), len(result[cursor])); a++ {
 					char := line[a]
-					result[cursor][a+sideOffset] = style.Render(char)
+					result[cursor][a+sideOffset] = b.ApplyStyle(char)
 				}
 				cursor++
 			}

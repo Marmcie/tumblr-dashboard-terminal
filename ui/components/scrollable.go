@@ -76,7 +76,6 @@ func (b *Scrollable) PrepareFrame() {
 	var output = b.GetCanvas()
 	boxHeight := b.GetInnerHeight()
 	boxWidth := b.GetInnerWidth()
-	style := b.GetStyle()
 
 	b.findBottom(output)
 	bottomEdge := b.OffsetY + boxHeight + 1
@@ -85,7 +84,7 @@ func (b *Scrollable) PrepareFrame() {
 		leftEdge := boxWidth + b.OffsetX + 1
 		for lineX := b.OffsetX; lineX < min(len(line), leftEdge); lineX++ {
 			char := line[lineX]
-			result[lineY-b.OffsetY][lineX-b.OffsetX] = style.Render(char)
+			result[lineY-b.OffsetY][lineX-b.OffsetX] = b.ApplyStyle(char)
 		}
 	}
 

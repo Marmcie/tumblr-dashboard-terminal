@@ -3,6 +3,7 @@ package component
 import (
 	"bytes"
 	"fmt"
+	"image/color"
 	"strconv"
 	"strings"
 	"tumblr-dt/ui/helper"
@@ -53,6 +54,12 @@ type Component interface {
 	SetSize(int, int) *ComponentState
 	GetStyle() lipgloss.Style
 	SetStyle(lipgloss.Style) *ComponentState
+	SetBackgroundGradient([]color.Color) *ComponentState
+	SetForegroundGradient([]color.Color) *ComponentState
+	GetBackgroundGradient() []color.Color
+	GetForegroundGradient() []color.Color
+	ClearBackgroundGradient()
+	ClearForegroundGradient()
 	GetTitle() string
 	SetTitle(string) *ComponentState
 	GetTitleAlignment() string
@@ -89,6 +96,7 @@ type Component interface {
 	SetAbsolute(bool) *ComponentState
 	SetCentered(bool) *ComponentState
 	GetCentered() bool
+	ApplyStyle(string) string
 }
 
 // Base class for all components
@@ -134,7 +142,9 @@ type ComponentState struct {
 	Visibility       bool
 	BorderLabels     map[string]string
 	//Index of the component within global element list
-	GlobalIndex int
+	GlobalIndex        int
+	BackgroundGradient []color.Color
+	ForegroundGradient []color.Color
 }
 
 // Initialized all shared values
@@ -603,9 +613,7 @@ func (b *ComponentState) PrepareFrame() {
 	cursor := top
 
 	innerWidth := b.GetInnerWidth() + 1
-	// innerHeight := b.GetInnerHeight()
 
-	style := b.GetStyle()
 	for _, c := range b.GetChildren() {
 		c.PrepareFrame()
 		output := c.GetCanvas()
@@ -617,7 +625,7 @@ func (b *ComponentState) PrepareFrame() {
 			for ind, line := range output {
 				posY := ind + b.GetY() + childY + top
 				for index, char := range line {
-					result[posY][globalX+index] = style.Render(char)
+					result[posY][globalX+index] = c.ApplyStyle(char)
 				}
 			}
 		} else {
@@ -630,7 +638,7 @@ func (b *ComponentState) PrepareFrame() {
 					// If canvas is smaller than the horizontal pointer, break
 					char := line[x]
 					// Check if the character is over the drawable area
-					result[pt][x+left] = style.Render(char)
+					result[pt][x+left] = c.ApplyStyle(char)
 				}
 				pt++
 			}
@@ -903,6 +911,31 @@ func (c *ComponentState) UpdateVisibility(ytop int, hei int) {
 		child.SetVisibility(!(top+childHeight < y || top > y+h))
 		top += childHeight
 	}
+}
+
+func (c *ComponentState) ApplyStyle(str string) string {
+	return c.GetStyle().Render(str)
+}
+
+func (c *ComponentState) SetBackgroundGradient(v []color.Color) *ComponentState {
+	c.BackgroundGradient = v
+	return c
+}
+func (c *ComponentState) SetForegroundGradient(v []color.Color) *ComponentState {
+	c.ForegroundGradient = v
+	return c
+}
+func (c *ComponentState) GetBackgroundGradient() []color.Color {
+	return c.BackgroundGradient
+}
+func (c *ComponentState) GetForegroundGradient() []color.Color {
+	return c.ForegroundGradient
+}
+func (c *ComponentState) ClearBackgroundGradient() {
+	c.BackgroundGradient = []color.Color{}
+}
+func (c *ComponentState) ClearForegroundGradient() {
+	c.ForegroundGradient = []color.Color{}
 }
 
 //#endregion Rendering
