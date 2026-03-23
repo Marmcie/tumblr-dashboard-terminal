@@ -22,10 +22,11 @@ func NewLine(name string) *Line {
 	return l
 }
 func (l *Line) SetText(text string) *Line {
-	l.Text = text
+
+	l.Text = strings.ReplaceAll(text, "\n", "")
 
 	if !l.InheritWidth {
-		l.SetW(runewidth.StringWidth(l.Text))
+		l.SetW(runewidth.StringWidth(text))
 	}
 	l.DispatchEvent("onChange")
 	return l
@@ -38,35 +39,14 @@ func (l *Line) PrepareFrame() {
 		l.SetCanvas([][]string{{""}}, [][]string{{""}}, [][]string{{""}})
 		return
 	}
-
-	str := l.Text
-	innerWidth := l.GetInnerWidth()
-
-	var result [][]string
-	var fg [][]string
-	var bg [][]string
-	str = strings.ReplaceAll(str, "\n", "")
-
-	var res []string
-	parts := strings.Split(str, "")
-	res = strings.Split(strings.Repeat(" ", max(innerWidth, len(parts))), "")
-
-	ct := 0
-	for i, c := range parts {
-		if ct >= innerWidth {
-			break
-		}
-
-		if runewidth.StringWidth(c) > 0 {
-			ct++
-		}
-		res[i] = c
+	w := l.GetInnerWidth()
+	var result [][]string = [][]string{strings.Split(l.Text, "")}
+	var fg [][]string = [][]string{make([]string, w)}
+	var bg [][]string = [][]string{make([]string, w)}
+	for i := range w {
+		fg[0][i] = l.Foreground
+		bg[0][i] = l.Background
 	}
-	result = append(result, res)
-	fg = append(fg, strings.Split(strings.Repeat(l.GetForeground()+",", len(res)), ","))
-	bg = append(bg, strings.Split(strings.Repeat(l.GetBackground()+",", len(res)), ","))
-	fg = fg[len(fg)-1:]
-	bg = bg[len(bg)-1:]
 
 	l.SetCanvas(result, fg, bg)
 }

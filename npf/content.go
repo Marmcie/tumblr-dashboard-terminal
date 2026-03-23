@@ -3,7 +3,6 @@ package npf
 import (
 	"bytes"
 	"strconv"
-
 	"github.com/mattn/go-runewidth"
 )
 
@@ -61,7 +60,7 @@ func (c *Content) RenderWithData() struct {
 		}
 		str.WriteString("[Image : " + alt + "]")
 		cType = "Image"
-		
+
 	case "video":
 		alt := c.Alt_text
 		if runewidth.StringWidth(alt) == 0 {
@@ -70,38 +69,46 @@ func (c *Content) RenderWithData() struct {
 		str.WriteString("[Video : " + alt + "]")
 		cType = "Video"
 	case "text":
+		text := c.Text
+		for _, f := range c.Formatting {
+			switch f.Type {
+			case "link":
+				text = text[:f.Start] +"["+text[f.Start:f.End]+"]"+ "(" + f.Url + ")" + text[f.End:]
+			}
+		}
+
 		cType = "Text"
 		switch c.Subtype {
 
 		case "heading1":
-			str.WriteString("① " + c.Text)
+			str.WriteString("① " + text)
 			cType = "Heading1"
 
 		case "heading2":
-			str.WriteString("② " + c.Text)
+			str.WriteString("② " + text)
 			cType = "Heading2"
 
 		case "heading3":
-			str.WriteString("③ " + c.Text)
+			str.WriteString("③ " + text)
 			cType = "Heading3"
 
 		case "quote":
-			str.WriteString("> " + c.Text)
+			str.WriteString("> " + text)
 			cType = "Quote"
 
 		case "ordered-list-item":
 			str.WriteString(strconv.Itoa(orderedListIndex) + ". ")
-			str.WriteString(c.Text)
+			str.WriteString(text)
 			orderedListIndex = orderedListIndex + 1
 			cType = "OrderedList"
 
 		case "unordered-list-item":
 			str.WriteString("- ")
-			str.WriteString(c.Text)
+			str.WriteString(text)
 			cType = "UnOrderedList"
 
 		default:
-			str.WriteString(c.Subtype+ c.Text)
+			str.WriteString(text)
 		}
 
 		if c.Subtype != "ordered-list-item" {
@@ -117,7 +124,7 @@ func (c *Content) RenderWithData() struct {
 		cType = "Poll"
 
 	default:
-			str.WriteString(c.Type+ c.Text)
+		str.WriteString(c.Text)
 	}
 
 	postStr := RenderUnicode(str.String())

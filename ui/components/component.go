@@ -603,14 +603,6 @@ func (c *ComponentState) GetUUID() string {
 // Perform rendering for a component and all its child components.
 // Rendered result is written to the Canvas property
 func (b *ComponentState) PrepareFrame() {
-
-	// defer func() {
-	// 	if err := recover(); err != nil {
-	// 		println(b.ToString())
-	// 		panic(err)
-	// 	}
-	// }()
-	// start := time.Now().UnixMilli()
 	var result, fg, bg = b.CreateCanvas()
 	if !b.Visibility {
 		b.SetCanvas([][]string{{""}}, [][]string{{""}}, [][]string{{""}})
@@ -675,9 +667,6 @@ func (b *ComponentState) PrepareFrame() {
 	}
 
 	b.SetCanvas(result, fg, bg)
-
-	// end := time.Now().UnixMilli()
-	// b.SetBorderLabel("Top", strconv.Itoa(int(end-start)))
 }
 
 // Create a 2D array of string the size of component
