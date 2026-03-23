@@ -99,7 +99,7 @@ func Auth(ctx context.Context) *oauth2.Token {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		returnedState := r.URL.Query().Get("state")
 		if state != returnedState {
-			panic("Error")
+			panic("Incorrect state was returned to redirect URL.")
 		}
 		code := r.URL.Query().Get("code")
 		if len(code) > 0 {
