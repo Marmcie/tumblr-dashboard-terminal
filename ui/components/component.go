@@ -3,7 +3,7 @@ package component
 import (
 	"strconv"
 	"strings"
-	"tumblr-dt/modules/ui/helper"
+	"tumblr-dt/ui/helper"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -476,7 +476,8 @@ func (c *ComponentState) addBorder(arr [][]string) [][]string {
 		}
 
 		title := c.GetName()
-		for i, char := range title {
+		for i := range min(wid-1,len(title)) {
+			char:=title[i]
 			arr[0][i+1] = string(char)
 		}
 

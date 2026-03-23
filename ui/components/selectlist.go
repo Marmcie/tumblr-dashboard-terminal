@@ -10,6 +10,7 @@ type Selectlist struct {
 
 	OptionCallbacks []func()
 	Cursor          int
+	SizeList        []int
 }
 
 func NewSelectlist(name string) *Selectlist {
@@ -17,6 +18,7 @@ func NewSelectlist(name string) *Selectlist {
 	s.Scrollable.Initialize(name)
 	s.Cursor = 0
 	s.ComponentName = "Selectlist"
+	s.SizeList = append(s.SizeList, 0)
 
 	s.AddEventListener("onUpdate", func(msg tea.Msg, time int) {
 
@@ -39,12 +41,24 @@ func NewSelectlist(name string) *Selectlist {
 
 			case "l":
 				s.OptionCallbacks[s.Cursor]()
+
+			case "enter":
+				s.OptionCallbacks[s.Cursor]()
 			}
 		}
 
 	})
 
 	return s
+}
+
+func (s *Selectlist) UpdateOffset() {
+	intended := s.SizeList[s.Cursor]
+
+	if intended > s.OffsetY+s.GetInnerHeight() {
+		s.OffsetY = s.GetInnerHeight() - intended
+	}
+
 }
 
 func (c *Selectlist) AddOption(child Component, cb func()) {
@@ -54,6 +68,10 @@ func (c *Selectlist) AddOption(child Component, cb func()) {
 
 func (s *Selectlist) Propagate() {
 
+	children := s.GetChildren()
+	if len(children) > 0 {
+		s.SizeList = append(s.SizeList, s.SizeList[len(s.SizeList)-1]+children[len(children)-1].GetHeight())
+	}
 	for i, c := range s.GetChildren() {
 		if i == s.Cursor {
 			style := lipgloss.NewStyle().Background(lipgloss.Color("#444444"))
@@ -62,7 +80,7 @@ func (s *Selectlist) Propagate() {
 			c.ClearStyle()
 		}
 	}
+	s.UpdateOffset()
 
 	s.Scrollable.Propagate()
 }
-

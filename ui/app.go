@@ -2,7 +2,7 @@ package ui
 
 import (
 	"strings"
-	component "tumblr-dt/modules/ui/components"
+	component "tumblr-dt/ui/components"
 
 	tea "github.com/charmbracelet/bubbletea"
 	tsize "github.com/kopoli/go-terminal-size"
