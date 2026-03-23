@@ -309,7 +309,7 @@ func (d *Dashboard) LoadPosts() {
 		return
 	}
 
-	sort.Sort(npf.SortPostById(posts))
+	sort.Sort(npf.SortPostByTimestamp(posts))
 	d.root.SetBorderLabel("BottomLeft", "")
 
 	if d.mode != "tutorial" {

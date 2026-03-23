@@ -81,11 +81,11 @@ type TrailData struct {
 	ID       int64
 }
 
-type SortPostById []Post
+type SortPostByTimestamp []Post
 
-func (t SortPostById) Len() int               { return len(t) }
-func (t SortPostById) Swap(i int, j int)      { t[i], t[j] = t[j], t[i] }
-func (t SortPostById) Less(i int, j int) bool { return t[i].Id > t[j].Id }
+func (t SortPostByTimestamp) Len() int               { return len(t) }
+func (t SortPostByTimestamp) Swap(i int, j int)      { t[i], t[j] = t[j], t[i] }
+func (t SortPostByTimestamp) Less(i int, j int) bool { return t[i].Timestamp > t[j].Timestamp }
 
 type sortById []TrailData
 
