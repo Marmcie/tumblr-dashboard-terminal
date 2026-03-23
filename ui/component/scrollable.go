@@ -2,20 +2,16 @@ package component
 
 import (
 	"strings"
-
-	tea "charm.land/bubbletea/v2"
 )
 
 // Component that can scroll to show child elements
 type Scrollable struct {
-	ComponentState
-	OffsetY     int
-	OffsetX     int
-	InnerHeight int
-	InnerWidth  int
-	ScrollX     bool
-	ScrollY     bool
-	Bottom      int
+	BaseComponent
+	OffsetY int
+	OffsetX int
+	ScrollX bool
+	ScrollY bool
+	Bottom  int
 }
 
 func NewScrollable(name string) *Scrollable {
@@ -27,12 +23,6 @@ func NewScrollable(name string) *Scrollable {
 	flex.ScrollX = false
 	flex.ScrollY = true
 	flex.Bottom = 0
-
-	flex.AddEventListener("onAddChild", func(msg tea.Msg, time int) {
-		w, h := flex.GetContentsSize()
-		flex.InnerHeight = h
-		flex.InnerWidth = w
-	})
 
 	return flex
 }
@@ -47,8 +37,10 @@ func (b *Scrollable) findBottom(canvas [][]string) {
 	}
 }
 
-func (c *Scrollable) CreateCanvas() [][]string {
+func (c *Scrollable) CreateCanvas() ([][]string, [][]string, [][]string) {
 	var arr [][]string
+	var fg [][]string
+	var bg [][]string
 	height := c.GetHeight()
 	width := c.GetWidth()
 
@@ -56,42 +48,52 @@ func (c *Scrollable) CreateCanvas() [][]string {
 
 	for range height {
 		arr = append(arr, strings.Split(strings.Repeat(" ", width), ""))
+		fg = append(fg, strings.Split(strings.Repeat(c.Foreground+",", width), ","))
+		bg = append(bg, strings.Split(strings.Repeat(c.Background+",", width), ","))
 	}
 
-	return arr
+	return arr, fg, bg
 }
 
 // Returns Line per line contents,x,y
 func (b *Scrollable) PrepareFrame() {
 
-	
 	if !b.Visibility {
-		b.Canvas = [][]string{{""}}
-		b.DispatchEvent("onRenderReady")
+		b.SetCanvas([][]string{{""}}, [][]string{{""}}, [][]string{{""}})
 		return
 	}
-	var result = b.CreateCanvas()
-	b.ComponentState.PrepareFrame()
+	result, fg, bg := b.CreateCanvas()
+	b.BaseComponent.PrepareFrame()
 
-	var output = b.GetCanvas()
+	output, childFG, childBG := b.GetCanvas()
 	boxHeight := b.GetInnerHeight()
 	boxWidth := b.GetInnerWidth()
 
 	b.findBottom(output)
 	bottomEdge := b.OffsetY + boxHeight + 1
+
 	for lineY := b.OffsetY; lineY < min(bottomEdge, len(output)); lineY++ {
 		line := output[lineY]
 		leftEdge := boxWidth + b.OffsetX + 1
 		for lineX := b.OffsetX; lineX < min(len(line), leftEdge); lineX++ {
 			char := line[lineX]
-			result[lineY-b.OffsetY][lineX-b.OffsetX] = b.ApplyStyle(char)
+			yIndex := lineY - b.OffsetY
+			xIndex := lineX - b.OffsetX
+			if len(result) > yIndex && len(result[yIndex]) > xIndex {
+				result[yIndex][xIndex] = char
+				if len(childFG[lineY][lineX]) > 0 && lineY-b.OffsetY > 0 {
+					fg[yIndex][xIndex] = childFG[lineY][lineX]
+				}
+				if len(childBG[lineY][lineX]) > 0 && lineY-b.OffsetY > 0 {
+					bg[yIndex][xIndex] = childBG[lineY][lineX]
+				}
+			}
 		}
 	}
 
 	result = b.addBorder(result)
 
-	b.Canvas = result
-	b.DispatchEvent("onRenderReady")
+	b.SetCanvas(result, fg, bg)
 }
 
 func (c *Scrollable) Propagate() {
@@ -103,5 +105,5 @@ func (c *Scrollable) Propagate() {
 		pt += child.GetHeight()
 	}
 
-	c.ComponentState.Propagate()
+	c.BaseComponent.Propagate()
 }

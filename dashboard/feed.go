@@ -3,26 +3,26 @@ package dashboard
 import (
 	"tumblr-dt/npf"
 	"tumblr-dt/ui"
-	component "tumblr-dt/ui/components"
+	component "tumblr-dt/ui/component"
 
 	tea "charm.land/bubbletea/v2"
-	"charm.land/lipgloss/v2"
 )
 
 type Feed struct {
 	listElem  *component.Selectlist
 	dashboard *Dashboard
 	posts     []npf.Post
+	prev      string
 }
 
 func NewFeed(dashboard *Dashboard) *Feed {
 	f := &Feed{}
 	f.listElem = component.NewSelectlist("Feed")
-	f.listElem.SetBorder(true).SetBorderPadding(1).SetBorderCorner(true).SetWidthInherit(true)
+	f.listElem.SetBorder(true).SetWidthInherit(true)
 	f.dashboard = dashboard
-	f.listElem.SetBorderLabel("BottomRight","? For keybind")
-
-	f.listElem.SelectedOptionStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#ffffff"))
+	f.listElem.SetBorderLabel("BottomRight", "? For keybind")
+	f.listElem.SetSelectedOptionBackground(ui.GetColorStr(ui.ColorFocus))
+	f.listElem.SetSelectedOptionForeground(ui.GetColorStr(ui.ColorWhite))
 
 	f.InitEvents()
 	return f
@@ -30,54 +30,40 @@ func NewFeed(dashboard *Dashboard) *Feed {
 
 func (f *Feed) InitEvents() {
 
-	f.listElem.AddEventListener("onUpdate", func(msg tea.Msg, i int) {
+	f.listElem.AddEventListener("onUpdate", func(msg tea.Msg) {
 		switch msg := msg.(type) {
 		case tea.KeyPressMsg:
 			switch msg.String() {
 			case "enter", "l":
 				f.dashboard.FocusContents()
 				f.listElem.RunSelectedOption()
-
 			case "j":
 				f.listElem.IncrementCursor()
 				f.listElem.RunSelectedOption()
-				f.UpdateSelectedOptionBorder()
 			case "k":
 				f.listElem.DecrementCursor()
 				f.listElem.RunSelectedOption()
-				f.UpdateSelectedOptionBorder()
-				
-			case "?":
-			f.dashboard.toggleControl()
-
+			case "G":
+				f.listElem.SetCursor(len(f.posts) - 1)
+				f.listElem.RunSelectedOption()
+			case "g":
+				if f.prev == "g" {
+					f.listElem.SetCursor(0)
+					f.listElem.RunSelectedOption()
+				}
 			}
+			f.prev = msg.String()
 		}
-	})
+	}, true)
 
-}
-
-func (f *Feed) UpdateSelectedOptionBorder() {
-	children := f.listElem.GetChildren()
-	if len(children) == 0 {
-		return
-	}
-	if children[f.listElem.Cursor] != nil {
-		children[f.listElem.Cursor].SetBorderStyle(lipgloss.NewStyle().Foreground(ui.GetColor("ColorFocus")))
-		children[f.listElem.Cursor].SetDoubleBorder(true)
-	}
-	if f.listElem.Cursor > 0 {
-		children[f.listElem.Cursor-1].ResetBorderStyle()
-		children[f.listElem.Cursor-1].SetDoubleBorder(false)
-	}
-
-	if f.listElem.Cursor < len(children)-1 {
-		children[f.listElem.Cursor+1].ResetBorderStyle()
-		children[f.listElem.Cursor+1].SetDoubleBorder(false)
-	}
 }
 
 func (f *Feed) GetSelectedPost() npf.Post {
 	return f.posts[f.listElem.Cursor]
+}
+
+func (f *Feed) ClearPosts() {
+	f.posts = []npf.Post{}
 }
 
 func (f *Feed) AddPosts(posts []npf.Post) {
@@ -85,15 +71,15 @@ func (f *Feed) AddPosts(posts []npf.Post) {
 		f.posts = append(f.posts, post)
 		item := component.NewBox("Feed post")
 		item.SetBorder(true).
-			SetBorderPadding(1).
-			SetBorderCorner(true).
-			SetH(4).
+			SetBorders(false, true, false, false).
+			SetBorderCorner(false).
+			SetH(3).
 			SetWidthInherit(true)
 
 		blogName := component.NewLine("User name : " + post.Blog.Name)
 		blogName.SetText(post.Blog.Name)
 		blogName.SetWidthInherit(true)
-		blogName.SetStyle(lipgloss.NewStyle().Foreground(ui.GetColor("ColorFocus")))
+		blogName.SetForeground(ui.GetColorStr(ui.ColorH1))
 
 		summary := component.NewLine("Post summary")
 		summary.SetText(post.GetSummary())
@@ -105,7 +91,7 @@ func (f *Feed) AddPosts(posts []npf.Post) {
 			f.dashboard.DisplayPost(post)
 		})
 	}
-	f.UpdateSelectedOptionBorder()
+	f.listElem.SetCursor(f.listElem.Cursor)
 }
 
 func (f *Feed) Focus() {

@@ -5,9 +5,8 @@ import tea "charm.land/bubbletea/v2"
 // This class is there to keep track of the state information that should be accessible globally.
 type GlobalValues struct {
 	Msg             tea.Msg
-	Time            int
 	Elements        []Component
-	EventDispatches map[string]map[string]map[string]func(tea.Msg, int)
+	EventDispatches map[string]map[string]map[string]func(tea.Msg)
 	Command         tea.Cmd
 	Logger          []func() string
 }
@@ -56,16 +55,16 @@ func (g *GlobalValues) SetCmd(cmd tea.Cmd) {
 }
 
 // Add a callback to a queue to be executed later in batch.
-func (g *GlobalValues) AddEventCallback(event string, uuid string, callbackUUID string, cb func(tea.Msg, int)) {
+func (g *GlobalValues) AddEventCallback(event string, uuid string, callbackUUID string, cb func(tea.Msg)) {
 	if g.EventDispatches == nil {
-		g.EventDispatches = map[string]map[string]map[string]func(tea.Msg, int){}
+		g.EventDispatches = map[string]map[string]map[string]func(tea.Msg){}
 	}
 	if g.EventDispatches[event] == nil {
-		g.EventDispatches[event] = map[string]map[string]func(tea.Msg, int){}
+		g.EventDispatches[event] = map[string]map[string]func(tea.Msg){}
 	}
 
 	if g.EventDispatches[event][uuid] == nil {
-		g.EventDispatches[event][uuid] = map[string]func(tea.Msg, int){}
+		g.EventDispatches[event][uuid] = map[string]func(tea.Msg){}
 	}
 	g.EventDispatches[event][uuid][callbackUUID] = cb
 }
@@ -75,15 +74,14 @@ func (g *GlobalValues) CallEvents() {
 	for _, v := range g.EventDispatches {
 		for _, cbs := range v {
 			for _, cb := range cbs {
-				cb(g.Msg, g.Time)
+				cb(g.Msg)
 			}
 		}
 	}
-	g.EventDispatches = map[string]map[string]map[string]func(tea.Msg, int){}
+	g.EventDispatches = map[string]map[string]map[string]func(tea.Msg){}
 }
 
 // Update globally accessible values
-func UpdateGlobalValues(msg tea.Msg, time int) {
+func UpdateGlobalValues(msg tea.Msg) {
 	Global.Msg = msg
-	Global.Time = time
 }

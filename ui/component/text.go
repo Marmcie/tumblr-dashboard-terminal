@@ -7,7 +7,7 @@ import (
 
 // Component that displays multi line text
 type Text struct {
-	ComponentState
+	BaseComponent
 	Text string
 }
 
@@ -53,7 +53,7 @@ func (t *Text) GetStringArray() [][]string {
 // Returns Text per line contents,x,y
 func (l *Text) PrepareFrame() {
 	if !l.Visibility {
-		l.Canvas = [][]string{{""}}
+		l.SetCanvas([][]string{{""}}, [][]string{{""}}, [][]string{{""}})
 		l.DispatchEvent("onRenderReady")
 		return
 	}
@@ -61,22 +61,24 @@ func (l *Text) PrepareFrame() {
 	top, bottom, left, _ := l.GetBorderPaddings()
 
 	innerWidth := l.GetInnerWidth()
-	var result = l.CreateCanvas()
+	result, fg, bg := l.CreateCanvas()
 	for i := range len(result) - (top + bottom) {
 		for a := range result[i] {
 			if a+left > innerWidth {
 				break
 			}
 			if i >= len(arr) || a >= len(arr[i]) {
-				result[i+top][a+left] = l.ApplyStyle(" ")
+				result[i+top][a+left] = " "
 			} else {
-				result[i+top][a+left] = l.ApplyStyle(arr[i][a])
+				result[i+top][a+left] = arr[i][a]
+				fg[i+top][a+left] = l.Foreground
+				bg[i+top][a+left] = l.Background
 			}
 		}
 	}
 
 	result = l.addBorder(result)
 
-	l.Canvas = result
+	l.SetCanvas(result, fg, bg)
 	l.DispatchEvent("onRenderReady")
 }

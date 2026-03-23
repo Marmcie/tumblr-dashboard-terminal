@@ -1,6 +1,5 @@
 package npf
 
-
 type Post struct {
 	Type                       string
 	Original_type              string
@@ -53,9 +52,12 @@ type Post struct {
 	Can_send_in_message        bool
 	Can_reply                  bool
 	Display_avatar             bool
+	Rendered                   bool
+	Result                     []TrailData
 }
 
 var orderedListIndex = 1
+var renderResults map[string][]TrailData
 
 type ContentData struct {
 	ContentType string
@@ -68,6 +70,12 @@ type TrailData struct {
 }
 
 func (p *Post) Render() []TrailData {
+	if renderResults == nil {
+		renderResults = map[string][]TrailData{}
+	}
+	if renderResults[p.Id_string] != nil {
+		return renderResults[p.Id_string]
+	}
 	var result []TrailData
 	if len(p.Content) > 0 {
 		var res []ContentData
@@ -75,8 +83,8 @@ func (p *Post) Render() []TrailData {
 		for _, c := range p.Content {
 			data := c.RenderWithData()
 			res = append(res, ContentData{
-				ContentType: data.contentType,
-				Str:         data.str,
+				ContentType: data.ContentType,
+				Str:         data.Str,
 			})
 		}
 		result = append(result, TrailData{
@@ -90,8 +98,8 @@ func (p *Post) Render() []TrailData {
 		for _, c := range t.Content {
 			data := c.RenderWithData()
 			res = append(res, ContentData{
-				ContentType: data.contentType,
-				Str:         data.str,
+				ContentType: data.ContentType,
+				Str:         data.Str,
 			})
 		}
 		result = append(result, TrailData{
@@ -99,8 +107,8 @@ func (p *Post) Render() []TrailData {
 			Blog:     t.Blog,
 		})
 	}
-
-	return result
+	renderResults[p.Id_string] = result
+	return renderResults[p.Id_string]
 }
 
 func (p *Post) GetSummary() string {

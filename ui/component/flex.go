@@ -2,7 +2,7 @@ package component
 
 // Flex box component
 type Flex struct {
-	ComponentState
+	BaseComponent
 	Direction   int
 	InnerHeight int
 	Descriptors []FlexDescriptor
@@ -32,13 +32,13 @@ func NewFlex(name string) *Flex {
 
 func (c *Flex) AddChild(child Component) {
 	child.SetIsFlexItem(true)
-	c.ComponentState.AddChild(child)
+	c.BaseComponent.AddChild(child)
 	c.Descriptors = append(c.Descriptors, NewFlexDescriptor(1, 1))
 }
 
 func (c *Flex) AddItem(child Component, desc FlexDescriptor) {
 	child.SetIsFlexItem(true)
-	c.ComponentState.AddChild(child)
+	c.BaseComponent.AddChild(child)
 	c.Descriptors = append(c.Descriptors, desc)
 }
 
@@ -119,11 +119,12 @@ func (b *Flex) UpdateChildSize() {
 
 func (c *Flex) Propagate() {
 	c.UpdateChildSize()
-	c.ComponentState.Propagate()
+	c.BaseComponent.Propagate()
 }
 
 func (b *Flex) PrepareFrame() {
-	var result = b.CreateCanvas()
+	// start := time.Now().UnixMilli()
+	var result, fg, bg = b.CreateCanvas()
 
 	top, _, left, _ := b.GetBorderPaddings()
 	cursor := top
@@ -131,7 +132,7 @@ func (b *Flex) PrepareFrame() {
 
 	for _, c := range b.GetChildren() {
 		c.PrepareFrame()
-		output := c.GetCanvas()
+		output, childFG, childBG := c.GetCanvas()
 		if c.IsAbsolute() == true {
 			if !c.GetVisibility() {
 				continue
@@ -142,15 +143,30 @@ func (b *Flex) PrepareFrame() {
 			for ind, line := range output {
 				posY := ind + b.GetY() + childY + top
 				for index, char := range line {
-					result[posY][globalX+index] = b.ApplyStyle(char)
+					result[posY][globalX+index] = char
+					if len(childFG[ind][index]) > 0 {
+						fg[posY][globalX+index] = childFG[ind][index]
+					}
+					if len(childBG[ind][index]) > 0 {
+						bg[posY][globalX+index] = childBG[ind][index]
+					}
 				}
 			}
 		} else {
 			for i := 0; i < min(len(result), len(output)); i++ {
 				line := output[i]
-				for a := 0; a < min(len(line), len(result[cursor])); a++ {
+				if len(result) <= cursor {
+					break
+				}
+				for a := 0; a < min(len(line), len(result[cursor])-sideOffset); a++ {
 					char := line[a]
-					result[cursor][a+sideOffset] = b.ApplyStyle(char)
+					result[cursor][a+sideOffset] = char
+					if len(childFG[i][a]) > 0 {
+						fg[cursor][a+sideOffset] = childFG[i][a]
+					}
+					if len(childBG[i][a]) > 0 {
+						bg[cursor][a+sideOffset] = childBG[i][a]
+					}
 				}
 				cursor++
 			}
@@ -166,6 +182,8 @@ func (b *Flex) PrepareFrame() {
 	}
 
 	result = b.addBorder(result)
-	b.Canvas = result
-	b.DispatchEvent("onRenderReady")
+	b.SetCanvas(result, fg, bg)
+
+	// end := time.Now().UnixMilli()
+	// b.SetBorderLabel("Top", strconv.Itoa(int(end-start)))
 }

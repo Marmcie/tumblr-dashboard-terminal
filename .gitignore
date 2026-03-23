@@ -1,6 +1,5 @@
 .env
 *.exe
-Makefile
 *.json
 log.txt
 *.log

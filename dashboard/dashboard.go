@@ -1,32 +1,34 @@
 package dashboard
 
 import (
+	"bytes"
 	"fmt"
 	"strings"
 	"time"
 	"tumblr-dt/modules"
 	"tumblr-dt/npf"
 	"tumblr-dt/ui"
-	component "tumblr-dt/ui/components"
+	component "tumblr-dt/ui/component"
 
 	tea "charm.land/bubbletea/v2"
-	"charm.land/lipgloss/v2"
 	tsize "github.com/kopoli/go-terminal-size"
 )
 
 type Dashboard struct {
-	core     ui.RootModel
-	root     *component.Flex
-	left     *component.Flex
-	right    *component.Flex
-	feed     *Feed
-	info     *component.Text
-	control  *component.Text
-	contents *Contents
-
-	client modules.TumblrClient
-
-	offset int
+	rootModel      ui.RootModel
+	root      *component.Flex
+	left      *component.Flex
+	right     *component.Flex
+	switcher  *Switcher
+	feed      *Feed
+	info      *component.Text
+	control   *component.Text
+	contents  *Contents
+	mode      string
+	client    modules.TumblrClient
+	offset    int
+	timestamp int64
+	option    string
 }
 
 func NewDashboard() *Dashboard {
@@ -39,12 +41,15 @@ func NewDashboard() *Dashboard {
 		panic(err)
 	}
 
-	d.core = ui.NewRootModel()
+	d.rootModel = ui.NewRootModel()
+	d.timestamp = time.Now().Local().UnixMilli() / 1000
 
 	d.root = component.NewFlex("Root")
 	d.root.SetDirection(1)
 	d.root.SetSize(s.Width, s.Height)
-	d.root.SetBorder(true).SetBorderPadding(1)
+	d.root.SetBorder(true)
+	d.root.SetBackground(ui.GetColorStr(ui.ColorBG))
+	d.root.SetForeground(ui.GetColorStr(ui.ColorWhite))
 
 	d.left = component.NewFlex("Left")
 	d.left.SetHeightInherit(true)
@@ -55,19 +60,18 @@ func NewDashboard() *Dashboard {
 	d.right.Direction = 0
 
 	d.info = component.NewText("Info")
-	d.info.SetWidthInherit(true).SetBorder(true).SetBorderPadding(1)
+	d.info.SetWidthInherit(true).SetBorder(true)
 
 	d.control = component.NewText("Control")
 	d.control.SetBorder(true).
-		SetBorderPadding(1).
-		SetSize(40, 8).
+		SetSize(40, 10).
 		SetTitle("Control").
 		SetPos(0, 0).
 		SetVisibility(false).
 		SetAbsolute(true).
-		SetCentered(true).
-		SetStyle(lipgloss.NewStyle().Background(lipgloss.Color("#303030"))).
-		SetBorderStyle(lipgloss.NewStyle().Background(lipgloss.Color("#303030")))
+		SetCentered(true)
+
+	d.switcher = NewSwitcher(d)
 
 	d.feed = NewFeed(d)
 	d.contents = NewContents(d)
@@ -80,14 +84,16 @@ func NewDashboard() *Dashboard {
 	d.root.AddItem(d.left, component.NewFlexDescriptor(0, 1))
 	d.root.AddItem(d.right, component.NewFlexDescriptor(0, 3))
 	d.root.AddItem(d.control, component.NewFlexDescriptor(0, 3))
+	d.root.AddItem(d.switcher.Window, component.NewFlexDescriptor(0, 3))
 
 	d.feed.listElem.Focus()
-	d.core.App.SetRoot(d.root)
+	d.switcher.Window.Focus()
+	d.rootModel.App.SetRoot(d.root)
 
 	d.client = modules.NewTumblrClient()
 	d.offset = 0
 	d.initEvents()
-	d.LoadPosts()
+	d.SwitchMode("dashboard", "")
 	d.UpdateControlText()
 
 	return d
@@ -95,9 +101,18 @@ func NewDashboard() *Dashboard {
 func (d *Dashboard) toggleControl() {
 	d.control.SetVisibility(!d.control.Visibility)
 }
+func (d *Dashboard) toggleSwitcher() {
+	state := !d.switcher.Window.GetVisibility()
+	d.switcher.Window.SetVisibility(state)
+	if state {
+		d.switcher.DashOption.Focus()
+	} else {
+		d.feed.listElem.Focus()
+	}
+}
 
 func (d *Dashboard) initEvents() {
-	d.root.AddEventListener("onUpdate", func(msg tea.Msg, i int) {
+	d.root.AddEventListener("onUpdate", func(msg tea.Msg) {
 		switch msg := msg.(type) {
 		case tea.KeyMsg:
 			switch msg.String() {
@@ -108,21 +123,68 @@ func (d *Dashboard) initEvents() {
 				post := d.feed.GetSelectedPost()
 				modules.OpenInBrowser(post.Short_url)
 				component.Global.SetCmd(tea.ClearScreen)
+
+			case "]":
+				d.toggleSwitcher()
+
+			case "b":
+				post := d.feed.GetSelectedPost()
+				d.SwitchMode("blog", post.Blog.Name)
+
+			case "?":
+				d.toggleControl()
 			}
 
 		}
-	})
+	}, true)
+}
+
+func (d *Dashboard) SwitchMode(mode string, option string) {
+	d.switcher.Window.SetVisibility(false)
+	d.feed.listElem.Focus()
+	d.mode = mode
+	switch d.mode {
+	case "dashboard":
+		d.feed.listElem.SetTitle("Dashboard")
+	case "tag":
+		d.option = option
+		d.feed.listElem.SetTitle("Tagged posts : " + d.option)
+
+	case "blog":
+		d.option = option
+		d.feed.listElem.SetTitle("Posts from : " + d.option)
+	}
+
+	d.feed.ClearPosts()
+	d.feed.listElem.ClearChildren()
+	d.offset = 0
+	d.LoadPosts()
 }
 
 func (d *Dashboard) LoadPosts() {
-	posts := d.client.GetDashboard(d.offset)
+	var posts []npf.Post
+	switch d.mode {
+	case "dashboard":
+		posts = d.client.GetDashboard(d.offset)
+	case "tag":
+		posts = d.client.GetTaggedPosts(int(d.timestamp), d.option)
+
+	case "blog":
+		posts = d.client.GetBlogPosts(int(d.timestamp), d.option)
+	}
+	if len(posts) == 0 {
+		d.SwitchMode("dashboard", "")
+		return
+	}
+
+	d.timestamp = posts[len(posts)-1].Timestamp
 	d.feed.AddPosts(posts)
 	d.offset++
 
 }
 
-func (d *Dashboard) GetCore() ui.RootModel {
-	return d.core
+func (d *Dashboard) GetRootModel() ui.RootModel {
+	return d.rootModel
 }
 
 func (d *Dashboard) GetSelectedPost() npf.Post {
@@ -146,6 +208,8 @@ func (d *Dashboard) UpdateControlText() {
 		str += "j/k      :  Scroll post on feed  \n"
 		str += "l/Enter  :  Focus post window   \n"
 		str += "r        :  Load more posts    \n"
+		str += "]        :  Open feed switcher    \n"
+		str += "b        :  Open blog feed    \n"
 		str += "o        :  Open post in browser    \n"
 		str += "Ctrl+c   :  Exit the program  \n"
 		str += "Ctrl+d   :  Log out of the account  \n"
@@ -153,6 +217,8 @@ func (d *Dashboard) UpdateControlText() {
 		str += "j/k      :  Scroll post contents  \n"
 		str += "h        :  Focus feed  \n"
 		str += "r        :  Load more posts     \n"
+		str += "]        :  Open feed switcher    \n"
+		str += "b        :  Open blog feed    \n"
 		str += "o        :  Open post in browser    \n"
 		str += "Ctrl+c   :  Exit the program   \n"
 		str += "Ctrl+d   :  Log out of the account  \n"
@@ -183,16 +249,15 @@ func (d *Dashboard) UpdateInfo(post npf.Post) {
 
 	diffStr = fmt.Sprintf("%02d:%02d:%02d", hours, minutes, seconds)
 
-	str := ""
-	str += "Date      :  " + t.Format("2006-01-02 15:04:05 MST") + " (" + diffStr + " ago)" + "\n"
-	str += "URL       :  " + post.Short_url + "\n"
-	str += "Blog name :  " + post.Blog_name + "\n"
-	str += "Tags      :  "
-
+	var str = bytes.Buffer{}
+	str.WriteString("Date      :  " + t.Format("2006-01-02 15:04:05 MST") + " (" + diffStr + " ago)" + "\n")
+	str.WriteString("URL       :  " + post.Short_url + "\n")
+	str.WriteString("Blog name :  " + post.Blog_name + "\n")
+	str.WriteString("Tags      :  ")
 	if len(post.Tags) > 0 {
-		str += "#"
-		str += strings.Join(post.Tags, " #")
+		str.WriteString("#")
+		str.WriteString(strings.Join(post.Tags, " #"))
 	}
 
-	d.info.SetText(str)
+	d.info.SetText(str.String())
 }
