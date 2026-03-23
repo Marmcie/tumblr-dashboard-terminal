@@ -146,5 +146,5 @@ func (p *Post) GetSummary() string {
 }
 
 func (p *Post) RemoveRenderResult() {
-	delete(renderResults,p.Id_string)
+	delete(renderResults, p.Id_string)
 }
