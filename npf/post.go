@@ -55,14 +55,6 @@ type Post struct {
 	Display_avatar             bool
 }
 
-
-
-
-
-
-
-
-
 var orderedListIndex = 1
 
 type ContentData struct {
@@ -111,14 +103,6 @@ func (p *Post) Render() []TrailData {
 	return result
 }
 
-
-
 func (p *Post) GetSummary() string {
 	return RenderUnicode(p.Summary)
 }
-
-
-
-
-
-
