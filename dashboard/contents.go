@@ -114,12 +114,21 @@ func (f *Contents) DisplayPost(post npf.Post) {
 			parts = append(parts, str)
 			colors = append(colors, col)
 			str = ""
+
+			parts = append(parts, "")
+			colors = append(colors, "")
 		}
 		colors = append(colors, col)
 		parts = append(parts, str)
 
+		top, _, _, _ := box.GetBorderPaddings()
+
+		box.SetTitle(reblog.Blog.Name)
+		box.SetH(max(3, len(parts)+1))
+
 		//INFO: Convert each line into Line object, then apply corresponding style
-		for i, line := range parts {
+		for i := 0; i < min(len(parts), box.GetInnerHeight()-top); i++ {
+			line := parts[i]
 			col := colors[i]
 			l := component.NewLine("Post text")
 			l.SetText(line)
@@ -127,8 +136,6 @@ func (f *Contents) DisplayPost(post npf.Post) {
 			l.SetWidthInherit(true)
 			box.AddChild(l)
 		}
-		box.SetTitle(reblog.Blog.Name)
-		box.SetH(len(parts) + 1)
 	}
 
 }

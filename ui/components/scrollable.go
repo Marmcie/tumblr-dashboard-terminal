@@ -58,8 +58,8 @@ func (c *Scrollable) CreateCanvas() ([][]string, [][]string, [][]string) {
 
 	for range height {
 		arr = append(arr, strings.Split(strings.Repeat(" ", width), ""))
-		fg = append(fg, strings.Split(strings.Repeat(" ", width), ""))
-		bg = append(bg, strings.Split(strings.Repeat(" ", width), ""))
+		fg = append(fg, strings.Split(strings.Repeat(c.Foreground+",", width), ","))
+		bg = append(bg, strings.Split(strings.Repeat(c.Background+",", width), ","))
 	}
 
 	return arr, fg, bg
@@ -88,8 +88,12 @@ func (b *Scrollable) PrepareFrame() {
 		for lineX := b.OffsetX; lineX < min(len(line), leftEdge); lineX++ {
 			char := line[lineX]
 			result[lineY-b.OffsetY][lineX-b.OffsetX] = char
-			fg[lineY-b.OffsetY][lineX-b.OffsetX] = childFG[lineY][lineX]
-			bg[lineY-b.OffsetY][lineX-b.OffsetX] = childBG[lineY][lineX]
+			if len(childFG[lineY][lineX]) > 0 {
+				fg[lineY-b.OffsetY][lineX-b.OffsetX] = childFG[lineY][lineX]
+			}
+			if len(childBG[lineY][lineX]) > 0 &&lineY-b.OffsetY > 0 {
+				bg[lineY-b.OffsetY][lineX-b.OffsetX] = childBG[lineY][lineX]
+			}
 		}
 
 	}

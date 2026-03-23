@@ -6,7 +6,6 @@ import (
 	"image/color"
 	"strconv"
 	"strings"
-	"time"
 	"tumblr-dt/ui/helper"
 
 	tea "charm.land/bubbletea/v2"
@@ -101,6 +100,8 @@ type Component interface {
 	ApplyStyle(string) string
 	SetForeground(string)
 	SetBackground(string)
+	ClearForeground()
+	ClearBackground()
 	GetForeground() string
 	GetBackground() string
 }
@@ -183,8 +184,8 @@ func (c *ComponentState) Initialize(name string) {
 	c.UUID = uuid.New().String()
 	c.EventCallbacks = map[string]map[string]func(tea.Msg, int){}
 	c.TitleAlignment = "center"
-	c.Foreground = " "
-	c.Background = " "
+	c.Foreground = ""
+	c.Background = ""
 
 	c.BorderLabels = map[string]string{
 		"TopLeft":     "",
@@ -623,7 +624,7 @@ func (b *ComponentState) PrepareFrame() {
 	// 		panic(err)
 	// 	}
 	// }()
-	start := time.Now().UnixMilli()
+	// start := time.Now().UnixMilli()
 	var result, fg, bg = b.CreateCanvas()
 	if !b.Visibility {
 		b.SetCanvas([][]string{{""}}, [][]string{{""}}, [][]string{{""}})
@@ -666,8 +667,12 @@ func (b *ComponentState) PrepareFrame() {
 					char := line[x]
 					// Check if the character is over the drawable area
 					result[pt][x+left] = char
-					fg[pt][x+left] = childFG[y][x]
-					bg[pt][x+left] = childBG[y][x]
+					if len(childFG[y][x]) > 0 {
+						fg[pt][x+left] = childFG[y][x]
+					}
+					if len(childBG[y][x]) > 0 {
+						bg[pt][x+left] = childBG[y][x]
+					}
 				}
 				pt++
 			}
@@ -676,8 +681,8 @@ func (b *ComponentState) PrepareFrame() {
 	}
 
 	b.SetCanvas(result, fg, bg)
-	end := time.Now().UnixMilli()
-	b.SetBorderLabel("BottomRight", strconv.Itoa(int(end-start))+"ms")
+	// end := time.Now().UnixMilli()
+	// b.SetBorderLabel("BottomRight", strconv.Itoa(int(end-start))+"ms")
 }
 
 // Create a 2D array of string the size of component
@@ -692,10 +697,9 @@ func (c *ComponentState) CreateCanvas() ([][]string, [][]string, [][]string) {
 
 	for range height {
 		arr = append(arr, strings.Split(strings.Repeat(" ", width), ""))
-		fg = append(fg, strings.Split(strings.Repeat(c.Foreground, width), ""))
-		bg = append(bg, strings.Split(strings.Repeat(c.Background, width), ""))
+		fg = append(fg, strings.Split(strings.Repeat(c.Foreground+",", width), ","))
+		bg = append(bg, strings.Split(strings.Repeat(c.Background+",", width), ","))
 	}
-
 	return arr, fg, bg
 }
 
@@ -721,21 +725,21 @@ func (c *ComponentState) addBorder(arr [][]string) [][]string {
 		return arr
 	}
 
-	style := c.GetBorderStyle()
-	side := style.Render(helper.Dictionary(helper.BorderSide))
-	top := style.Render(helper.Dictionary(helper.BorderTop))
-	tl := style.Render(helper.Dictionary(helper.BorderTopLeft))
-	tr := style.Render(helper.Dictionary(helper.BorderTopRight))
-	bl := style.Render(helper.Dictionary(helper.BorderBottomLeft))
-	br := style.Render(helper.Dictionary(helper.BorderBottomRight))
+	// style := c.GetBorderStyle()
+	side := (helper.Dictionary(helper.BorderSide))
+	top := (helper.Dictionary(helper.BorderTop))
+	tl := (helper.Dictionary(helper.BorderTopLeft))
+	tr := (helper.Dictionary(helper.BorderTopRight))
+	bl := (helper.Dictionary(helper.BorderBottomLeft))
+	br := (helper.Dictionary(helper.BorderBottomRight))
 
 	if c.GetFocusState() || c.GetDoubleBorder() {
-		side = style.Render(helper.Dictionary(helper.BorderSideDouble))
-		top = style.Render(helper.Dictionary(helper.BorderTopDouble))
-		tl = style.Render(helper.Dictionary(helper.BorderTopLeftDouble))
-		tr = style.Render(helper.Dictionary(helper.BorderTopRightDouble))
-		bl = style.Render(helper.Dictionary(helper.BorderBottomLeftDouble))
-		br = style.Render(helper.Dictionary(helper.BorderBottomRightDouble))
+		side = (helper.Dictionary(helper.BorderSideDouble))
+		top = (helper.Dictionary(helper.BorderTopDouble))
+		tl = (helper.Dictionary(helper.BorderTopLeftDouble))
+		tr = (helper.Dictionary(helper.BorderTopRightDouble))
+		bl = (helper.Dictionary(helper.BorderBottomLeftDouble))
+		br = (helper.Dictionary(helper.BorderBottomRightDouble))
 	}
 
 	wid := c.GetWidth()
@@ -774,21 +778,21 @@ func (c *ComponentState) addBorder(arr [][]string) [][]string {
 		case "left":
 			for i := range min(wid-1, runewidth.StringWidth(title)) {
 				char := title[i]
-				arr[0][i+1] = style.Render(string(char))
+				arr[0][i+1] = (string(char))
 			}
 
 		case "center":
 			length := len(title)
 			for i := range min(wid-1, runewidth.StringWidth(title)) {
 				char := title[i]
-				arr[0][i+max(1, (wid-length)/2)] = style.Render(string(char))
+				arr[0][i+max(1, (wid-length)/2)] = (string(char))
 			}
 
 		case "right":
 			strWidth := len(title)
 			for i := 0; i < min(wid-2, strWidth); i++ {
 				char := title[strWidth-(i+1)]
-				arr[0][wid-(i+2)] = style.Render(string(char))
+				arr[0][wid-(i+2)] = (string(char))
 			}
 		}
 
@@ -800,27 +804,27 @@ func (c *ComponentState) addBorder(arr [][]string) [][]string {
 			case "TopLeft":
 				for i := range min(wid-1, runewidth.StringWidth(str)) {
 					char := title[i]
-					arr[0][i+1] = style.Render(string(char))
+					arr[0][i+1] = (string(char))
 				}
 
 			case "Top":
 				length := len(str)
 				for i := range min(wid-1, runewidth.StringWidth(str)) {
 					char := str[i]
-					arr[0][i+max(1, (wid-length)/2)] = style.Render(string(char))
+					arr[0][i+max(1, (wid-length)/2)] = (string(char))
 				}
 
 			case "TopRight":
 				strWidth := len(str)
 				for i := 0; i < min(wid-2, strWidth); i++ {
 					char := str[strWidth-(i+1)]
-					arr[0][wid-(i+2)] = style.Render(string(char))
+					arr[0][wid-(i+2)] = (string(char))
 				}
 
 			case "BottomLeft":
 				for i := range min(wid-1, runewidth.StringWidth(str)) {
 					char := str[i]
-					arr[hei-1][i+1] = style.Render(string(char))
+					arr[hei-1][i+1] = (string(char))
 				}
 
 			case "Bottom":
@@ -828,14 +832,14 @@ func (c *ComponentState) addBorder(arr [][]string) [][]string {
 				center := wid - length/2
 				for i := range min(wid-1, runewidth.StringWidth(str)) {
 					char := str[i]
-					arr[hei-1][i+max(1, center)] = style.Render(string(char))
+					arr[hei-1][i+max(1, center)] = (string(char))
 				}
 
 			case "BottomRight":
 				strWidth := len(str)
 				for i := 0; i < min(wid-2, strWidth); i++ {
 					char := str[strWidth-(i+1)]
-					arr[hei-1][wid-(i+2)] = style.Render(string(char))
+					arr[hei-1][wid-(i+2)] = (string(char))
 				}
 			}
 
@@ -993,21 +997,23 @@ func (c *ComponentState) ClearForegroundGradient() {
 	c.ForegroundGradient = []color.Color{}
 }
 func (c *ComponentState) SetForeground(v string) {
-	if len(v) > 0 {
-		c.Foreground = v
-	}
+	c.Foreground = v
 }
 func (c *ComponentState) SetBackground(v string) {
-	if len(v) > 0 {
-		c.Background = v
-	}
+	c.Background = v
+}
+func (c *ComponentState) ClearForeground() {
+	c.Foreground = ""
+}
+func (c *ComponentState) ClearBackground() {
+	c.Background = ""
 }
 
-func (c *ComponentState) GetForeground()string {
-		return c.Foreground
+func (c *ComponentState) GetForeground() string {
+	return c.Foreground
 }
-func (c *ComponentState) GetBackground()string {
-		return c.Background
+func (c *ComponentState) GetBackground() string {
+	return c.Background
 }
 
 //#endregion Rendering

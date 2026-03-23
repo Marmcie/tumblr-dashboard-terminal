@@ -65,6 +65,8 @@ func (l *Line) PrepareFrame() {
 	result = append(result, res)
 	fg = append(fg, strings.Split(strings.Repeat(l.GetForeground()+",", len(res)), ","))
 	bg = append(bg, strings.Split(strings.Repeat(l.GetBackground()+",", len(res)), ","))
+	fg = fg[len(fg)-1:]
+	bg = bg[len(bg)-1:]
 
 	l.SetCanvas(result, fg, bg)
 }

@@ -20,7 +20,7 @@ func NewFeed(dashboard *Dashboard) *Feed {
 	f.listElem = component.NewSelectlist("Feed")
 	f.listElem.SetBorder(true).SetBorderPadding(1).SetBorderCorner(true).SetWidthInherit(true)
 	f.dashboard = dashboard
-	f.listElem.SetBorderLabel("BottomRight","? For keybind")
+	f.listElem.SetBorderLabel("BottomRight", "? For keybind")
 
 	f.listElem.SelectedOptionStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#ffffff"))
 
@@ -46,9 +46,9 @@ func (f *Feed) InitEvents() {
 				f.listElem.DecrementCursor()
 				f.listElem.RunSelectedOption()
 				f.UpdateSelectedOptionBorder()
-				
+
 			case "?":
-			f.dashboard.toggleControl()
+				f.dashboard.toggleControl()
 
 			}
 		}
@@ -93,7 +93,7 @@ func (f *Feed) AddPosts(posts []npf.Post) {
 		blogName := component.NewLine("User name : " + post.Blog.Name)
 		blogName.SetText(post.Blog.Name)
 		blogName.SetWidthInherit(true)
-		blogName.SetStyle(lipgloss.NewStyle().Foreground(ui.GetColor("ColorFocus")))
+		blogName.SetForeground("#a0a4fa")
 
 		summary := component.NewLine("Post summary")
 		summary.SetText(post.GetSummary())

@@ -75,14 +75,6 @@ func (s *Selectlist) Propagate() {
 	if len(children) > 0 {
 		s.SizeList = append(s.SizeList, s.SizeList[len(s.SizeList)-1]+children[len(children)-1].GetHeight())
 	}
-	for i, c := range s.GetChildren() {
-		if i == s.Cursor {
-			style := s.SelectedOptionStyle
-			c.SetStyle(style)
-		} else {
-			c.ClearStyle()
-		}
-	}
 	s.UpdateOffset()
 
 	s.Scrollable.Propagate()

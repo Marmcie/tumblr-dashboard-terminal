@@ -17,5 +17,4 @@ func (b *Box) PrepareFrame() {
 	var result, fg, bg = b.GetCanvas()
 	result = b.addBorder(result)
 	b.SetCanvas(result, fg, bg)
-	// b.DispatchEvent("onRenderReady")
 }

@@ -153,8 +153,12 @@ func (b *Flex) PrepareFrame() {
 				for a := 0; a < min(len(line), len(result[cursor])); a++ {
 					char := line[a]
 					result[cursor][a+sideOffset] = char
-					fg[cursor][a+sideOffset] = childFG[i][a]
-					bg[cursor][a+sideOffset] = childBG[i][a]
+					if len(childFG[i][a]) > 0 {
+						fg[cursor][a+sideOffset] = childFG[i][a]
+					}
+					if len(childBG[i][a]) > 0 {
+						bg[cursor][a+sideOffset] = childBG[i][a]
+					}
 				}
 				cursor++
 			}
