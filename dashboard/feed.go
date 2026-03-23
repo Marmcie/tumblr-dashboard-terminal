@@ -20,6 +20,8 @@ func NewFeed(dashboard *Dashboard) *Feed {
 	f.listElem.SetBorder(true).SetBorderPadding(1).SetBorderCorner(true).SetWidthInherit(true)
 	f.dashboard = dashboard
 
+	f.listElem.SelectedOptionStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#ffffff"))
+
 	f.InitEvents()
 	return f
 }
@@ -58,8 +60,7 @@ func (f *Feed) UpdateSelectedOptionBorder() {
 		return
 	}
 	if children[f.listElem.Cursor] != nil {
-		style := lipgloss.NewStyle().Foreground(lipgloss.Color("#00aaaa"))
-		children[f.listElem.Cursor].SetBorderStyle(style)
+		children[f.listElem.Cursor].SetBorderStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("#00aaaa")))
 		children[f.listElem.Cursor].SetDoubleBorder(true)
 	}
 	if f.listElem.Cursor > 0 {

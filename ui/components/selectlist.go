@@ -7,10 +7,10 @@ import (
 type Selectlist struct {
 	Scrollable
 
-	OptionCallbacks []func()
-	Cursor          int
-	SizeList        []int
-	SelectBgStyle   lipgloss.Style
+	OptionCallbacks     []func()
+	Cursor              int
+	SizeList            []int
+	SelectedOptionStyle lipgloss.Style
 }
 
 func NewSelectlist(name string) *Selectlist {
@@ -20,7 +20,7 @@ func NewSelectlist(name string) *Selectlist {
 	s.ComponentName = "Selectlist"
 	s.SizeList = append(s.SizeList, 0)
 
-	s.SelectBgStyle = lipgloss.NewStyle()
+	s.SelectedOptionStyle = lipgloss.NewStyle()
 	return s
 }
 
@@ -76,7 +76,7 @@ func (s *Selectlist) Propagate() {
 	}
 	for i, c := range s.GetChildren() {
 		if i == s.Cursor {
-			style := s.SelectBgStyle
+			style := s.SelectedOptionStyle
 			c.SetStyle(style)
 		} else {
 			c.ClearStyle()

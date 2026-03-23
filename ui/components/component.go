@@ -15,7 +15,7 @@ type GlobalValues struct {
 	Msg             tea.Msg
 	Time            int
 	Elements        []Component
-	EventDispatches map[string]map[string][]func(tea.Msg, int)
+	EventDispatches map[string]map[string]map[string]func(tea.Msg, int)
 	Command         tea.Cmd
 }
 
@@ -34,14 +34,18 @@ func (g *GlobalValues) SetCmd(cmd tea.Cmd) {
 func (g *GlobalValues) Log(args ...interface{}) {
 	g.Command = tea.Println(args...)
 }
-func (g *GlobalValues) AddEventCallback(event string, uuid string, cb func(tea.Msg, int)) {
+func (g *GlobalValues) AddEventCallback(event string, uuid string, callbackUUID string, cb func(tea.Msg, int)) {
 	if g.EventDispatches == nil {
-		g.EventDispatches = map[string]map[string][]func(tea.Msg, int){}
+		g.EventDispatches = map[string]map[string]map[string]func(tea.Msg, int){}
 	}
 	if g.EventDispatches[event] == nil {
-		g.EventDispatches[event] = map[string][]func(tea.Msg, int){}
+		g.EventDispatches[event] = map[string]map[string]func(tea.Msg, int){}
 	}
-	g.EventDispatches[event][uuid] = append(g.EventDispatches[event][uuid], cb)
+
+	if g.EventDispatches[event][uuid] == nil {
+		g.EventDispatches[event][uuid] = map[string]func(tea.Msg, int){}
+	}
+	g.EventDispatches[event][uuid][callbackUUID] = cb
 }
 
 func (g *GlobalValues) CallEvents() {
@@ -52,7 +56,7 @@ func (g *GlobalValues) CallEvents() {
 			}
 		}
 	}
-	g.EventDispatches = map[string]map[string][]func(tea.Msg, int){}
+	g.EventDispatches = map[string]map[string]map[string]func(tea.Msg, int){}
 }
 
 func UpdateGlobalValues(msg tea.Msg, time int) {
@@ -80,7 +84,7 @@ type Component interface {
 	GetContentsSize() (int, int)
 	GetContentsWidth() int
 	SetDepth(int) *ComponentState
-	GetEventCallbacks(string) []func(tea.Msg, int)
+	GetEventCallbacks(string) map[string]func(tea.Msg, int)
 	AddEventListener(string, func(tea.Msg, int))
 	GetFocusState() bool
 	SetH(int) *ComponentState
@@ -149,7 +153,7 @@ type ComponentState struct {
 	BorderPadWidth   int
 	Name             string
 	ComponentName    string
-	EventCallbacks   map[string][]func(tea.Msg, int)
+	EventCallbacks   map[string]map[string]func(tea.Msg, int)
 	Absolute         bool
 	Overflow         bool
 	Style            lipgloss.Style
@@ -187,7 +191,7 @@ func (c *ComponentState) Initialize(name string) {
 	c.ShowBorderCorner = true
 	c.IsFlexItem = false
 	c.UUID = uuid.New().String()
-	c.EventCallbacks = map[string][]func(tea.Msg, int){}
+	c.EventCallbacks = map[string]map[string]func(tea.Msg, int){}
 	c.TitleAlignment = "center"
 
 	c.BorderStyle = lipgloss.NewStyle()
@@ -323,6 +327,8 @@ func (c *ComponentState) Update() {
 func (c *ComponentState) Focus() {
 	Global.BlurAll()
 	c.Focused = true
+	c.DispatchEvent("onFocus")
+	c.DispatchEvent("onFocusChange")
 }
 
 func (c *ComponentState) Blur() {
@@ -330,6 +336,8 @@ func (c *ComponentState) Blur() {
 		child.Blur()
 	}
 	c.Focused = false
+	c.DispatchEvent("onBlur")
+	c.DispatchEvent("onFocusChange")
 }
 
 func (c *ComponentState) GetFocusState() bool {
@@ -357,7 +365,7 @@ func (b *ComponentState) PrepareFrame() {
 			for ind, line := range output {
 				posY := ind + b.GetY() + childY + top
 				for index, char := range line {
-					result[posY][globalX+index] = char
+					result[posY][globalX+index] = style.Render(char)
 				}
 			}
 		} else {
@@ -423,7 +431,7 @@ func (c *ComponentState) CreateCanvas() [][]string {
 
 func (c *ComponentState) AddEventListener(event string, cb func(tea.Msg, int)) {
 	list := c.GetEventCallbacks(event)
-	list = append(list, cb)
+	list[uuid.New().String()] = cb
 	c.EventCallbacks[event] = list
 }
 
@@ -438,8 +446,8 @@ func (c *ComponentState) DispatchEvent(event string) {
 	}
 
 	for _, element := range bubble {
-		for _, cb := range element.GetEventCallbacks(event) {
-			Global.AddEventCallback(event, element.GetUUID(), cb)
+		for callbackUUID, cb := range element.GetEventCallbacks(event) {
+			Global.AddEventCallback(event, element.GetUUID(), callbackUUID, cb)
 		}
 	}
 }
@@ -721,7 +729,10 @@ func (c *ComponentState) GetTrace() []string {
 	return c.Trace([]string{})
 }
 
-func (c *ComponentState) GetEventCallbacks(event string) []func(tea.Msg, int) {
+func (c *ComponentState) GetEventCallbacks(event string) map[string]func(tea.Msg, int) {
+	if c.EventCallbacks[event] == nil {
+		c.EventCallbacks[event] = map[string]func(tea.Msg, int){}
+	}
 	return c.EventCallbacks[event]
 }
 

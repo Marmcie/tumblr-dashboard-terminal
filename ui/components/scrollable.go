@@ -68,6 +68,7 @@ func (b *Scrollable) PrepareFrame() {
 	var output = b.GetCanvas()
 	boxHeight := b.GetInnerHeight()
 	boxWidth := b.GetInnerWidth()
+	style:=b.GetStyle()
 
 	b.findBottom(output)
 	for lineY, line := range output {
@@ -83,7 +84,7 @@ func (b *Scrollable) PrepareFrame() {
 			}
 
 			if lineX >= b.OffsetX {
-				result[lineY-b.OffsetY][lineX-b.OffsetX] = char
+				result[lineY-b.OffsetY][lineX-b.OffsetX] = style.Render(char)
 			}
 		}
 	}

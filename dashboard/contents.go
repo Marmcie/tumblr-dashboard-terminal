@@ -22,6 +22,13 @@ func NewContents(dashboard *Dashboard) *Contents {
 	f.contentElem.SetBorder(true).SetBorderPadding(1).SetBorderCorner(true).SetWidthInherit(true)
 	f.dashboard = dashboard
 
+	f.contentElem.AddEventListener("onFocusChange", func(m tea.Msg, i int) {
+		if f.contentElem.GetFocusState() {
+			f.contentElem.SetStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("#ffffff")))
+		} else {
+			f.contentElem.ClearStyle()
+		}
+	})
 	// f.contentElem.SelectBgStyle = lipgloss.NewStyle()
 	f.InitEvents()
 
