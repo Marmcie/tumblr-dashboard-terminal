@@ -663,7 +663,7 @@ func (b *ComponentState) PrepareFrame() {
 			for y := 0; y < min(childHeight, len(result), len(output)); y++ {
 				line := output[y]
 				// Loop through characters
-				for x := range min(childWidth, innerWidth-left, len(line)) {
+				for x := range min(childWidth, innerWidth-left, len(line), len(result[pt])) {
 					// If canvas is smaller than the horizontal pointer, break
 					char := line[x]
 					// Check if the character is over the drawable area

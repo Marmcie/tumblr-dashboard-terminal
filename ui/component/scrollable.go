@@ -2,20 +2,16 @@ package component
 
 import (
 	"strings"
-
-	tea "charm.land/bubbletea/v2"
 )
 
 // Component that can scroll to show child elements
 type Scrollable struct {
 	ComponentState
-	OffsetY     int
-	OffsetX     int
-	InnerHeight int
-	InnerWidth  int
-	ScrollX     bool
-	ScrollY     bool
-	Bottom      int
+	OffsetY int
+	OffsetX int
+	ScrollX bool
+	ScrollY bool
+	Bottom  int
 }
 
 func NewScrollable(name string) *Scrollable {
@@ -27,12 +23,6 @@ func NewScrollable(name string) *Scrollable {
 	flex.ScrollX = false
 	flex.ScrollY = true
 	flex.Bottom = 0
-
-	flex.AddEventListener("onAddChild", func(msg tea.Msg, time int) {
-		w, h := flex.GetContentsSize()
-		flex.InnerHeight = h
-		flex.InnerWidth = w
-	},true)
 
 	return flex
 }
@@ -87,12 +77,16 @@ func (b *Scrollable) PrepareFrame() {
 		leftEdge := boxWidth + b.OffsetX + 1
 		for lineX := b.OffsetX; lineX < min(len(line), leftEdge); lineX++ {
 			char := line[lineX]
-			result[lineY-b.OffsetY][lineX-b.OffsetX] = char
-			if len(childFG[lineY][lineX]) > 0 && lineY-b.OffsetY > 0 {
-				fg[lineY-b.OffsetY][lineX-b.OffsetX] = childFG[lineY][lineX]
-			}
-			if len(childBG[lineY][lineX]) > 0 && lineY-b.OffsetY > 0 {
-				bg[lineY-b.OffsetY][lineX-b.OffsetX] = childBG[lineY][lineX]
+			yIndex := lineY - b.OffsetY
+			xIndex := lineX - b.OffsetX
+			if len(result) > yIndex && len(result[yIndex]) > xIndex {
+				result[yIndex][xIndex] = char
+				if len(childFG[lineY][lineX]) > 0 && lineY-b.OffsetY > 0 {
+					fg[yIndex][xIndex] = childFG[lineY][lineX]
+				}
+				if len(childBG[lineY][lineX]) > 0 && lineY-b.OffsetY > 0 {
+					bg[yIndex][xIndex] = childBG[lineY][lineX]
+				}
 			}
 		}
 	}

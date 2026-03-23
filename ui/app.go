@@ -3,7 +3,7 @@ package ui
 import (
 	"bytes"
 	"strings"
-	component "tumblr-dt/ui/components"
+	component "tumblr-dt/ui/component"
 
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"

@@ -155,6 +155,9 @@ func (b *Flex) PrepareFrame() {
 		} else {
 			for i := 0; i < min(len(result), len(output)); i++ {
 				line := output[i]
+				if len(result) <= cursor {
+					break
+				}
 				for a := 0; a < min(len(line), len(result[cursor])-sideOffset); a++ {
 					char := line[a]
 					result[cursor][a+sideOffset] = char

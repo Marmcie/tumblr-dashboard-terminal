@@ -4,7 +4,7 @@ import (
 	"strings"
 	"tumblr-dt/npf"
 	"tumblr-dt/ui"
-	component "tumblr-dt/ui/components"
+	component "tumblr-dt/ui/component"
 
 	tea "charm.land/bubbletea/v2"
 	"github.com/mattn/go-runewidth"
