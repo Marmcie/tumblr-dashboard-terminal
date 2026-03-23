@@ -87,7 +87,7 @@ func (s *Switcher) ToggleOption() {
 }
 
 func (s *Switcher) InitEvents() {
-	s.Window.AddEventListener("onUpdate", func(msg tea.Msg, i int) {
+	s.Window.AddEventListener("onUpdate", func(msg tea.Msg) {
 		switch msg := msg.(type) {
 		case tea.KeyPressMsg:
 			switch msg.String() {
@@ -100,7 +100,7 @@ func (s *Switcher) InitEvents() {
 		}
 	}, false)
 
-	s.DashOption.AddEventListener("onUpdate", func(msg tea.Msg, i int) {
+	s.DashOption.AddEventListener("onUpdate", func(msg tea.Msg) {
 		switch msg := msg.(type) {
 		case tea.KeyPressMsg:
 			switch msg.String() {
@@ -110,7 +110,7 @@ func (s *Switcher) InitEvents() {
 		}
 	}, true)
 
-	s.TagOption.AddEventListener("onUpdate", func(msg tea.Msg, i int) {
+	s.TagOption.AddEventListener("onUpdate", func(msg tea.Msg) {
 		switch msg := msg.(type) {
 		case tea.KeyPressMsg:
 			switch msg.String() {

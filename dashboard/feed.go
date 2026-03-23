@@ -18,7 +18,7 @@ type Feed struct {
 func NewFeed(dashboard *Dashboard) *Feed {
 	f := &Feed{}
 	f.listElem = component.NewSelectlist("Feed")
-	f.listElem.SetBorder(true).SetBorderPadding(1).SetBorderCorner(true).SetWidthInherit(true)
+	f.listElem.SetBorder(true).SetWidthInherit(true)
 	f.dashboard = dashboard
 	f.listElem.SetBorderLabel("BottomRight", "? For keybind")
 	f.listElem.SetSelectedOptionBackground(ui.GetColorStr(ui.ColorFocus))
@@ -30,7 +30,7 @@ func NewFeed(dashboard *Dashboard) *Feed {
 
 func (f *Feed) InitEvents() {
 
-	f.listElem.AddEventListener("onUpdate", func(msg tea.Msg, i int) {
+	f.listElem.AddEventListener("onUpdate", func(msg tea.Msg) {
 		switch msg := msg.(type) {
 		case tea.KeyPressMsg:
 			switch msg.String() {

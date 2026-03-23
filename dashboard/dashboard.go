@@ -15,7 +15,7 @@ import (
 )
 
 type Dashboard struct {
-	core      ui.RootModel
+	rootModel      ui.RootModel
 	root      *component.Flex
 	left      *component.Flex
 	right     *component.Flex
@@ -41,13 +41,13 @@ func NewDashboard() *Dashboard {
 		panic(err)
 	}
 
-	d.core = ui.NewRootModel()
+	d.rootModel = ui.NewRootModel()
 	d.timestamp = time.Now().Local().UnixMilli() / 1000
 
 	d.root = component.NewFlex("Root")
 	d.root.SetDirection(1)
 	d.root.SetSize(s.Width, s.Height)
-	d.root.SetBorder(true).SetBorderPadding(1)
+	d.root.SetBorder(true)
 	d.root.SetBackground(ui.GetColorStr(ui.ColorBG))
 	d.root.SetForeground(ui.GetColorStr(ui.ColorWhite))
 
@@ -60,11 +60,10 @@ func NewDashboard() *Dashboard {
 	d.right.Direction = 0
 
 	d.info = component.NewText("Info")
-	d.info.SetWidthInherit(true).SetBorder(true).SetBorderPadding(1)
+	d.info.SetWidthInherit(true).SetBorder(true)
 
 	d.control = component.NewText("Control")
 	d.control.SetBorder(true).
-		SetBorderPadding(1).
 		SetSize(40, 10).
 		SetTitle("Control").
 		SetPos(0, 0).
@@ -89,7 +88,7 @@ func NewDashboard() *Dashboard {
 
 	d.feed.listElem.Focus()
 	d.switcher.Window.Focus()
-	d.core.App.SetRoot(d.root)
+	d.rootModel.App.SetRoot(d.root)
 
 	d.client = modules.NewTumblrClient()
 	d.offset = 0
@@ -113,7 +112,7 @@ func (d *Dashboard) toggleSwitcher() {
 }
 
 func (d *Dashboard) initEvents() {
-	d.root.AddEventListener("onUpdate", func(msg tea.Msg, i int) {
+	d.root.AddEventListener("onUpdate", func(msg tea.Msg) {
 		switch msg := msg.(type) {
 		case tea.KeyMsg:
 			switch msg.String() {
@@ -184,8 +183,8 @@ func (d *Dashboard) LoadPosts() {
 
 }
 
-func (d *Dashboard) GetCore() ui.RootModel {
-	return d.core
+func (d *Dashboard) GetRootModel() ui.RootModel {
+	return d.rootModel
 }
 
 func (d *Dashboard) GetSelectedPost() npf.Post {

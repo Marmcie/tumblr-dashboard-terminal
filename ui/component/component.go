@@ -30,7 +30,7 @@ type Component interface {
 	GetContentsSize() (int, int)
 	SetDepth(int) *BaseComponent
 	GetEventCallbacks(string) map[string]EventCb
-	AddEventListener(string, func(tea.Msg, int), bool)
+	AddEventListener(string, func(tea.Msg), bool)
 	GetFocusState() bool
 	SetH(int) *BaseComponent
 	GetHeight() int
@@ -148,7 +148,7 @@ type BaseComponent struct {
 }
 
 type EventCb struct {
-	Cb     func(tea.Msg, int)
+	Cb     func(tea.Msg)
 	Bubble bool
 }
 
@@ -495,7 +495,7 @@ func (c *BaseComponent) Update() {
 }
 
 // Hook a callback to a specific event
-func (c *BaseComponent) AddEventListener(event string, cb func(tea.Msg, int), bubble bool) {
+func (c *BaseComponent) AddEventListener(event string, cb func(tea.Msg), bubble bool) {
 	list := c.GetEventCallbacks(event)
 	list[uuid.New().String()] = EventCb{
 		Cb:     cb,

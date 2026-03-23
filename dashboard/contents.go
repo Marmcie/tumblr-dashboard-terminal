@@ -28,7 +28,7 @@ func NewContents(dashboard *Dashboard) *Contents {
 	return f
 }
 func (f *Contents) InitEvents() {
-	f.contentElem.AddEventListener("onUpdate", func(msg tea.Msg, i int) {
+	f.contentElem.AddEventListener("onUpdate", func(msg tea.Msg) {
 		switch msg := msg.(type) {
 		case tea.KeyPressMsg:
 			switch msg.String() {
@@ -56,7 +56,7 @@ func (f *Contents) DisplayPost(post npf.Post) {
 	f.contentElem.ClearChildren()
 	for _, reblog := range post.Render() {
 		box := component.NewBox("Post")
-		box.SetBorder(true).SetBorderPadding(1)
+		box.SetBorder(true)
 		box.SetWidthInherit(true)
 		f.contentElem.AddChild(box)
 		innerWidth := box.GetInnerWidth()
