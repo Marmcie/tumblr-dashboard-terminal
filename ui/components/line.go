@@ -33,7 +33,12 @@ func (l *Line) PrepareFrame() {
 
 	str := l.Text[:min(l.GetInnerWidth(), len(l.Text))]
 	str = strings.ReplaceAll(str, "\n", "")
-	result = append(result, strings.Split(str, ""))
+	var res []string
+	style := l.GetStyle()
+	for c := range strings.SplitSeq(str, "") {
+		res = append(res, style.Render(c))
+	}
+	result = append(result, res)
 
 	l.Canvas = result
 	l.DispatchEvent("onRenderReady")

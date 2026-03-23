@@ -14,7 +14,7 @@ type Dashboard struct {
 	root     *component.Flex
 	left     *component.Flex
 	right    *component.Flex
-	feed     Feed
+	feed     *Feed
 	contents *Contents
 
 	client modules.TumblrClient
@@ -43,15 +43,12 @@ func NewDashboard() *Dashboard {
 	d.left.SetHeightInherit(true)
 	d.left.Direction = 0
 
-
 	d.right = component.NewFlex("Right")
 	d.right.SetHeightInherit(true)
 	d.right.Direction = 0
 
-	d.feed = NewFeed()
-	d.contents = NewContents()
-
-	d.feed.contents = *d.contents
+	d.feed = NewFeed(d)
+	d.contents = NewContents(d)
 
 	d.left.AddItem(d.feed.listElem, component.NewFlexDescriptor(0, 3))
 	d.right.AddItem(d.contents.contentElem, component.NewFlexDescriptor(0, 1))
@@ -85,4 +82,17 @@ func (d *Dashboard) initEvents() {
 
 func (d *Dashboard) GetCore() ui.RootModel {
 	return d.core
+}
+
+func (d *Dashboard) FocusContents() {
+	d.contents.Focus()
+}
+
+func (d *Dashboard) FocusFeed() {
+	d.contents.contentElem.Cursor = 0
+	d.feed.Focus()
+}
+
+func (d *Dashboard) DisplayPost(post modules.Post) {
+	d.contents.DisplayPost(post)
 }

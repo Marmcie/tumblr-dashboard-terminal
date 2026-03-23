@@ -8,15 +8,17 @@ import (
 )
 
 type Feed struct {
-	listElem *component.Selectlist
-	contents Contents
+	listElem  *component.Selectlist
+	dashboard *Dashboard
 }
 
-func NewFeed() Feed {
-	f := Feed{}
+func NewFeed(dashboard *Dashboard) *Feed {
+	f := &Feed{}
 	f.listElem = component.NewSelectlist("Feed")
 	f.listElem.SetBorder(true).SetBorderPadding(1).SetBorderCorner(true).SetWidthInherit(true)
+	f.dashboard=dashboard
 
+	f.InitEvents()
 	return f
 }
 
@@ -26,10 +28,14 @@ func (f *Feed) InitEvents() {
 		switch msg := msg.(type) {
 		case tea.KeyMsg:
 			switch msg.String() {
-			case "enter":
-				f.listElem.OptionCallbacks[f.listElem.Cursor]()
+			case "l":
+				f.dashboard.FocusContents()
 			}
 		}
+	})
+
+	f.listElem.AddEventListener("onChange", func(msg tea.Msg, i int) {
+		f.listElem.RunSelectedOption()
 	})
 
 }
@@ -53,7 +59,10 @@ func (f *Feed) AddPosts(posts []modules.Post) {
 		item.AddChild(blogName)
 		item.AddChild(date)
 		f.listElem.AddOption(item, func() {
-			f.contents.DisplayPost(post)
+			f.dashboard.DisplayPost(post)
 		})
 	}
+}
+func (f *Feed) Focus(){
+	f.listElem.Focus()
 }

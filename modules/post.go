@@ -173,26 +173,49 @@ type Badge struct {
 
 var orderedListIndex = 1
 
-func (p *Post) Render() []string {
-	var result []string
+func (p *Post) Render() [][]struct {
+	ContentType string
+	Str         string
+} {
+	var result [][]struct {
+		ContentType string
+		Str         string
+	}
 	if len(p.Content) > 0 {
-		str := ""
+		var res []struct {
+			ContentType string
+			Str         string
+		}
 		orderedListIndex = 1
 		for _, c := range p.Content {
-			str += c.Render()
-			str += "\n"
+			data := c.RenderWithData()
+			res = append(res, struct {
+				ContentType string
+				Str         string
+			}{
+				ContentType: data.contentType,
+				Str:         data.str,
+			})
 		}
-		result = append(result, str)
+		result = append(result, res)
 	}
 	for _, t := range p.Trail {
-		str := ""
+		var res []struct {
+			ContentType string
+			Str         string
+		}
 		orderedListIndex = 1
 		for _, c := range t.Content {
-			str += c.Render()
-			str += "\n"
+			data := c.RenderWithData()
+			res = append(res, struct {
+				ContentType string
+				Str         string
+			}{
+				ContentType: data.contentType,
+				Str:         data.str,
+			})
 		}
-		str += "\n"
-		result = append(result, str)
+		result = append(result, res)
 	}
 
 	return result
@@ -234,6 +257,74 @@ func (p *Post) RenderString() string {
 	}
 
 	return str
+}
+
+func (c *Content) RenderWithData() struct {
+	contentType string
+	str         string
+} {
+	var str = ""
+	var cType = ""
+
+	switch c.Type {
+	case "image":
+		alt := c.Alt_text
+		if len(alt) == 0 {
+			alt = "No alt"
+		}
+		str += "[Image : " + alt + "]"
+		cType = "Image"
+	case "text":
+
+		cType = "Text"
+		switch c.Subtype {
+
+		case "heading1":
+			str += "# " + c.Text
+			cType = "Heading1"
+
+		case "heading2":
+			str += "## " + c.Text
+			cType = "Heading2"
+
+		case "ordered-list-item":
+			str += strconv.Itoa(orderedListIndex) + ". "
+			str += c.Text
+			orderedListIndex = orderedListIndex + 1
+			cType = "OrderedList"
+
+		case "unordered-list-item":
+			str += "- "
+			str += c.Text
+			cType = "UnOrderedList"
+
+		default:
+			str += c.Text
+		}
+
+		if c.Subtype != "ordered-list-item" {
+			orderedListIndex = 1
+		}
+
+	case "poll":
+		str += "Question : " + c.Question + "\n"
+		for _, a := range c.Answers {
+			str += "- " + a.Answer_text + "\n"
+		}
+		str += c.Text
+		cType = "Poll"
+
+	default:
+		str += c.Text
+	}
+
+	return struct {
+		contentType string
+		str         string
+	}{
+		contentType: cType,
+		str:         str,
+	}
 }
 
 func (c *Content) Render() string {

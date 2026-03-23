@@ -14,7 +14,7 @@ type GlobalValues struct {
 	Msg             tea.Msg
 	Time            int
 	Elements        []Component
-	EventDispatches map[string]map[string]func(tea.Msg, int)
+	EventDispatches map[string]map[string][]func(tea.Msg, int)
 }
 
 var Global = &GlobalValues{}
@@ -27,21 +27,23 @@ func (g *GlobalValues) BlurAll() {
 
 func (g *GlobalValues) AddEventCallback(event string, uuid string, cb func(tea.Msg, int)) {
 	if g.EventDispatches == nil {
-		g.EventDispatches = map[string]map[string]func(tea.Msg, int){}
+		g.EventDispatches = map[string]map[string][]func(tea.Msg, int){}
 	}
 	if g.EventDispatches[event] == nil {
-		g.EventDispatches[event] = map[string]func(tea.Msg, int){}
+		g.EventDispatches[event] = map[string][]func(tea.Msg, int){}
 	}
-	g.EventDispatches[event][uuid] = cb
+	g.EventDispatches[event][uuid] = append(g.EventDispatches[event][uuid], cb)
 }
 
 func (g *GlobalValues) CallEvents() {
 	for _, v := range g.EventDispatches {
-		for _, cb := range v {
-			cb(g.Msg, g.Time)
+		for _, cbs := range v {
+			for _, cb := range cbs {
+				cb(g.Msg, g.Time)
+			}
 		}
 	}
-	g.EventDispatches = map[string]map[string]func(tea.Msg, int){}
+	g.EventDispatches = map[string]map[string][]func(tea.Msg, int){}
 }
 
 func UpdateGlobalValues(msg tea.Msg, time int) {
@@ -95,6 +97,8 @@ type Component interface {
 	ClearStyle()
 	GetStyle() lipgloss.Style
 
+	ClearChildren()
+
 	SetBorder(bool) *ComponentState
 	SetBorders(bool, bool, bool, bool) *ComponentState
 	SetBorderCorner(bool) *ComponentState
@@ -114,7 +118,7 @@ type Component interface {
 
 	GetEventCallbacks(string) []func(tea.Msg, int)
 	GetComponent() Component
-
+	AddChild(Component)
 	GetUUID() string
 }
 
@@ -670,4 +674,8 @@ func (c *ComponentState) GetComponent() Component {
 
 func (c *ComponentState) GetUUID() string {
 	return c.UUID
+}
+
+func (c *ComponentState) ClearChildren() {
+	c.Children = []Component{}
 }

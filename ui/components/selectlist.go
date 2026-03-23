@@ -11,6 +11,7 @@ type Selectlist struct {
 	OptionCallbacks []func()
 	Cursor          int
 	SizeList        []int
+	SelectBgStyle   lipgloss.Style
 }
 
 func NewSelectlist(name string) *Selectlist {
@@ -21,16 +22,9 @@ func NewSelectlist(name string) *Selectlist {
 	s.SizeList = append(s.SizeList, 0)
 
 	s.AddEventListener("onUpdate", func(msg tea.Msg, time int) {
-
 		switch msg := msg.(type) {
-
-		// Is it a key press?
 		case tea.KeyMsg:
-
-			// Cool, what was the actual key pressed?
 			switch msg.String() {
-
-			// These keys should exit the program.
 			case "j":
 				s.Cursor = min(s.Cursor+1, len(s.OptionCallbacks)-1)
 				s.DispatchEvent("onChange")
@@ -41,18 +35,17 @@ func NewSelectlist(name string) *Selectlist {
 
 			case "l":
 				if len(s.OptionCallbacks) > 0 {
-					s.OptionCallbacks[s.Cursor]()
+					s.RunSelectedOption()
 				}
 
 			case "enter":
 				if len(s.OptionCallbacks) > 0 {
-					s.OptionCallbacks[s.Cursor]()
+					s.RunSelectedOption()
 				}
 			}
 		}
-
 	})
-
+	s.SelectBgStyle = lipgloss.NewStyle().Background(lipgloss.Color("#444444"))
 	return s
 }
 
@@ -63,8 +56,8 @@ func (s *Selectlist) UpdateOffset() {
 		if intended > s.OffsetY+innerHeight {
 			s.OffsetY = intended - innerHeight
 		} else {
-			if intended < s.OffsetY {
-				s.OffsetY = intended
+			if s.SizeList[s.Cursor] < s.OffsetY {
+				s.OffsetY = s.SizeList[s.Cursor]
 			}
 		}
 	}
@@ -75,6 +68,12 @@ func (c *Selectlist) AddOption(child Component, cb func()) {
 	c.OptionCallbacks = append(c.OptionCallbacks, cb)
 }
 
+func (s *Selectlist) RunSelectedOption() {
+	if len(s.OptionCallbacks) >= s.Cursor {
+		s.OptionCallbacks[s.Cursor]()
+	}
+}
+
 func (s *Selectlist) Propagate() {
 
 	children := s.GetChildren()
@@ -83,7 +82,7 @@ func (s *Selectlist) Propagate() {
 	}
 	for i, c := range s.GetChildren() {
 		if i == s.Cursor {
-			style := lipgloss.NewStyle().Background(lipgloss.Color("#444444"))
+			style := s.SelectBgStyle
 			c.SetStyle(style)
 		} else {
 			c.ClearStyle()
@@ -92,4 +91,9 @@ func (s *Selectlist) Propagate() {
 	s.UpdateOffset()
 
 	s.Scrollable.Propagate()
+}
+
+func (c *Selectlist) ClearChildren() {
+	c.Children = []Component{}
+	c.OptionCallbacks = []func(){}
 }
