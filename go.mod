@@ -7,7 +7,6 @@ require (
 	charm.land/lipgloss/v2 v2.0.0
 	github.com/charmbracelet/ultraviolet v0.0.0-20260205113103-524a6607adb8
 	github.com/deckarep/golang-set/v2 v2.8.0
-	github.com/forPelevin/gomoji v1.4.1
 	github.com/google/uuid v1.6.0
 	github.com/kopoli/go-terminal-size v0.0.0-20170219200355-5c97524c8b54
 	github.com/mattn/go-runewidth v0.0.19
