@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"strings"
 
-	"github.com/forPelevin/gomoji"
 	"github.com/mattn/go-runewidth"
 	"golang.org/x/text/width"
 )
@@ -18,7 +17,6 @@ func RenderUnicode(str string) string {
 		EastAsianWidth:     true,
 		StrictEmojiNeutral: true,
 	}
-	str = gomoji.ReplaceEmojisWithSlug(str)
 	var result bytes.Buffer
 	for v := range strings.SplitSeq(str, "") {
 		info, _ := width.LookupString(v)
