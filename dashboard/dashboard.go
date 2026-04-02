@@ -130,7 +130,9 @@ func (d *Dashboard) initComponents(config modules.Config) {
 		SetPos(0, 0).
 		SetVisibility(false).
 		SetAbsolute(true).
-		SetCentered(true)
+		SetCentered(true).
+		SetForeground(ui.GetColorStr(ui.ColorWhite))
+	d.control.SetBorderForeground(ui.GetColorStr(ui.ColorWhite))
 
 	d.switcher = NewSwitcher(d)
 	d.switcher.TagInput.SetSuggestions(d.TagTrie)

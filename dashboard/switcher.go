@@ -29,6 +29,9 @@ func NewSwitcher(dashboard *Dashboard) *Switcher {
 		SetCentered(true).
 		SetSize(50, 8).
 		SetBorder(true)
+	s.Window.SetForeground(ui.GetColorStr(ui.ColorWhite))
+	s.Window.SetBorderForeground(ui.GetColorStr(ui.ColorWhite))
+	s.Window.SetBorderLabelColor("BottomRight", ui.GetColorStr(ui.ColorWhite))
 
 	s.Window.SetTitle("Feed picker")
 	s.Window.SetBorderLabel("BottomRight", "Esc to close")
