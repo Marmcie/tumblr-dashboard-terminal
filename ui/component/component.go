@@ -56,8 +56,8 @@ type Component interface {
 	SetForegroundGradient([]color.Color) *BaseComponent
 	GetBackgroundGradient() []color.Color
 	GetForegroundGradient() []color.Color
-	ClearBackgroundGradient()
-	ClearForegroundGradient()
+	ClearBackgroundGradient() *BaseComponent
+	ClearForegroundGradient() *BaseComponent
 	GetTitle() string
 	SetTitle(string) *BaseComponent
 	GetTitleAlignment() string
@@ -94,10 +94,10 @@ type Component interface {
 	SetAbsolute(bool) *BaseComponent
 	SetCentered(bool) *BaseComponent
 	GetCentered() bool
-	SetForeground(string)
-	SetBackground(string)
-	ClearForeground()
-	ClearBackground()
+	SetForeground(string) *BaseComponent
+	SetBackground(string) *BaseComponent
+	ClearForeground() *BaseComponent
+	ClearBackground() *BaseComponent
 	GetForeground() string
 	GetBackground() string
 	SetFlexProportion(float32) *BaseComponent
@@ -1034,23 +1034,29 @@ func (c *BaseComponent) GetBackgroundGradient() []color.Color {
 func (c *BaseComponent) GetForegroundGradient() []color.Color {
 	return c.ForegroundGradient
 }
-func (c *BaseComponent) ClearBackgroundGradient() {
+func (c *BaseComponent) ClearBackgroundGradient() *BaseComponent {
 	c.BackgroundGradient = []color.Color{}
+	return c
 }
-func (c *BaseComponent) ClearForegroundGradient() {
+func (c *BaseComponent) ClearForegroundGradient() *BaseComponent {
 	c.ForegroundGradient = []color.Color{}
+	return c
 }
-func (c *BaseComponent) SetForeground(v string) {
+func (c *BaseComponent) SetForeground(v string) *BaseComponent {
 	c.Foreground = v
+	return c
 }
-func (c *BaseComponent) SetBackground(v string) {
+func (c *BaseComponent) SetBackground(v string) *BaseComponent {
 	c.Background = v
+	return c
 }
-func (c *BaseComponent) ClearForeground() {
+func (c *BaseComponent) ClearForeground() *BaseComponent {
 	c.Foreground = ""
+	return c
 }
-func (c *BaseComponent) ClearBackground() {
+func (c *BaseComponent) ClearBackground() *BaseComponent {
 	c.Background = ""
+	return c
 }
 
 func (c *BaseComponent) GetForeground() string {
