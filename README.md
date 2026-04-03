@@ -11,6 +11,11 @@ With this project you can:
 1. Register a new application at [Registration page](https://www.tumblr.com/oauth/apps).
 2. Copy the consumer key and secret key.
 3. Create "tumblr-dt.json" in "~/.config" folder.
+> Alternatively you can use -config flag to pass the path to the config file directly on launch.
+```
+#Example
+tumblr-dt -config="Path-to-your-config-json-file"
+```
 4. Fill out the necessary fields.
 ```json
 {
@@ -20,11 +25,6 @@ With this project you can:
 ```
 5. Launch the program.
 6. Authenticate the client using the URL provided in the terminal.
-> Alternatively you can pass -config flag to pass the path to the config file directly.
-```
-#Example
-tumblr-dt -config="Path-to-your-config-json-file"
-```
 ## Build form source
 ### Prerequisites
 - Install Go
