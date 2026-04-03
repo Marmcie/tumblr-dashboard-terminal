@@ -2,6 +2,7 @@ package modules
 
 import (
 	"encoding/json"
+	"flag"
 	"log"
 	"os"
 )
@@ -67,11 +68,39 @@ func GetConfig() Config {
 	}
 	return config
 }
-func loadConfig() bool {
+
+func resolveConfigPath() string {
+
+	flagPath := flag.String("config", "", "config path")
+	flag.Parse()
+	if len(*flagPath) > 0 {
+		_, err := os.ReadFile(*flagPath)
+		if err == nil {
+			return *flagPath
+		}
+	}
+
+	configPath, _ := os.UserConfigDir()
+	filePath := configPath + string(os.PathSeparator) + "tumblr-dt" + string(os.PathSeparator) + "tumblr-dt.json"
+
+	_, err := os.ReadFile(filePath)
+	if err == nil {
+		return filePath
+	}
+
 	dir, _ := os.UserHomeDir()
+	filePath = dir + string(os.PathSeparator) + ".config" + string(os.PathSeparator) + "tumblr-dt.json"
 
-	path := dir + "\\.config\\tumblr-dt.json"
+	_, err = os.ReadFile(filePath)
 
+	if err == nil {
+		return filePath
+	}
+	return ""
+}
+
+func loadConfig() bool {
+	path := resolveConfigPath()
 	configBytes, err := os.ReadFile(path)
 	if err != nil {
 		return false
