@@ -27,7 +27,7 @@ tumblr-dt -config="Path-to-your-config-json-file"
 6. Authenticate the client using the URL provided in the terminal.
 ## Build form source
 ### Prerequisites
-- Install Go
+- Install [Go](https://go.dev/doc/install)
 ### Steps
 Run the following command to build the program.
 ```sh
