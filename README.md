@@ -25,8 +25,9 @@ tumblr-dt -config="Path-to-your-config-json-file"
 4. Fill out the necessary fields.
 ```json
 {
-  "consumer_key": "consumer key",
-  "secret_key": "secret key"
+  "consumer_key": "Required! Your tumblr app consumer key",
+  "secret_key": "Required! Your tumblr app secret key",
+  "redirect_port": "Required! Port for your tumblr app redirect endpoint",
 }
 ```
 5. Launch the program.
