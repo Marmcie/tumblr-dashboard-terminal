@@ -13,6 +13,8 @@ With this project you can:
 ![image](https://github.com/Marmcie/tumblr-dashboard-terminal/blob/main/doc/preview_tag_feed.png?raw=true)
 ### Blog feed
 ![image](https://github.com/Marmcie/tumblr-dashboard-terminal/blob/main/doc/preview_blog_feed.png?raw=true)
+### Configurable color!
+![image](https://github.com/Marmcie/tumblr-dashboard-terminal/blob/main/doc/preview_color_config.png?raw=true)
 ## Set up
 1. Register a new application at [Registration page](https://www.tumblr.com/oauth/apps).
 2. Copy the consumer key and secret key.
