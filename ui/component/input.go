@@ -29,9 +29,9 @@ func NewInput(name string) *Input {
 
 func (i *Input) ApplyTopSuggestion() {
 	if len(i.Value) > 0 {
-		suggestions := i.Suggestions.Search(i.Value)
-		if len(suggestions) > 0 {
-			i.Value = suggestions[0]
+		suggestion := i.Suggestions.Search(i.Value)
+		if len(suggestion) > 0 {
+			i.Value = suggestion
 			i.UpdateText()
 		}
 	}
@@ -86,10 +86,7 @@ func (l *Input) RenderToCanvas() {
 	canvas, fg, bg := l.GetCanvas()
 	suggestion := ""
 	if len(l.Value) > 0 {
-		suggestions := l.Suggestions.Search(l.Value)
-		if len(suggestions) > 0 {
-			suggestion = suggestions[0]
-		}
+		suggestion = l.Suggestions.Search(l.Value)
 	}
 	for i := len(l.Value); i < min(len(suggestion), len(canvas[0])); i++ {
 		canvas[0][i] = string(suggestion[i])
