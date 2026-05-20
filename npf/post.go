@@ -64,6 +64,7 @@ type Post struct {
 	IsFiltered                 bool
 	FilteredContents           mapset.Set[string]
 	FilteredTags               mapset.Set[string]
+	Links                      mapset.Set[string]
 }
 
 var orderedListIndex = 1
@@ -72,6 +73,7 @@ var renderResults map[string][]TrailData
 type ContentData struct {
 	ContentType string
 	Str         string
+	Links       []string
 }
 
 type TrailData struct {
@@ -102,6 +104,10 @@ func (p *Post) Render() []TrailData {
 		return renderResults[p.Id_string]
 	}
 	var result []TrailData
+	p.Links = mapset.NewSet[string]()
+
+	p.Links.Add(p.Blog.Url)
+
 	if len(p.Content) > 0 {
 		var res []ContentData
 		orderedListIndex = 1
@@ -111,6 +117,9 @@ func (p *Post) Render() []TrailData {
 				ContentType: data.ContentType,
 				Str:         data.Str,
 			})
+			for _, link := range data.Links {
+				p.Links.Add(link)
+			}
 		}
 		result = append(result, TrailData{
 			Contents: res,
@@ -129,6 +138,10 @@ func (p *Post) Render() []TrailData {
 				ContentType: data.ContentType,
 				Str:         data.Str,
 			})
+
+			for _, link := range data.Links {
+				p.Links.Add(link)
+			}
 		}
 		tID, _ := strconv.ParseInt(t.Post.Id, 10, 64)
 		blogName := t.Blog.Name
@@ -142,6 +155,7 @@ func (p *Post) Render() []TrailData {
 			Layout:   t.Layout,
 			ID:       tID,
 		})
+		p.Links.Add(t.Blog.Url)
 	}
 	sort.Sort(sortById(result))
 	renderResults[p.Id_string] = result
@@ -154,4 +168,11 @@ func (p *Post) GetSummary() string {
 
 func (p *Post) RemoveRenderResult() {
 	delete(renderResults, p.Id_string)
+}
+
+func (p *Post) GetLinks() []string {
+	if p.Links == nil {
+		p.Links = mapset.NewSet[string]()
+	}
+	return p.Links.ToSlice()
 }

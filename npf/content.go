@@ -55,6 +55,7 @@ type Content struct {
 func (c *Content) RenderWithData() ContentData {
 	var str bytes.Buffer
 	var cType = ""
+	var links []string
 
 	switch c.Type {
 	case "image":
@@ -97,6 +98,7 @@ func (c *Content) RenderWithData() ContentData {
 		for _, f := range c.Formatting {
 			switch f.Type {
 			case "link":
+				links = append(links, f.Url)
 				t := strings.Split(text, "")
 				urlString := "(" + f.Url + ")"
 				text = strings.Join(t[:f.End+int64(offset)], "") + urlString + strings.Join(t[f.End+int64(offset):], "")
@@ -151,6 +153,7 @@ func (c *Content) RenderWithData() ContentData {
 		cType = "Poll"
 	case "link":
 		str.WriteString(c.Title + "(" + c.Url + ")")
+		links = append(links, c.Url)
 
 	default:
 		str.WriteString(c.Text)
@@ -161,5 +164,6 @@ func (c *Content) RenderWithData() ContentData {
 	return ContentData{
 		ContentType: cType,
 		Str:         postStr,
+		Links:       links,
 	}
 }

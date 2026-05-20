@@ -48,6 +48,7 @@ type Dashboard struct {
 	FilteredTags     mapset.Set[string]
 	FilteredContents mapset.Set[string]
 	IsLoading        bool
+	LinkWindow       *LinkWindow
 }
 
 func NewDashboard(config modules.Config) *Dashboard {
@@ -125,7 +126,7 @@ func (d *Dashboard) initComponents(config modules.Config) {
 
 	d.control = component.NewText("Control")
 	d.control.SetBorder(true).
-		SetSize(40, 11).
+		SetSize(40, 12).
 		SetTitle("Control").
 		SetPos(0, 0).
 		SetVisibility(false).
@@ -142,6 +143,8 @@ func (d *Dashboard) initComponents(config modules.Config) {
 	d.feed = NewFeed(d)
 	d.contents = NewContents(d)
 
+	d.LinkWindow = NewLinkWindow(d)
+
 	d.left.AddItem(d.feed.listElem, 0, 1)
 
 	d.right.AddItem(d.contents.contentElem, 0, 1)
@@ -151,6 +154,7 @@ func (d *Dashboard) initComponents(config modules.Config) {
 	d.root.AddItem(d.right, 0, 3)
 	d.root.AddItem(d.control, 0, 3)
 	d.root.AddItem(d.switcher.Window, 0, 3)
+	d.root.AddItem(d.LinkWindow.Window, 0, 3)
 
 	d.feed.listElem.Focus()
 	d.rootModel.App.SetRoot(d.root)
@@ -167,6 +171,16 @@ func (d *Dashboard) toggleSwitcher() {
 		d.switcher.DashOption.Focus()
 	} else {
 		d.feed.listElem.Focus()
+	}
+}
+func (d *Dashboard) toggleLinkWindow() {
+	state := !d.LinkWindow.Window.GetVisibility()
+	d.switcher.Window.SetVisibility(state)
+	if state {
+		d.LinkWindow.Focus()
+	} else {
+		d.feed.listElem.Focus()
+		d.LinkWindow.Blur()
 	}
 }
 
@@ -205,6 +219,8 @@ func (d *Dashboard) initEvents() {
 
 			case "?":
 				d.toggleControl()
+			case "L":
+				d.LinkWindow.Focus()
 			}
 
 		}
@@ -372,6 +388,7 @@ func (d *Dashboard) UpdateControlText() {
 		str += "l/Enter  :  Focus post window   \n"
 		str += "r        :  Load more posts    \n"
 		str += "]        :  Open feed switcher    \n"
+		str += "L        :  Open post links    \n"
 		str += "b        :  Open blog feed    \n"
 		str += "o        :  Open post in browser    \n"
 		str += "->/<-    :  Adjust feed width    \n"
@@ -382,6 +399,7 @@ func (d *Dashboard) UpdateControlText() {
 		str += "h        :  Focus feed  \n"
 		str += "r        :  Load more posts     \n"
 		str += "]        :  Open feed switcher    \n"
+		str += "L        :  Open post links    \n"
 		str += "b        :  Open blog feed    \n"
 		str += "o        :  Open post in browser    \n"
 		str += "->/<-    :  Adjust feed width    \n"
@@ -394,6 +412,8 @@ func (d *Dashboard) UpdateControlText() {
 
 func (d *Dashboard) DisplayPost(post *npf.Post, showFiltered bool) {
 	d.contents.DisplayPost(post, showFiltered)
+	d.LinkWindow.SetLinks(post.GetLinks())
+
 	d.UpdateInfo(post)
 }
 
