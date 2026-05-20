@@ -49,7 +49,7 @@ func NewLinkWindow(dashboard *Dashboard) *LinkWindow {
 
 		case tea.KeyPressMsg:
 			switch msg.String() {
-			case "enter", "l":
+			case "enter":
 				if l.List.Cursor < len(l.List.GetChildren()) {
 					l.List.RunSelectedOption()
 				}
