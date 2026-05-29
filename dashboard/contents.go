@@ -158,12 +158,6 @@ func (f *Contents) DisplayPost(post *npf.Post, showFiltered bool) {
 						//INFO: Loop through each characters to determine real width of string split
 						for uniseg.StringWidth(w) >= innerWidth {
 							l := uniseg.StringWidth(w)
-							// itr := uniseg.NewGraphemes(word)
-							// for itr.Next() {
-							// 	l += len([]rune(itr.Str()))
-							// }
-							// // for i := 0; l < innerWidth && i < len(w); i++ {
-							// // }
 							parts = append(parts, w[:l])
 							colors = append(colors, col)
 							w = w[l:]
@@ -206,7 +200,7 @@ func (f *Contents) DisplayPost(post *npf.Post, showFiltered bool) {
 
 		//INFO: Convert each line into Line object, then apply corresponding style
 		for i := 0; i < min(len(parts), box.GetInnerHeight()); i++ {
-			line := parts[i]
+			line := strings.Trim(parts[i], " ")
 			col := colors[i]
 			l := component.NewLine("Post text")
 			l.SetText(line)
