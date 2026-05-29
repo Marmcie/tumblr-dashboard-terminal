@@ -9,7 +9,7 @@ import (
 
 	tea "charm.land/bubbletea/v2"
 	"github.com/google/uuid"
-	"github.com/mattn/go-runewidth"
+	"github.com/rivo/uniseg"
 )
 
 type Component interface {
@@ -834,23 +834,42 @@ func (c *BaseComponent) addBorder(arr [][]string, fg [][]string, bg [][]string) 
 
 		switch c.GetTitleAlignment() {
 		case "left":
-			for i := range min(wid-1, runewidth.StringWidth(title)) {
-				char := title[i]
-				arr[0][i+1] = (string(char))
+
+			i := 0
+			var char string
+			state := -1
+			buf := title
+			length := uniseg.StringWidth(title)
+			for i < length && len(buf) > 0 {
+				var clusterWidth int
+				char, buf, clusterWidth, state = uniseg.FirstGraphemeClusterInString(buf, state)
+				arr[0][i+1] = char
+				i += clusterWidth
 			}
 
 		case "center":
-			length := len(title)
-			for i := range min(wid-1, runewidth.StringWidth(title)) {
-				char := title[i]
-				arr[0][i+max(1, (wid-length)/2)] = (string(char))
+			i := 0
+			var char string
+			state := -1
+			buf := title
+			length := uniseg.StringWidth(title)
+			for i < wid-1 && i < length && len(buf) > 0 {
+				var clusterWidth int
+				char, buf, clusterWidth, state = uniseg.FirstGraphemeClusterInString(buf, state)
+				arr[0][i+max(1, (wid-length)/2)] = char
+				i += clusterWidth
 			}
 
 		case "right":
-			strWidth := len(title)
-			for i := 0; i < min(wid-2, strWidth); i++ {
-				char := title[strWidth-(i+1)]
-				arr[0][wid-(i+2)] = (string(char))
+			i := min(uniseg.StringWidth(title), wid-2)
+			var char string
+			state := -1
+			buf := title
+			for i > 0 && len(buf) > 0 {
+				var clusterWidth int
+				char, buf, clusterWidth, state = uniseg.FirstGraphemeClusterInString(buf, state)
+				arr[0][wid-(i+2)] = char
+				i -= clusterWidth
 			}
 		}
 
@@ -860,49 +879,87 @@ func (c *BaseComponent) addBorder(arr [][]string, fg [][]string, bg [][]string) 
 			}
 			switch key {
 			case "TopLeft":
-				for i := range min(wid-1, runewidth.StringWidth(str)) {
-					char := str[i]
-					arr[0][i+1] = (string(char))
+				i := 0
+				var char string
+				state := -1
+				buf := str
+				length := uniseg.StringWidth(str)
+				for i < length && len(buf) > 0 {
+					var clusterWidth int
+					char, buf, clusterWidth, state = uniseg.FirstGraphemeClusterInString(buf, state)
+					arr[0][i+1] = char
 					fg[0][i+1] = c.BorderLabelColors[key]
+					i += clusterWidth
 				}
 
 			case "Top":
-				length := len(str)
-				for i := range min(wid-1, runewidth.StringWidth(str)) {
-					char := str[i]
-					arr[0][i+max(1, (wid-length)/2)] = (string(char))
+				i := 0
+				var char string
+				state := -1
+				buf := str
+				length := uniseg.StringWidth(str)
+				for i < wid-1 && i < length && len(buf) > 0 {
+					var clusterWidth int
+					char, buf, clusterWidth, state = uniseg.FirstGraphemeClusterInString(buf, state)
+					arr[0][i+max(1, (wid-length)/2)] = char
 					fg[0][i+max(1, (wid-length)/2)] = c.BorderLabelColors[key]
+					i += clusterWidth
 				}
 
 			case "TopRight":
-				strWidth := len(str)
-				for i := 0; i < min(wid-2, strWidth); i++ {
-					char := str[strWidth-(i+1)]
-					arr[0][wid-(i+2)] = (string(char))
+				i := min(uniseg.StringWidth(str), wid-2)
+				var char string
+				state := -1
+				buf := str
+				for i > 0 && len(buf) > 0 {
+					var clusterWidth int
+					char, buf, clusterWidth, state = uniseg.FirstGraphemeClusterInString(buf, state)
+					arr[0][wid-(i+2)] = char
 					fg[0][wid-(i+2)] = c.BorderLabelColors[key]
+					i -= clusterWidth
 				}
 
 			case "BottomLeft":
-				for i := range min(wid-1, runewidth.StringWidth(str)) {
-					char := str[i]
-					arr[hei-1][i+1] = (string(char))
+				i := 0
+				var char string
+				state := -1
+				buf := str
+				length := uniseg.StringWidth(str)
+				for i < length && len(buf) > 0 {
+					var clusterWidth int
+					char, buf, clusterWidth, state = uniseg.FirstGraphemeClusterInString(buf, state)
+					arr[hei-1][i+1] = char
 					fg[hei-1][i+1] = c.BorderLabelColors[key]
+					i += clusterWidth
 				}
 
 			case "Bottom":
-				length := len(str)
-				for i := range min(wid-1, runewidth.StringWidth(str)) {
-					char := str[i]
-					arr[hei-1][i+max(1, (wid-length)/2)] = (string(char))
+
+				i := 0
+				var char string
+				state := -1
+				buf := str
+				length := uniseg.StringWidth(str)
+				for i < wid-1 && i < length && len(buf) > 0 {
+					var clusterWidth int
+					char, buf, clusterWidth, state = uniseg.FirstGraphemeClusterInString(buf, state)
+					arr[hei-1][i+max(1, (wid-length)/2)] = char
 					fg[hei-1][i+max(1, (wid-length)/2)] = c.BorderLabelColors[key]
+					i += clusterWidth
 				}
 
 			case "BottomRight":
-				strWidth := len(str)
-				for i := 0; i < min(wid-2, strWidth); i++ {
-					char := str[strWidth-(i+1)]
-					arr[hei-1][wid-(i+2)] = (string(char))
+
+				i := min(uniseg.StringWidth(str), wid-2)
+				var char string
+				state := -1
+				buf := str
+				for i > 0 && len(buf) > 0 {
+					var clusterWidth int
+					char, buf, clusterWidth, state = uniseg.FirstGraphemeClusterInString(buf, state)
+					arr[hei-1][wid-(i+2)] = char
 					fg[hei-1][wid-(i+2)] = c.BorderLabelColors[key]
+					i -= clusterWidth
 				}
 			}
 

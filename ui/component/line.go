@@ -1,9 +1,8 @@
 package component
 
 import (
+	"github.com/rivo/uniseg"
 	"strings"
-
-	"github.com/mattn/go-runewidth"
 )
 
 // Component that displays a single line of text
@@ -26,7 +25,7 @@ func (l *Line) SetText(text string) *Line {
 	l.Text = strings.ReplaceAll(text, "\n", "")
 
 	if !l.InheritWidth {
-		l.SetW(runewidth.StringWidth(text))
+		l.SetW(uniseg.StringWidth(text))
 	}
 	l.DispatchEvent("onChange")
 	return l
@@ -43,15 +42,27 @@ func (l *Line) RenderToCanvas() {
 	var result [][]string = [][]string{make([]string, w)}
 	var fg [][]string = [][]string{make([]string, w)}
 	var bg [][]string = [][]string{make([]string, w)}
-	str := strings.Split(l.Text, "")
-	for i := range w {
-		if len(str) > i {
-			result[0][i] = str[i]
+	// str := strings.Split(l.Text, "")
+	str := l.Text
+
+	var c string
+	state := -1
+	i := 0
+	var wid int
+	for i < w {
+		if len(str) > 0 {
+			c, str, wid, state = uniseg.FirstGraphemeClusterInString(str, state)
+			result[0][i] = c
 		} else {
+			wid = 1
 			result[0][i] = " "
 		}
 		fg[0][i] = l.Foreground
 		bg[0][i] = l.Background
+		i += wid
+	}
+	if i > w {
+		result[0][i-wid] = " "
 	}
 
 	l.SetCanvas(result, fg, bg)

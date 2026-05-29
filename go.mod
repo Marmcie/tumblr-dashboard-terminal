@@ -7,13 +7,11 @@ require (
 	charm.land/lipgloss/v2 v2.0.2
 	github.com/charmbracelet/ultraviolet v0.0.0-20260205113103-524a6607adb8
 	github.com/deckarep/golang-set/v2 v2.8.0
-	github.com/forPelevin/gomoji v1.4.1
 	github.com/google/uuid v1.6.0
 	github.com/kopoli/go-terminal-size v0.0.0-20170219200355-5c97524c8b54
-	github.com/mattn/go-runewidth v0.0.21
+	github.com/rivo/uniseg v0.4.7
 	github.com/zalando/go-keyring v0.2.6
 	golang.org/x/oauth2 v0.35.0
-	golang.org/x/text v0.33.0
 )
 
 require (
@@ -29,8 +27,8 @@ require (
 	github.com/godbus/dbus/v5 v5.1.0 // indirect
 	github.com/lucasb-eyer/go-colorful v1.3.0 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
+	github.com/mattn/go-runewidth v0.0.21 // indirect
 	github.com/muesli/cancelreader v0.2.2 // indirect
-	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/stretchr/testify v1.10.0 // indirect
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
 	golang.org/x/sync v0.19.0 // indirect

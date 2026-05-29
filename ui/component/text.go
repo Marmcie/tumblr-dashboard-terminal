@@ -3,6 +3,8 @@ package component
 import (
 	"bytes"
 	"strings"
+
+	"github.com/rivo/uniseg"
 )
 
 // Component that displays multi line text
@@ -30,14 +32,19 @@ func (t *Text) GetStringArray() [][]string {
 	var str bytes.Buffer
 	x := 0
 	width := t.GetInnerWidth()
-	for _, r := range t.Text {
-		x++
-		if r == '\n' {
+	itr := uniseg.NewGraphemes(t.Text)
+	for itr.Next() {
+		r := itr.Str()
+		x += uniseg.StringWidth(r)
+		if r == string('\n') {
 			x = 0
 			res = append(res, strings.Split(strings.Trim(str.String(), " "), ""))
 			str.Reset()
 		} else {
-			str.WriteRune(r)
+			str.WriteString(r)
+			for range uniseg.StringWidth(r) - 1 {
+				str.WriteRune('\u200b')
+			}
 			if x >= width {
 				res = append(res, strings.Split(strings.Trim(str.String(), " "), ""))
 				x = 0

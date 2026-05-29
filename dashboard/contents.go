@@ -9,7 +9,7 @@ import (
 	component "tumblr-dt/ui/component"
 
 	tea "charm.land/bubbletea/v2"
-	"github.com/mattn/go-runewidth"
+	"github.com/rivo/uniseg"
 )
 
 type Contents struct {
@@ -139,46 +139,52 @@ func (f *Contents) DisplayPost(post *npf.Post, showFiltered bool) {
 				col = ui.GetColorStr(ui.ColorQuote)
 			}
 
-			//INFO: Divide the text into lines, while preventing word break
-			for line := range strings.SplitSeq(contentStr, "\n") {
-				for word := range strings.SplitSeq(line, " ") {
-					word = strings.Trim(word, " ")
-					strString := str.String()
-					if runewidth.StringWidth(strString)+runewidth.StringWidth(word)+1 >= innerWidth {
-						parts = append(parts, strString)
-						colors = append(colors, col)
-						//INFO: If the single word is wider than the box,
-						//or the language doesn't use white space as separator,
-						//split the word into smaller chunks
-						if innerWidth > 1 && runewidth.StringWidth(word) >= innerWidth {
-							w := word
-							//INFO: Loop through each characters to determine real width of string split
-							for runewidth.StringWidth(w) >= innerWidth {
-								l := 0
-								for i := 0; l < innerWidth && i < len(w); i++ {
-									l += runewidth.StringWidth(string(w[i]))
-								}
-								parts = append(parts, strings.Trim(w[:l], " "))
-								colors = append(colors, col)
-								w = w[l:]
-							}
-							parts = append(parts, strings.Trim(w, " "))
-							colors = append(colors, col)
-							str.Reset()
-						} else {
-							str.Reset()
-							str.WriteString(strings.TrimLeft(word+" ", " "))
-						}
-					} else {
-						str.WriteString(strings.TrimLeft(word+" ", " "))
-					}
-				}
-
-				if len(strings.Trim(str.String(), " ")) > 0 {
-					parts = append(parts, strings.Trim(str.String(), " "))
+			state := -1
+			var word string
+			for len(contentStr) > 0 {
+				word, contentStr, state = uniseg.FirstWordInString(contentStr, state)
+				//INFO: Divide the text into lines, while preventing word break
+				// for word := range strings.SplitSeq(contentStr, " ") {
+				// word = strings.Trim(word, " ")
+				strString := str.String()
+				if uniseg.StringWidth(strString)+uniseg.StringWidth(word)+1 >= innerWidth {
+					parts = append(parts, strString)
 					colors = append(colors, col)
-					str.Reset()
+					//INFO: If the single word is wider than the box,
+					//or the language doesn't use white space as separator,
+					//split the word into smaller chunks
+					if innerWidth > 1 && uniseg.StringWidth(word) >= innerWidth {
+						w := strings.ReplaceAll(word, " ", "")
+						//INFO: Loop through each characters to determine real width of string split
+						for uniseg.StringWidth(w) >= innerWidth {
+							l := uniseg.StringWidth(w)
+							// itr := uniseg.NewGraphemes(word)
+							// for itr.Next() {
+							// 	l += len([]rune(itr.Str()))
+							// }
+							// // for i := 0; l < innerWidth && i < len(w); i++ {
+							// // }
+							parts = append(parts, w[:l])
+							colors = append(colors, col)
+							w = w[l:]
+						}
+						parts = append(parts, w)
+						colors = append(colors, col)
+						str.Reset()
+					} else {
+						str.Reset()
+						str.WriteString(word)
+					}
+				} else {
+
+					str.WriteString(word)
 				}
+			}
+
+			if len(strings.Trim(str.String(), " ")) > 0 {
+				parts = append(parts, strings.Trim(str.String(), " "))
+				colors = append(colors, col)
+				str.Reset()
 			}
 
 			parts = append(parts, "")

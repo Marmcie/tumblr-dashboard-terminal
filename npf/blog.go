@@ -8,7 +8,7 @@ import (
 	"math"
 	"net/http"
 
-	"github.com/mattn/go-runewidth"
+	"github.com/rivo/uniseg"
 )
 
 type Blog struct {
@@ -31,7 +31,8 @@ type Blog struct {
 var blogColors map[string]string = map[string]string{}
 
 func (b *Blog) GetName() string {
-	if runewidth.StringWidth(b.Name) > 0 {
+
+	if uniseg.StringWidth(b.Name) > 0 {
 		return b.Name
 	}
 

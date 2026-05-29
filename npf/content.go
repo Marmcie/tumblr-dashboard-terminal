@@ -3,10 +3,9 @@ package npf
 import (
 	"bytes"
 	"fmt"
+	"github.com/rivo/uniseg"
 	"strconv"
 	"strings"
-
-	"github.com/mattn/go-runewidth"
 )
 
 type Content struct {
@@ -60,7 +59,8 @@ func (c *Content) RenderWithData() ContentData {
 	switch c.Type {
 	case "image":
 		alt := c.Alt_text
-		if runewidth.StringWidth(alt) == 0 {
+
+		if uniseg.StringWidth(alt) == 0 {
 			alt = "No alt"
 		}
 		str.WriteString(fmt.Sprintf("[Image : %s]", alt))
