@@ -1,7 +1,6 @@
 package npf
 
 import (
-	"bytes"
 	"fmt"
 	"github.com/rivo/uniseg"
 	"strconv"
@@ -52,7 +51,7 @@ type Content struct {
 }
 
 func (c *Content) RenderWithData() ContentData {
-	var str bytes.Buffer
+	var b strings.Builder
 	var cType = ""
 	var links []string
 
@@ -63,14 +62,14 @@ func (c *Content) RenderWithData() ContentData {
 		if uniseg.StringWidth(alt) == 0 {
 			alt = "No alt"
 		}
-		str.WriteString(fmt.Sprintf("[Image : %s]", alt))
+		fmt.Fprintf(&b, "[Image : %s]", alt)
 		if len(c.Caption) > 0 {
-			str.WriteString(fmt.Sprintf("\n%s", c.Caption))
+			fmt.Fprintf(&b, "\n%s", c.Caption)
 		}
 		cType = "Image"
 
 	case "video":
-		str.WriteString("[Video]" + "(" + c.Url + ")")
+		fmt.Fprintf(&b, "[Video](%s)", c.Url)
 		cType = "Video"
 
 	case "audio":
@@ -88,8 +87,7 @@ func (c *Content) RenderWithData() ContentData {
 		if len(audioAlbum) == 0 {
 			audioAlbum = "Unknown album"
 		}
-
-		str.WriteString(fmt.Sprintf("[Audio : %s By %s, From %s]", audioTitle, audioArtist, audioAlbum))
+		fmt.Fprintf(&b, "[Audio : %s By %s, From %s]", audioTitle, audioArtist, audioAlbum)
 		cType = "Audio"
 
 	case "text":
@@ -100,7 +98,8 @@ func (c *Content) RenderWithData() ContentData {
 			case "link":
 				links = append(links, f.Url)
 				t := strings.Split(text, "")
-				urlString := " (" + f.Url + ")"
+				
+				urlString := fmt.Sprintf(" (%s)",f.Url)
 				text = strings.Join(t[:f.End+int64(offset)], "") + urlString + strings.Join(t[f.End+int64(offset):], "")
 				offset += len(strings.Split(urlString, ""))
 			}
@@ -110,34 +109,32 @@ func (c *Content) RenderWithData() ContentData {
 		switch c.Subtype {
 
 		case "heading1":
-			str.WriteString("① " + text)
+			fmt.Fprintf(&b, "① %s", text)
 			cType = "Heading1"
 
 		case "heading2":
-			str.WriteString("② " + text)
+			fmt.Fprintf(&b, "② %s", text)
 			cType = "Heading2"
 
 		case "heading3":
-			str.WriteString("③ " + text)
+			fmt.Fprintf(&b, "③ %s", text)
 			cType = "Heading3"
 
 		case "quote":
-			str.WriteString("> " + text)
+			fmt.Fprintf(&b, "> %s", text)
 			cType = "Quote"
 
 		case "ordered-list-item":
-			str.WriteString(strconv.Itoa(orderedListIndex) + ". ")
-			str.WriteString(text)
+			fmt.Fprintf(&b, "%s. %s", strconv.Itoa(orderedListIndex), text)
 			orderedListIndex = orderedListIndex + 1
 			cType = "OrderedList"
 
 		case "unordered-list-item":
-			str.WriteString("- ")
-			str.WriteString(text)
+			fmt.Fprintf(&b, "- %s", text)
 			cType = "UnOrderedList"
 
 		default:
-			str.WriteString(text)
+			fmt.Fprintf(&b, "%s", text)
 		}
 
 		if c.Subtype != "ordered-list-item" {
@@ -145,21 +142,21 @@ func (c *Content) RenderWithData() ContentData {
 		}
 
 	case "poll":
-		str.WriteString("Poll : " + c.Question + "\n")
+		fmt.Fprintf(&b, "Poll : %s\n", c.Question)
 		for _, a := range c.Answers {
-			str.WriteString("- " + a.Answer_text + "\n")
+			fmt.Fprintf(&b, "- %s\n", a.Answer_text)
 		}
-		str.WriteString(c.Text)
+		fmt.Fprintf(&b, "%s", c.Text)
 		cType = "Poll"
 	case "link":
-		str.WriteString(c.Title + "(" + c.Url + ")")
+		fmt.Fprintf(&b, "%s(%s)", c.Title, c.Url)
 		links = append(links, c.Url)
 
 	default:
-		str.WriteString(c.Text)
+		fmt.Fprintf(&b, "%s", c.Text)
 	}
 
-	postStr := RenderUnicode(str.String())
+	postStr := RenderUnicode(b.String())
 
 	return ContentData{
 		ContentType: cType,

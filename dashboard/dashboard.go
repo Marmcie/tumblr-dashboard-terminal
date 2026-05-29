@@ -1,7 +1,6 @@
 package dashboard
 
 import (
-	"bytes"
 	"fmt"
 	"math/rand"
 	"slices"
@@ -244,11 +243,11 @@ func (d *Dashboard) SwitchMode(mode string, option string) {
 		d.feed.listElem.SetTitle("Dashboard")
 	case "tag":
 		d.option = option
-		d.feed.listElem.SetTitle("Tagged posts : " + d.option)
+		d.feed.listElem.SetTitle(fmt.Sprintf("Tagged posts : %s", d.option))
 
 	case "blog":
 		d.option = option
-		d.feed.listElem.SetTitle("Posts from : " + d.option)
+		d.feed.listElem.SetTitle(fmt.Sprintf("Posts from : %s" , d.option))
 	case "tutorial":
 		d.feed.listElem.SetTitle("Tutorial")
 	}
@@ -449,36 +448,35 @@ func (d *Dashboard) UpdateInfo(post *npf.Post) {
 
 	//TODO: Implement this better
 	//Perhaps use line objects?
-	var str = bytes.Buffer{}
+	// var str = bytes.Buffer{}
+	var b strings.Builder
 	if !post.IsFiltered {
-		str.WriteString("Date      :  " + t.Format("2006-01-02 15:04:05 MST") + " (" + diffStr + " ago)" + "\n")
-		str.WriteString("URL       :  " + post.Short_url + "\n")
-		str.WriteString("Blog name :  " + post.Blog_name + "\n")
-		str.WriteString("Tags      :  ")
+		fmt.Fprintf(&b, "Date      :  %s (%s ago)\n", t.Format("2006-01-02 15:04:05 MST"), diffStr)
+		fmt.Fprintf(&b, "URL       :  %s\n", post.Short_url)
+		fmt.Fprintf(&b, "Blog name :  %s\n", post.Blog_name)
+		fmt.Fprintf(&b, "Tags      :  ")
 		if len(post.Tags) > 0 {
-			str.WriteString("#")
-			str.WriteString(strings.Join(post.Tags, " #"))
+			fmt.Fprintf(&b, "#%s", strings.Join(post.Tags, " #"))
 		}
 	} else {
 
 		filteredContents := post.FilteredContents.ToSlice()
 		filteredTags := post.FilteredTags.ToSlice()
 
-		str.WriteString("Date              :  " + t.Format("2006-01-02 15:04:05 MST") + " (" + diffStr + " ago)" + "\n")
-		str.WriteString("URL               :  " + post.Short_url + "\n")
-		str.WriteString("Blog name         :  " + post.Blog_name + "\n")
+		fmt.Fprintf(&b, "Date      :  %s (%s ago)\n", t.Format("2006-01-02 15:04:05 MST"), diffStr)
+		fmt.Fprintf(&b, "URL       :  %s\n", post.Short_url)
+		fmt.Fprintf(&b, "Blog name :  %s\n", post.Blog_name)
 		if len(filteredContents) > 0 {
-			str.WriteString("Filtered contents :  " + strings.Join(filteredContents, ", ") + "\n")
+			fmt.Fprintf(&b, "Filtered contents :  %s\n", strings.Join(filteredContents, ", "))
 		}
 		if len(filteredTags) > 0 {
-			str.WriteString("Filtered tags     :  #" + strings.Join(filteredTags, " #") + "\n")
+			fmt.Fprintf(&b, "Filtered tags     :  #%s\n", strings.Join(filteredTags, " #"))
 		}
-		str.WriteString("Tags              :  ")
+		fmt.Fprintf(&b, "Tags      :  ")
 		if len(post.Tags) > 0 {
-			str.WriteString("#")
-			str.WriteString(strings.Join(post.Tags, " #"))
+			fmt.Fprintf(&b, "#%s", strings.Join(post.Tags, " #"))
 		}
 	}
 
-	d.info.SetText(str.String())
+	d.info.SetText(b.String())
 }

@@ -3,6 +3,7 @@ package modules
 import (
 	"encoding/json"
 	"flag"
+	"fmt"
 	"log"
 	"os"
 )
@@ -81,7 +82,7 @@ func resolveConfigPath() string {
 	}
 
 	configPath, _ := os.UserConfigDir()
-	filePath := configPath + string(os.PathSeparator) + "tumblr-dt" + string(os.PathSeparator) + "tumblr-dt.json"
+	filePath := fmt.Sprintf("%s\\tumblr-dt\\tumblr-dt.json", configPath)
 
 	_, err := os.ReadFile(filePath)
 	if err == nil {
@@ -89,7 +90,7 @@ func resolveConfigPath() string {
 	}
 
 	dir, _ := os.UserHomeDir()
-	filePath = dir + string(os.PathSeparator) + ".config" + string(os.PathSeparator) + "tumblr-dt.json"
+	filePath = fmt.Sprintf("%s\\.config\\tumblr-dt.json", dir)
 
 	_, err = os.ReadFile(filePath)
 

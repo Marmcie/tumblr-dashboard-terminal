@@ -2,6 +2,7 @@ package modules
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -146,7 +147,8 @@ func (c *TumblrClient) GetBlogPosts(before int, blogName string) []npf.Post {
 		}
 	}()
 
-	u, _ := url.Parse("https://api.tumblr.com/v2/blog/" + blogName + ".tumblr.com/posts?notes_info=true")
+	
+	u, _ := url.Parse(fmt.Sprintf("https://api.tumblr.com/v2/blog/%s.tumblr.com/posts?notes_info=true",blogName))
 
 	q := u.Query()
 	q.Add("before", strconv.Itoa(before))
