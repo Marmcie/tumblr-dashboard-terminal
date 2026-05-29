@@ -105,7 +105,7 @@ func (f *Feed) AddPosts(posts []*npf.Post) {
 			SetH(3).
 			SetWidthInherit(true)
 
-		blogName := component.NewLine(fmt.Sprintf("User name : %s" , post.Blog.Name))
+		blogName := component.NewLine(fmt.Sprintf("User name : %s", post.Blog.Name))
 		blogName.SetText(post.Blog.Name)
 
 		blogName.SetWidthInherit(true)

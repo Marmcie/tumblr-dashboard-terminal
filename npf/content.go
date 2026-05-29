@@ -98,8 +98,8 @@ func (c *Content) RenderWithData() ContentData {
 			case "link":
 				links = append(links, f.Url)
 				t := strings.Split(text, "")
-				
-				urlString := fmt.Sprintf(" (%s)",f.Url)
+
+				urlString := fmt.Sprintf(" (%s)", f.Url)
 				text = strings.Join(t[:f.End+int64(offset)], "") + urlString + strings.Join(t[f.End+int64(offset):], "")
 				offset += len(strings.Split(urlString, ""))
 			}

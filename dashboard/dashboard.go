@@ -247,7 +247,7 @@ func (d *Dashboard) SwitchMode(mode string, option string) {
 
 	case "blog":
 		d.option = option
-		d.feed.listElem.SetTitle(fmt.Sprintf("Posts from : %s" , d.option))
+		d.feed.listElem.SetTitle(fmt.Sprintf("Posts from : %s", d.option))
 	case "tutorial":
 		d.feed.listElem.SetTitle("Tutorial")
 	}
