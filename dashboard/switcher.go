@@ -5,7 +5,6 @@ import (
 	component "tumblr-dt/ui/component"
 
 	tea "charm.land/bubbletea/v2"
-	uv "github.com/charmbracelet/ultraviolet"
 )
 
 type Switcher struct {
@@ -140,27 +139,16 @@ func (s *Switcher) InitEvents() {
 		switch msg := msg.(type) {
 		case tea.KeyPressMsg:
 			switch msg.String() {
+			default:
+				s.TagInput.ParseInput(msg)
 			case "enter":
 				s.dashboard.SwitchMode("tag", s.TagInput.Value)
 				s.TagInput.ClearInput()
 				s.index = 0
-			case "backspace":
-				if len(s.TagInput.Value) > 0 {
-					s.TagInput.DeleteChar()
-				}
 
 			case "tab", "right":
 				s.TagInput.ApplyTopSuggestion()
 
-			default:
-				str := string(msg.Code)
-				if len(str) == 1 {
-					if msg.Key().Mod.Contains(uv.ModShift) {
-						s.TagInput.AppendChar(string(msg.ShiftedCode))
-					} else {
-						s.TagInput.AppendChar(string(msg.Code))
-					}
-				}
 			}
 		}
 	}, true)
@@ -169,26 +157,15 @@ func (s *Switcher) InitEvents() {
 		switch msg := msg.(type) {
 		case tea.KeyPressMsg:
 			switch msg.String() {
+			default:
+				s.BlogInput.ParseInput(msg)
 			case "enter":
 				s.dashboard.SwitchMode("blog", s.BlogInput.Value)
 				s.BlogInput.ClearInput()
 				s.index = 0
-			case "backspace":
-				if len(s.BlogInput.Value) > 0 {
-					s.BlogInput.DeleteChar()
-				}
 			case "tab", "right":
 				s.BlogInput.ApplyTopSuggestion()
 
-			default:
-				str := string(msg.Code)
-				if len(str) == 1 {
-					if msg.Key().Mod.Contains(uv.ModShift) {
-						s.BlogInput.AppendChar(string(msg.ShiftedCode))
-					} else {
-						s.BlogInput.AppendChar(string(msg.Code))
-					}
-				}
 			}
 		}
 	}, true)

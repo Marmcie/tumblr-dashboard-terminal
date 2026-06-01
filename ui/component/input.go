@@ -1,6 +1,8 @@
 package component
 
 import (
+	"charm.land/bubbles/v2/textinput"
+	tea "charm.land/bubbletea/v2"
 	"tumblr-dt/ui/helper"
 )
 
@@ -12,6 +14,7 @@ type Input struct {
 	EmptyForeground  string
 	ActiveForeground string
 	Suggestions      *helper.Trie
+	realInput        textinput.Model
 }
 
 func NewInput(name string) *Input {
@@ -23,8 +26,33 @@ func NewInput(name string) *Input {
 	l.SetPos(0, 0)
 	l.EmptyForeground = "#aaaaaa"
 	l.ActiveForeground = "#ffffff"
+	l.realInput = textinput.New()
+	l.realInput.SetVirtualCursor(false)
+	l.realInput.CharLimit = 156
+	l.realInput.SetWidth(20)
 
+	l.AddEventListener("onUpdate", func(m tea.Msg) {
+		l.ParseInput(m)
+	}, true)
 	return l
+}
+
+func (l *Input) ParseInput(m tea.Msg) {
+	l.realInput.Focus()
+	switch msg := m.(type) {
+	case tea.KeyPressMsg:
+		switch msg.String() {
+		case "\u001b":
+
+		default:
+			l.realInput, _ = l.realInput.Update(m)
+			l.Value = l.realInput.Value()
+			l.UpdateText()
+
+		}
+	}
+
+	l.realInput.Blur()
 }
 
 func (i *Input) ApplyTopSuggestion() {
@@ -32,6 +60,7 @@ func (i *Input) ApplyTopSuggestion() {
 		suggestion := i.Suggestions.Search(i.Value)
 		if len(suggestion) > 0 {
 			i.Value = suggestion
+			i.realInput.SetValue(suggestion)
 			i.UpdateText()
 		}
 	}
@@ -73,6 +102,7 @@ func (i *Input) DeleteChar() {
 
 func (i *Input) ClearInput() {
 	i.Value = ""
+	i.realInput.SetValue("")
 	i.UpdateText()
 }
 
@@ -94,4 +124,14 @@ func (l *Input) RenderToCanvas() {
 	}
 
 	l.SetCanvas(canvas, fg, bg)
+}
+
+func (l *Input) Focus() {
+	l.Line.Focus()
+	l.realInput.Focus()
+}
+
+func (l *Input) Blur() {
+	l.Line.Blur()
+	l.realInput.Blur()
 }
