@@ -42,7 +42,7 @@ func (l *Line) RenderToCanvas() {
 	var result [][]string = [][]string{make([]string, w)}
 	var fg [][]string = [][]string{make([]string, w)}
 	var bg [][]string = [][]string{make([]string, w)}
-	// str := strings.Split(l.Text, "")
+
 	str := l.Text
 
 	var c string
@@ -52,7 +52,14 @@ func (l *Line) RenderToCanvas() {
 	for i < w {
 		if len(str) > 0 {
 			c, str, wid, state = uniseg.FirstGraphemeClusterInString(str, state)
-			result[0][i] = c
+
+			if i+wid <= w {
+				result[0][i] = c
+			} else {
+
+				wid = 1
+				result[0][i] = " "
+			}
 		} else {
 			wid = 1
 			result[0][i] = " "
@@ -61,9 +68,5 @@ func (l *Line) RenderToCanvas() {
 		bg[0][i] = l.Background
 		i += wid
 	}
-	if i > w {
-		result[0][i-wid] = " "
-	}
-
 	l.SetCanvas(result, fg, bg)
 }
