@@ -34,11 +34,11 @@ func (l *Line) SetText(text string) *Line {
 // Returns Line per line contents,x,y
 func (l *Line) RenderToCanvas() {
 
-	if !l.Visibility {
+	w := l.GetInnerWidth()
+	if !l.Visibility || w <= 0 {
 		l.SetCanvas([][]string{{""}}, [][]string{{""}}, [][]string{{""}})
 		return
 	}
-	w := l.GetInnerWidth()
 	var result [][]string = [][]string{make([]string, w)}
 	var fg [][]string = [][]string{make([]string, w)}
 	var bg [][]string = [][]string{make([]string, w)}

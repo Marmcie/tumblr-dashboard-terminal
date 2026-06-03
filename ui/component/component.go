@@ -887,8 +887,10 @@ func (c *BaseComponent) addBorder(arr [][]string, fg [][]string, bg [][]string) 
 				for i < length && len(buf) > 0 {
 					var clusterWidth int
 					char, buf, clusterWidth, state = uniseg.FirstGraphemeClusterInString(buf, state)
-					arr[0][i+1] = char
-					fg[0][i+1] = c.BorderLabelColors[key]
+					if i+clusterWidth < wid {
+						arr[0][i+1] = char
+						fg[0][i+1] = c.BorderLabelColors[key]
+					}
 					i += clusterWidth
 				}
 
@@ -898,11 +900,14 @@ func (c *BaseComponent) addBorder(arr [][]string, fg [][]string, bg [][]string) 
 				state := -1
 				buf := str
 				length := uniseg.StringWidth(str)
+				half := max(1, (wid-length)/2)
 				for i < wid-1 && i < length && len(buf) > 0 {
 					var clusterWidth int
 					char, buf, clusterWidth, state = uniseg.FirstGraphemeClusterInString(buf, state)
-					arr[0][i+max(1, (wid-length)/2)] = char
-					fg[0][i+max(1, (wid-length)/2)] = c.BorderLabelColors[key]
+					if i+clusterWidth+half < wid {
+						arr[0][i+max(1, (wid-length)/2)] = char
+						fg[0][i+max(1, (wid-length)/2)] = c.BorderLabelColors[key]
+					}
 					i += clusterWidth
 				}
 
@@ -914,8 +919,10 @@ func (c *BaseComponent) addBorder(arr [][]string, fg [][]string, bg [][]string) 
 				for i > 0 && len(buf) > 0 {
 					var clusterWidth int
 					char, buf, clusterWidth, state = uniseg.FirstGraphemeClusterInString(buf, state)
-					arr[0][wid-(i+2)] = char
-					fg[0][wid-(i+2)] = c.BorderLabelColors[key]
+					if i-clusterWidth >= 0 {
+						arr[0][wid-(i+2)] = char
+						fg[0][wid-(i+2)] = c.BorderLabelColors[key]
+					}
 					i -= clusterWidth
 				}
 
@@ -925,11 +932,13 @@ func (c *BaseComponent) addBorder(arr [][]string, fg [][]string, bg [][]string) 
 				state := -1
 				buf := str
 				length := uniseg.StringWidth(str)
-				for i < length && len(buf) > 0 {
+				for i < length && len(buf) > 0 && i < wid {
 					var clusterWidth int
 					char, buf, clusterWidth, state = uniseg.FirstGraphemeClusterInString(buf, state)
-					arr[hei-1][i+1] = char
-					fg[hei-1][i+1] = c.BorderLabelColors[key]
+					if i+clusterWidth < wid {
+						arr[hei-1][i+1] = char
+						fg[hei-1][i+1] = c.BorderLabelColors[key]
+					}
 					i += clusterWidth
 				}
 
@@ -940,11 +949,14 @@ func (c *BaseComponent) addBorder(arr [][]string, fg [][]string, bg [][]string) 
 				state := -1
 				buf := str
 				length := uniseg.StringWidth(str)
+				half := max(1, (wid-length)/2)
 				for i < wid-1 && i < length && len(buf) > 0 {
 					var clusterWidth int
 					char, buf, clusterWidth, state = uniseg.FirstGraphemeClusterInString(buf, state)
-					arr[hei-1][i+max(1, (wid-length)/2)] = char
-					fg[hei-1][i+max(1, (wid-length)/2)] = c.BorderLabelColors[key]
+					if i+clusterWidth+half < wid {
+						arr[hei-1][i+half] = char
+						fg[hei-1][i+half] = c.BorderLabelColors[key]
+					}
 					i += clusterWidth
 				}
 
@@ -957,8 +969,10 @@ func (c *BaseComponent) addBorder(arr [][]string, fg [][]string, bg [][]string) 
 				for i > 0 && len(buf) > 0 {
 					var clusterWidth int
 					char, buf, clusterWidth, state = uniseg.FirstGraphemeClusterInString(buf, state)
-					arr[hei-1][wid-(i+2)] = char
-					fg[hei-1][wid-(i+2)] = c.BorderLabelColors[key]
+					if i-clusterWidth >= 0 {
+						arr[hei-1][wid-(i+2)] = char
+						fg[hei-1][wid-(i+2)] = c.BorderLabelColors[key]
+					}
 					i -= clusterWidth
 				}
 			}

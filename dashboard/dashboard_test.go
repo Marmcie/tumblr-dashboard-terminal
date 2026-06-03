@@ -40,6 +40,24 @@ func TestDashboardDisplay(t *testing.T) {
 	dashboard.DisplayPost(dashboard.GetSelectedPost(), true)
 }
 
+func TestDashboard0SizeDisplay(t *testing.T) {
+	config := modules.Config{}
+	config.Testing = true
+	config.Initialized = true
+
+	ch := make(chan *dashboard.Dashboard)
+	go func(ch chan *dashboard.Dashboard) {
+		db := dashboard.NewDashboard(config)
+		ch <- db
+	}(ch)
+	dashboard := <-ch
+	for dashboard.IsLoading {
+		time.Sleep(time.Second / 2)
+	}
+	dashboard.GetRootModel().App.UpdateSize(0, 0)
+	dashboard.DisplayPost(dashboard.GetSelectedPost(), true)
+}
+
 func BenchmarkDashboardLoad(b *testing.B) {
 	config := modules.Config{}
 	config.Testing = true

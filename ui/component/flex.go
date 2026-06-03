@@ -140,12 +140,14 @@ func (b *Flex) RenderToCanvas() {
 			for ind, line := range output {
 				posY := ind + b.GetY() + childY + top
 				for index, char := range line {
-					result[posY][globalX+index] = char
-					if len(childFG[ind][index]) > 0 {
-						fg[posY][globalX+index] = childFG[ind][index]
-					}
-					if len(childBG[ind][index]) > 0 {
-						bg[posY][globalX+index] = childBG[ind][index]
+					if globalX+index > 0 && globalX+index < len(result[posY]) {
+						result[posY][globalX+index] = char
+						if len(childFG[ind][index]) > 0 {
+							fg[posY][globalX+index] = childFG[ind][index]
+						}
+						if len(childBG[ind][index]) > 0 {
+							bg[posY][globalX+index] = childBG[ind][index]
+						}
 					}
 				}
 			}
