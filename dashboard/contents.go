@@ -139,40 +139,46 @@ func (f *Contents) DisplayPost(post *npf.Post, showFiltered bool) {
 				col = ui.GetColorStr(ui.ColorQuote)
 			}
 
-			state := -1
-			var word string
-			for len(contentStr) > 0 {
-				word, contentStr, state = uniseg.FirstWordInString(contentStr, state)
-				//INFO: Divide the text into lines, while preventing word break
-				// for word := range strings.SplitSeq(contentStr, " ") {
-				// word = strings.Trim(word, " ")
-				strString := str.String()
-				if uniseg.StringWidth(strString)+uniseg.StringWidth(word)+1 >= innerWidth {
-					parts = append(parts, strString)
-					colors = append(colors, col)
-					//INFO: If the single word is wider than the box,
-					//or the language doesn't use white space as separator,
-					//split the word into smaller chunks
-					if innerWidth > 1 && uniseg.StringWidth(word) >= innerWidth {
-						w := strings.ReplaceAll(word, " ", "")
-						//INFO: Loop through each characters to determine real width of string split
-						for uniseg.StringWidth(w) >= innerWidth {
-							l := uniseg.StringWidth(w)
-							parts = append(parts, w[:l])
-							colors = append(colors, col)
-							w = w[l:]
-						}
-						parts = append(parts, w)
+			for line := range strings.SplitSeq(contentStr, "\n") {
+
+				state := -1
+				var word string
+				for len(line) > 0 {
+					word, line, state = uniseg.FirstWordInString(line, state)
+					//INFO: Divide the text into lines, while preventing word break
+					// for word := range strings.SplitSeq(contentStr, " ") {
+					// word = strings.Trim(word, " ")
+					strString := str.String()
+					if uniseg.StringWidth(strString)+uniseg.StringWidth(word)+1 >= innerWidth {
+						parts = append(parts, strString)
 						colors = append(colors, col)
-						str.Reset()
+						//INFO: If the single word is wider than the box,
+						//or the language doesn't use white space as separator,
+						//split the word into smaller chunks
+						if innerWidth > 1 && uniseg.StringWidth(word) >= innerWidth {
+							w := strings.ReplaceAll(word, " ", "")
+							//INFO: Loop through each characters to determine real width of string split
+							for uniseg.StringWidth(w) >= innerWidth {
+								l := uniseg.StringWidth(w)
+								parts = append(parts, w[:l])
+								colors = append(colors, col)
+								w = w[l:]
+							}
+							parts = append(parts, w)
+							colors = append(colors, col)
+							str.Reset()
+						} else {
+							str.Reset()
+							str.WriteString(word)
+						}
 					} else {
-						str.Reset()
 						str.WriteString(word)
 					}
-				} else {
-
-					str.WriteString(word)
 				}
+
+				parts = append(parts, str.String())
+				colors = append(colors, col)
+				str.Reset()
 			}
 
 			if len(strings.Trim(str.String(), " ")) > 0 {
