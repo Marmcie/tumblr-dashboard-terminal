@@ -49,23 +49,23 @@ func NewLinkWindow(dashboard *Dashboard) *LinkWindow {
 
 		case tea.KeyPressMsg:
 			switch msg.String() {
-			case "enter":
+			case l.dashboard.config.Keymaps.Confirm:
 				if l.List.Cursor < len(l.List.GetChildren()) {
 					l.List.RunSelectedOption()
 				}
-			case "j":
+			case l.dashboard.config.Keymaps.Navigation.Down:
 				l.List.IncrementCursor()
-			case "k":
+			case l.dashboard.config.Keymaps.Navigation.Up:
 				l.List.DecrementCursor()
-			case "G":
+			case l.dashboard.config.Keymaps.Navigation.JumpBottom:
 				l.List.SetCursor(len(l.LinkList) - 1)
 				l.List.RunSelectedOption()
-			case "g":
-				if l.prev == "g" {
+			case l.dashboard.config.Keymaps.Navigation.JumpTop:
+				if l.prev == l.dashboard.config.Keymaps.Navigation.JumpTop {
 					l.List.SetCursor(0)
 					l.List.RunSelectedOption()
 				}
-			case "esc":
+			case l.dashboard.config.Keymaps.Links.Close:
 				l.dashboard.toggleLinkWindow()
 			}
 			l.prev = msg.String()

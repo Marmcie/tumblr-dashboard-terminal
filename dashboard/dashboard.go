@@ -109,7 +109,7 @@ func (d *Dashboard) initComponents(config modules.Config) {
 		d.root.SetSize(120, 60)
 	}
 
-	d.rootModel = ui.NewRootModel()
+	d.rootModel = ui.NewRootModel(d.config)
 	d.timestamp = time.Now().Local().UnixMilli() / 1000
 
 	d.left = component.NewFlex("Left")
@@ -184,41 +184,42 @@ func (d *Dashboard) toggleLinkWindow() {
 }
 
 func (d *Dashboard) initEvents() {
+
 	d.root.AddEventListener("onUpdate", func(msg tea.Msg) {
 		switch msg := msg.(type) {
 		case tea.KeyMsg:
 			switch msg.String() {
-			case "r":
+			case d.config.Keymaps.LoadMore:
 				done := make(chan bool)
 				go d.LoadPosts(done)
 
-			case "right":
+			case d.config.Keymaps.IncreaseSize:
 				d.left.SetFlexProportion(d.left.GetFlexProportion() + 0.1)
 				d.feed.listElem.RunSelectedOption()
 
-			case "left":
+			case d.config.Keymaps.DecreaseSize:
 				proportion := d.left.GetFlexProportion()
 				d.left.SetFlexProportion(max(0.1, proportion-0.1))
 				d.feed.listElem.RunSelectedOption()
 
-			case "q":
+			case d.config.Keymaps.Quit:
 				component.Global.SetCmd(tea.Quit)
 
-			case "o":
+			case d.config.Keymaps.OpenLink:
 				post := d.feed.GetSelectedPost()
 				modules.OpenInBrowser(post.Short_url)
 				component.Global.SetCmd(tea.ClearScreen)
 
-			case "]":
+			case d.config.Keymaps.Switcher.Open:
 				d.toggleSwitcher()
 
-			case "b":
+			case d.config.Keymaps.LoadBlog:
 				post := d.feed.GetSelectedPost()
 				d.SwitchMode("blog", post.Blog.Name)
 
-			case "?":
+			case d.config.Keymaps.ControlHelp:
 				d.toggleControl()
-			case "L":
+			case d.config.Keymaps.Links.Open:
 				d.LinkWindow.Focus()
 			}
 
@@ -383,31 +384,32 @@ func (d *Dashboard) FocusFeed() {
 func (d *Dashboard) UpdateControlText() {
 	str := ""
 	if d.feed.listElem.GetFocusState() {
-		str += "j/k      :  Scroll post on feed  \n"
-		str += "gg/G     :  Scroll to top or bottom  \n"
-		str += "l/Enter  :  Focus post window   \n"
-		str += "r        :  Load more posts    \n"
-		str += "]        :  Open feed switcher    \n"
-		str += "L        :  Open post links    \n"
-		str += "b        :  Open blog feed    \n"
-		str += "o        :  Open post in browser    \n"
-		str += "->/<-    :  Adjust feed width    \n"
-		str += "Ctrl+c   :  Exit the program  \n"
-		str += "delete   :  Log out of the account  \n"
+
+		str += fmt.Sprintf("Scroll post on feed     : %s/%s\n", d.config.Keymaps.Navigation.Up, d.config.Keymaps.Navigation.Down)
+		str += fmt.Sprintf("Scroll to top or bottom : %s%s/%s\n", d.config.Keymaps.Navigation.JumpTop, d.config.Keymaps.Navigation.JumpTop, d.config.Keymaps.Navigation.JumpBottom)
+		str += fmt.Sprintf("Focus post window       : %s\n", d.config.Keymaps.Navigation.Right)
+		str += fmt.Sprintf("Load more posts         : %s\n", d.config.Keymaps.LoadMore)
+		str += fmt.Sprintf("Open feed switcher      : %s\n", d.config.Keymaps.Switcher.Open)
+		str += fmt.Sprintf("Open post links         : %s\n", d.config.Keymaps.Links.Open)
+		str += fmt.Sprintf("Open blog feed          : %s\n", d.config.Keymaps.LoadBlog)
+		str += fmt.Sprintf("Open post in browser    : %s\n", d.config.Keymaps.OpenLink)
+		str += fmt.Sprintf("Adjust feed width       : %s/%s\n", d.config.Keymaps.IncreaseSize, d.config.Keymaps.DecreaseSize)
+		str += fmt.Sprintf("Exit the program        : Ctrl+c/%s\n", d.config.Keymaps.Quit)
+		str += fmt.Sprintf("Log out of the account  : %s\n", d.config.Keymaps.LogOut)
 		d.control.SetH(13)
 	} else {
-		str += "j/k J/K  :  Scroll post contents  \n"
-		str += "d/u      :  Scroll to next reblog  \n"
-		str += "gg/G     :  Scroll to top or bottom  \n"
-		str += "h        :  Focus feed  \n"
-		str += "r        :  Load more posts     \n"
-		str += "]        :  Open feed switcher    \n"
-		str += "L        :  Open post links    \n"
-		str += "b        :  Open blog feed    \n"
-		str += "o        :  Open post in browser    \n"
-		str += "->/<-    :  Adjust feed width    \n"
-		str += "Ctrl+c   :  Exit the program   \n"
-		str += "delete   :  Log out of the account  \n"
+		str += fmt.Sprintf("Scroll post contents    : %s/%s %s/%s\n", d.config.Keymaps.Navigation.Up, d.config.Keymaps.Navigation.Down, strings.ToUpper(d.config.Keymaps.Navigation.Up), strings.ToUpper(d.config.Keymaps.Navigation.Down))
+		str += fmt.Sprintf("Scroll to next reblog   : %s/%s\n", d.config.Keymaps.Navigation.JumpNext, d.config.Keymaps.Navigation.JumpPrev)
+		str += fmt.Sprintf("Scroll to top or bottom : %s%s/%s\n", d.config.Keymaps.Navigation.JumpTop, d.config.Keymaps.Navigation.JumpTop, d.config.Keymaps.Navigation.JumpBottom)
+		str += fmt.Sprintf("Focus feed              : Ctrl+c/%s\n", d.config.Keymaps.Navigation.Left)
+		str += fmt.Sprintf("Load more posts         : %s\n", d.config.Keymaps.LoadMore)
+		str += fmt.Sprintf("Open feed switcher      : %s\n", d.config.Keymaps.Switcher.Open)
+		str += fmt.Sprintf("Open post links         : %s\n", d.config.Keymaps.Links.Open)
+		str += fmt.Sprintf("Open blog feed          : %s\n", d.config.Keymaps.LoadBlog)
+		str += fmt.Sprintf("Open post in browser    : %s\n", d.config.Keymaps.OpenLink)
+		str += fmt.Sprintf("Adjust feed width       : %s/%s\n", d.config.Keymaps.IncreaseSize, d.config.Keymaps.DecreaseSize)
+		str += fmt.Sprintf("Exit the program        : Ctrl+c/%s\n", d.config.Keymaps.Quit)
+		str += fmt.Sprintf("Log out of the account  : %s\n", d.config.Keymaps.LogOut)
 		d.control.SetH(14)
 	}
 

@@ -32,6 +32,43 @@ type Config struct {
 		Filtered     string
 		Blacklisted  string
 	}
+
+	Keymaps struct {
+		Navigation struct {
+			Up         string
+			Down       string
+			Left       string
+			Right      string
+			JumpNext   string
+			JumpPrev   string
+			JumpTop    string
+			JumpBottom string
+		}
+
+		Switcher struct {
+			Open       string
+			Close      string
+			Up         string
+			Down       string
+			Suggestion string
+		}
+
+		Links struct {
+			Open  string
+			Close string
+		}
+		IncreaseSize string
+		DecreaseSize string
+
+		ControlHelp string
+		OpenLink    string
+		LoadMore    string
+		LoadBlog    string
+		Confirm     string
+		Quit        string
+		LogOut      string
+		Log         string
+	}
 	Initialized bool
 }
 
@@ -54,6 +91,56 @@ func makeConfig() Config {
 	con.Post_theme = "default"
 	con.Initialized = false
 
+	con.Keymaps.Navigation = struct {
+		Up         string
+		Down       string
+		Left       string
+		Right      string
+		JumpNext   string
+		JumpPrev   string
+		JumpTop    string
+		JumpBottom string
+	}{
+		Up:         "k",
+		Down:       "j",
+		Left:       "h",
+		Right:      "l",
+		JumpNext:   "d",
+		JumpPrev:   "u",
+		JumpTop:    "g",
+		JumpBottom: "G",
+	}
+	con.Keymaps.Switcher = struct {
+		Open       string
+		Close      string
+		Up         string
+		Down       string
+		Suggestion string
+	}{
+		Open:       "]",
+		Close:      "esc",
+		Up:         "up",
+		Down:       "down",
+		Suggestion: "right",
+	}
+	con.Keymaps.Links = struct {
+		Open  string
+		Close string
+	}{
+		Open:  "L",
+		Close: "esc",
+	}
+
+	con.Keymaps.OpenLink = "o"
+	con.Keymaps.LoadMore = "r"
+	con.Keymaps.LoadBlog = "b"
+	con.Keymaps.Confirm = "enter"
+	con.Keymaps.Quit = "q"
+	con.Keymaps.LogOut = "delete"
+	con.Keymaps.IncreaseSize = "right"
+	con.Keymaps.DecreaseSize = "left"
+	con.Keymaps.ControlHelp = "?"
+	con.Keymaps.Log = "ctrl+l"
 	return con
 }
 

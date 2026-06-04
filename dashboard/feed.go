@@ -43,13 +43,13 @@ func (f *Feed) InitEvents() {
 
 		case tea.KeyPressMsg:
 			switch msg.String() {
-			case "enter", "l":
+			case f.dashboard.config.Keymaps.Navigation.Right:
 				if f.listElem.Cursor < len(f.listElem.GetChildren()) {
 					f.showFilteredPost = true
 					f.dashboard.FocusContents()
 					f.listElem.RunSelectedOption()
 				}
-			case "j":
+			case f.dashboard.config.Keymaps.Navigation.Down:
 				if f.listElem.Cursor == len(f.listElem.GetChildren())-1 {
 					done := make(chan bool)
 					go f.dashboard.LoadPosts(done)
@@ -58,18 +58,18 @@ func (f *Feed) InitEvents() {
 				f.listElem.IncrementCursor()
 				f.listElem.RunSelectedOption()
 				f.UpdatePostCounter()
-			case "k":
+			case f.dashboard.config.Keymaps.Navigation.Up:
 				f.showFilteredPost = false
 				f.listElem.DecrementCursor()
 				f.listElem.RunSelectedOption()
 				f.UpdatePostCounter()
-			case "G":
+			case f.dashboard.config.Keymaps.Navigation.JumpBottom:
 				f.showFilteredPost = false
 				f.listElem.SetCursor(len(f.posts) - 1)
 				f.listElem.RunSelectedOption()
 				f.UpdatePostCounter()
-			case "g":
-				if f.prev == "g" {
+			case f.dashboard.config.Keymaps.Navigation.JumpTop:
+				if f.prev == f.dashboard.config.Keymaps.Navigation.JumpTop {
 					f.showFilteredPost = false
 					f.listElem.SetCursor(0)
 					f.listElem.RunSelectedOption()

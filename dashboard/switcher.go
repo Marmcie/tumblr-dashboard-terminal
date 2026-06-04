@@ -103,11 +103,11 @@ func (s *Switcher) InitEvents() {
 		switch msg := msg.(type) {
 		case tea.KeyPressMsg:
 			switch msg.String() {
-			case "down":
+			case s.dashboard.config.Keymaps.Switcher.Down:
 				s.index = (s.index + 1) % 3
 				s.ToggleOption()
 
-			case "up":
+			case s.dashboard.config.Keymaps.Switcher.Up:
 				if s.index == 0 {
 					s.index = 2
 				} else {
@@ -115,7 +115,7 @@ func (s *Switcher) InitEvents() {
 				}
 				s.ToggleOption()
 
-			case "esc":
+			case s.dashboard.config.Keymaps.Switcher.Close:
 				s.index = 0
 				s.TagInput.ClearInput()
 				s.dashboard.toggleSwitcher()
@@ -128,7 +128,7 @@ func (s *Switcher) InitEvents() {
 		switch msg := msg.(type) {
 		case tea.KeyPressMsg:
 			switch msg.String() {
-			case "enter":
+			case s.dashboard.config.Keymaps.Confirm:
 				s.index = 0
 				s.dashboard.SwitchMode("dashboard", "")
 			}
@@ -141,12 +141,12 @@ func (s *Switcher) InitEvents() {
 			switch msg.String() {
 			default:
 				s.TagInput.ParseInput(msg)
-			case "enter":
+			case s.dashboard.config.Keymaps.Confirm:
 				s.dashboard.SwitchMode("tag", s.TagInput.Value)
 				s.TagInput.ClearInput()
 				s.index = 0
 
-			case "tab", "right":
+			case s.dashboard.config.Keymaps.Switcher.Suggestion:
 				s.TagInput.ApplyTopSuggestion()
 
 			}
@@ -159,11 +159,11 @@ func (s *Switcher) InitEvents() {
 			switch msg.String() {
 			default:
 				s.BlogInput.ParseInput(msg)
-			case "enter":
+			case s.dashboard.config.Keymaps.Confirm:
 				s.dashboard.SwitchMode("blog", s.BlogInput.Value)
 				s.BlogInput.ClearInput()
 				s.index = 0
-			case "tab", "right":
+			case s.dashboard.config.Keymaps.Switcher.Suggestion:
 				s.BlogInput.ApplyTopSuggestion()
 
 			}

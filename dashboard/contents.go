@@ -35,21 +35,21 @@ func (f *Contents) InitEvents() {
 		switch msg := msg.(type) {
 		case tea.KeyPressMsg:
 			switch msg.String() {
-			case "h":
+			case f.dashboard.config.Keymaps.Navigation.Left:
 				f.dashboard.FocusFeed()
-			case "j":
+			case f.dashboard.config.Keymaps.Navigation.Down:
 				f.contentElem.OffsetY = min(f.contentElem.Bottom-1, f.contentElem.OffsetY+1)
 
-			case "k":
+			case f.dashboard.config.Keymaps.Navigation.Up:
 				f.contentElem.OffsetY = max(0, f.contentElem.OffsetY-1)
 
-			case "J":
+			case strings.ToUpper(f.dashboard.config.Keymaps.Navigation.Down):
 				f.contentElem.OffsetY = min(f.contentElem.Bottom-1, f.contentElem.OffsetY+3)
 
-			case "K":
+			case strings.ToUpper(f.dashboard.config.Keymaps.Navigation.Up):
 				f.contentElem.OffsetY = max(0, f.contentElem.OffsetY-3)
 
-			case "d":
+			case f.dashboard.config.Keymaps.Navigation.JumpNext:
 				pos := 0
 				for _, c := range f.contentElem.Children {
 					if pos > f.contentElem.OffsetY {
@@ -58,7 +58,7 @@ func (f *Contents) InitEvents() {
 					}
 					pos += c.GetHeight()
 				}
-			case "u":
+			case f.dashboard.config.Keymaps.Navigation.JumpPrev:
 				pos := 0
 				for i, c := range f.contentElem.Children {
 					if pos >= f.contentElem.OffsetY {
@@ -69,11 +69,11 @@ func (f *Contents) InitEvents() {
 				}
 				f.contentElem.OffsetY = max(0, pos-f.contentElem.Children[len(f.contentElem.Children)-1].GetHeight())
 
-			case "G":
+			case f.dashboard.config.Keymaps.Navigation.JumpBottom:
 				f.contentElem.OffsetY = f.contentElem.Bottom - 1
 
-			case "g":
-				if f.prev == "g" {
+			case f.dashboard.config.Keymaps.Navigation.JumpTop:
+				if f.prev == f.dashboard.config.Keymaps.Navigation.JumpTop {
 					f.contentElem.OffsetY = 0
 				}
 			}

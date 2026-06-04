@@ -21,3 +21,37 @@ image = "#40a0f0"
 quote = "#f0f000"
 filtered = "#ff0000"
 blacklisted = "#ff00ff"
+
+[Keymaps]
+OpenLink = "o"
+LoadMore = "r"
+LoadBlog = "b"
+Confirm = "enter"
+Quit = "q"
+LogOut = "delete"
+IncreaseSize = "right"
+DecreaseSize = "left"
+ControlHelp = "?"
+Log = "ctrl+l"
+
+
+[Keymaps.Navigation]
+Up=         "k"
+Down=       "m"
+Left=       "h"
+Right=      "l"
+JumpNext=   "d"
+JumpPrev=   "u"
+JumpTop=    "g"
+JumpBottom= "G"
+
+[Keymaps.Switcher]
+Open=       "]"
+Close=      "esc"
+Up=         "up"
+Down=       "down"
+Suggestion= "right"
+    
+[Keymaps.Links]
+Open=  "L"
+Close= "esc"

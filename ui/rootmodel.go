@@ -13,15 +13,17 @@ import (
 type RootModel struct {
 	App       *App
 	isWindows bool
+	config    modules.Config
 }
 
-func NewRootModel() RootModel {
+func NewRootModel(config modules.Config) RootModel {
 
 	app := NewApp()
 
 	return RootModel{
 		App:       app,
 		isWindows: runtime.GOOS == "windows",
+		config:    config,
 	}
 }
 func TickCmd(duration time.Duration) tea.Cmd {
@@ -59,14 +61,14 @@ func (m RootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case tea.KeyPressMsg:
 		switch msg.String() {
-		case "ctrl+c":
+		case m.config.Keymaps.Quit, "ctrl+c":
 			commands = append(commands, tea.Quit)
 
-		case "delete":
+		case m.config.Keymaps.LogOut:
 			modules.RemoveToken()
 			commands = append(commands, tea.Quit)
 
-		case "ctrl+l":
+		case m.config.Keymaps.Log:
 			component.Global.PrintLog()
 
 		}
