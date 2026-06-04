@@ -42,7 +42,7 @@ func (f *Contents) InitEvents() {
 
 			case "k":
 				f.contentElem.OffsetY = max(0, f.contentElem.OffsetY-1)
-				
+
 			case "J":
 				f.contentElem.OffsetY = min(f.contentElem.Bottom-1, f.contentElem.OffsetY+3)
 
