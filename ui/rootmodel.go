@@ -62,7 +62,7 @@ func (m RootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "ctrl+c":
 			commands = append(commands, tea.Quit)
 
-		case "ctrl+d":
+		case "delete":
 			modules.RemoveToken()
 			commands = append(commands, tea.Quit)
 

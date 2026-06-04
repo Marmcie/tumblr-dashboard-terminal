@@ -39,8 +39,35 @@ func (f *Contents) InitEvents() {
 				f.dashboard.FocusFeed()
 			case "j":
 				f.contentElem.OffsetY = min(f.contentElem.Bottom-1, f.contentElem.OffsetY+1)
+
 			case "k":
 				f.contentElem.OffsetY = max(0, f.contentElem.OffsetY-1)
+				
+			case "J":
+				f.contentElem.OffsetY = min(f.contentElem.Bottom-1, f.contentElem.OffsetY+3)
+
+			case "K":
+				f.contentElem.OffsetY = max(0, f.contentElem.OffsetY-3)
+
+			case "d":
+				pos := 0
+				for _, c := range f.contentElem.Children {
+					if pos > f.contentElem.OffsetY {
+						f.contentElem.OffsetY = min(f.contentElem.Bottom-1, pos)
+						break
+					}
+					pos += c.GetHeight()
+				}
+			case "u":
+				pos := 0
+				for i, c := range f.contentElem.Children {
+					if pos >= f.contentElem.OffsetY {
+						f.contentElem.OffsetY = max(0, pos-f.contentElem.Children[max(0, i-1)].GetHeight())
+						return
+					}
+					pos += c.GetHeight()
+				}
+				f.contentElem.OffsetY = max(0, pos-f.contentElem.Children[len(f.contentElem.Children)-1].GetHeight())
 
 			case "G":
 				f.contentElem.OffsetY = f.contentElem.Bottom - 1

@@ -384,6 +384,7 @@ func (d *Dashboard) UpdateControlText() {
 	str := ""
 	if d.feed.listElem.GetFocusState() {
 		str += "j/k      :  Scroll post on feed  \n"
+		str += "gg/G     :  Scroll to top or bottom  \n"
 		str += "l/Enter  :  Focus post window   \n"
 		str += "r        :  Load more posts    \n"
 		str += "]        :  Open feed switcher    \n"
@@ -392,9 +393,12 @@ func (d *Dashboard) UpdateControlText() {
 		str += "o        :  Open post in browser    \n"
 		str += "->/<-    :  Adjust feed width    \n"
 		str += "Ctrl+c   :  Exit the program  \n"
-		str += "Ctrl+d   :  Log out of the account  \n"
+		str += "delete   :  Log out of the account  \n"
+		d.control.SetH(13)
 	} else {
-		str += "j/k      :  Scroll post contents  \n"
+		str += "j/k J/K  :  Scroll post contents  \n"
+		str += "d/u      :  Scroll to next reblog  \n"
+		str += "gg/G     :  Scroll to top or bottom  \n"
 		str += "h        :  Focus feed  \n"
 		str += "r        :  Load more posts     \n"
 		str += "]        :  Open feed switcher    \n"
@@ -403,7 +407,8 @@ func (d *Dashboard) UpdateControlText() {
 		str += "o        :  Open post in browser    \n"
 		str += "->/<-    :  Adjust feed width    \n"
 		str += "Ctrl+c   :  Exit the program   \n"
-		str += "Ctrl+d   :  Log out of the account  \n"
+		str += "delete   :  Log out of the account  \n"
+		d.control.SetH(14)
 	}
 
 	d.control.SetText(str)
