@@ -1,11 +1,12 @@
 package modules
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
 	"os"
+
+	"github.com/BurntSushi/toml"
 )
 
 type Config struct {
@@ -82,7 +83,7 @@ func resolveConfigPath() string {
 	}
 
 	configPath, _ := os.UserConfigDir()
-	filePath := fmt.Sprintf("%s\\tumblr-dt\\tumblr-dt.json", configPath)
+	filePath := fmt.Sprintf("%s\\tumblr-dt\\tumblr-dt.toml", configPath)
 
 	_, err := os.ReadFile(filePath)
 	if err == nil {
@@ -90,7 +91,7 @@ func resolveConfigPath() string {
 	}
 
 	dir, _ := os.UserHomeDir()
-	filePath = fmt.Sprintf("%s\\.config\\tumblr-dt.json", dir)
+	filePath = fmt.Sprintf("%s\\.config\\tumblr-dt.toml", dir)
 
 	_, err = os.ReadFile(filePath)
 
@@ -108,7 +109,7 @@ func loadConfig() bool {
 	}
 
 	c := makeConfig()
-	err = json.Unmarshal(configBytes, &c)
+	_, err = toml.Decode(string(configBytes), &c)
 
 	if err != nil {
 		print("Error reading config file.\n")

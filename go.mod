@@ -6,6 +6,7 @@ require (
 	charm.land/bubbles/v2 v2.1.0
 	charm.land/bubbletea/v2 v2.0.7
 	charm.land/lipgloss/v2 v2.0.3
+	github.com/BurntSushi/toml v1.6.0
 	github.com/deckarep/golang-set/v2 v2.9.0
 	github.com/google/uuid v1.6.0
 	github.com/kopoli/go-terminal-size v0.0.0-20170219200355-5c97524c8b54

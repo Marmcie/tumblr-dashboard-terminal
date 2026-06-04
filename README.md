@@ -18,19 +18,17 @@ With this project you can:
 ## Set up
 1. Register a new application at [Registration page](https://www.tumblr.com/oauth/apps).
 2. Copy the consumer key and secret key.
-3. Create "tumblr-dt.json" in "~/.config" folder.
+3. Create "tumblr-dt.toml" in "~/.config" folder.
 > Alternatively you can use -config flag to pass the path to the config file directly on launch.
 ```
 #Example
-tumblr-dt -config="Path-to-your-config-json-file"
+tumblr-dt -config="Path-to-your-config-toml-file"
 ```
 4. Fill out the necessary fields.
-```json
-{
-  "consumer_key": "Required! Your tumblr app consumer key",
-  "secret_key": "Required! Your tumblr app secret key",
-  "redirect_port": "Required! Port for your tumblr app redirect endpoint",
-}
+```toml
+consumer_key = "Required! Your tumblr app consumer key"
+secret_key = "Required! Your tumblr app secret key"
+redirect_port = "Required! Port for your tumblr app redirect endpoint"
 ```
 5. Launch the program.
 6. Authenticate the client using the URL provided in the terminal.

@@ -307,7 +307,7 @@
               },
               {
                 "type": "text",
-                "text": "Within that folder, create a file called 'tumblr-dt.json'."
+                "text": "Within that folder, create a file called 'tumblr-dt.toml'."
               }
             ],
             "layout": [],
@@ -347,7 +347,7 @@
               },
               {
                 "type": "text",
-                "text": "Open up the 'tumblr-dt.json' with any text editor, then paste the contents of this URL.\n https://github.com/Marmcie/tumblr-dashboard-terminal/blob/main/tumblr-dt.json.example"
+                "text": "Open up the 'tumblr-dt.toml' with any text editor, then paste the contents of this URL.\n https://github.com/Marmcie/tumblr-dashboard-terminal/blob/main/tumblr-dt.toml.example"
               },
               {
                 "type": "text",

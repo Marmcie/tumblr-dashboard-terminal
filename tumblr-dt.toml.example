@@ -1,0 +1,23 @@
+consumer_key = "Required! Your tumblr app consumer key"
+secret_key = "Required! Your tumblr app secret key"
+redirect_port = "Required! Port for your tumblr app redirect endpoint"
+use_blog_avatar_color = false
+blacklist = [
+    "discourse tag",
+    "Your ex's blog",
+    "Any term you don't want to search"
+]
+post_theme = "default or slim"
+
+[colors]
+bg = "#060616"
+focus = "#135366"
+focus_border = "#30c0f0"
+white = "#ffffff"
+grey = "#aaaaaa"
+h1 = "#40f0f0"
+h2 = "#a0f000"
+image = "#40a0f0"
+quote = "#f0f000"
+filtered = "#ff0000"
+blacklisted = "#ff00ff"
