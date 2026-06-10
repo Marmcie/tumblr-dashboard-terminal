@@ -13,6 +13,9 @@ fix:
 	go fmt  .\...
 	go fix  .\...
 
+update:
+	go get -u
+	
 release-windows-amd64:
 	env GOOS=windows 
 	env GOARCH=amd64 
