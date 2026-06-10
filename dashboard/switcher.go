@@ -15,8 +15,11 @@ type Switcher struct {
 	TagInput   *component.Input
 	BlogInput  *component.Input
 	BlogOption *component.Flex
-	dashboard  *Dashboard
-	index      int
+
+	SearchInput  *component.Input
+	SearchOption *component.Flex
+	dashboard    *Dashboard
+	index        int
 }
 
 func NewSwitcher(dashboard *Dashboard) *Switcher {
@@ -26,7 +29,7 @@ func NewSwitcher(dashboard *Dashboard) *Switcher {
 	s.Window.
 		SetAbsolute(true).
 		SetCentered(true).
-		SetSize(50, 8).
+		SetSize(50, 11).
 		SetBorder(true)
 	s.Window.SetForeground(ui.GetColorStr(ui.ColorWhite))
 	s.Window.SetBorderForeground(ui.GetColorStr(ui.ColorWhite))
@@ -71,9 +74,22 @@ func NewSwitcher(dashboard *Dashboard) *Switcher {
 	s.BlogOption.AddItem(blogLabel, 0, 1)
 	s.BlogOption.AddItem(s.BlogInput, 0, 3)
 
+	SearchLabel := component.NewLine("Search label")
+	SearchLabel.SetText("Search : ")
+
+	s.SearchOption = component.NewFlex("Search option")
+	s.SearchOption.SetDirection(1).SetBorder(true).SetWidthInherit(true).SetBorders(false, false, true, false).SetBorderCorner(false).SetPadding(0)
+
+	s.SearchInput = component.NewInput("Search input")
+	s.SearchInput.SetPlaceholder("Input Search term here").SetWidthInherit(true).SetBackground(ui.GetColorStr(ui.ColorFocus))
+
+	s.SearchOption.AddItem(SearchLabel, 0, 1)
+	s.SearchOption.AddItem(s.SearchInput, 0, 3)
+
 	s.Window.AddItem(s.DashOption, 1, 0)
 	s.Window.AddItem(s.TagOption, 1, 0)
 	s.Window.AddItem(s.BlogOption, 1, 0)
+	s.Window.AddItem(s.SearchOption, 1, 0)
 	s.index = 0
 	s.InitEvents()
 
@@ -86,14 +102,22 @@ func (s *Switcher) ToggleOption() {
 		s.DashOption.Focus()
 		s.TagInput.ClearInput()
 		s.BlogInput.ClearInput()
+		s.SearchInput.ClearInput()
 
 	case 1:
 		s.TagOption.Focus()
 		s.BlogInput.ClearInput()
+		s.SearchInput.ClearInput()
 
 	case 2:
 		s.BlogOption.Focus()
 		s.TagInput.ClearInput()
+		s.SearchInput.ClearInput()
+
+	case 3:
+		s.SearchOption.Focus()
+		s.TagInput.ClearInput()
+		s.BlogInput.ClearInput()
 	}
 
 }
@@ -104,14 +128,14 @@ func (s *Switcher) InitEvents() {
 		case tea.KeyPressMsg:
 			switch msg.String() {
 			case s.dashboard.config.Keymaps.Switcher.Down:
-				s.index = (s.index + 1) % 3
+				s.index = (s.index + 1) % 4
 				s.ToggleOption()
 
 			case s.dashboard.config.Keymaps.Switcher.Up:
 				if s.index == 0 {
-					s.index = 2
+					s.index = 3
 				} else {
-					s.index = (s.index - 1) % 3
+					s.index = (s.index - 1) % 4
 				}
 				s.ToggleOption()
 
@@ -165,6 +189,23 @@ func (s *Switcher) InitEvents() {
 				s.index = 0
 			case s.dashboard.config.Keymaps.Switcher.Suggestion:
 				s.BlogInput.ApplyTopSuggestion()
+
+			}
+		}
+	}, true)
+
+	s.SearchOption.AddEventListener("onUpdate", func(msg tea.Msg) {
+		switch msg := msg.(type) {
+		case tea.KeyPressMsg:
+			switch msg.String() {
+			default:
+				s.SearchInput.ParseInput(msg)
+			case s.dashboard.config.Keymaps.Confirm:
+				s.dashboard.SwitchMode("search", s.SearchInput.Value)
+				s.SearchInput.ClearInput()
+				s.index = 0
+			case s.dashboard.config.Keymaps.Switcher.Suggestion:
+				// s.SearchInput.ApplyTopSuggestion()
 
 			}
 		}

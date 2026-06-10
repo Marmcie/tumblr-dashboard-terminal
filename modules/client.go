@@ -27,6 +27,23 @@ type taggedResponse struct {
 		msg    string
 	}
 }
+type timelimeResponse struct {
+	Response struct {
+		Timeline struct {
+			Elements []npf.Post
+			Links    struct {
+				Next struct {
+					Href string
+				}
+			} `json:"_links"`
+		}
+	}
+	meta struct {
+		status int
+		msg    string
+	}
+}
+
 type filteredTagsResponse struct {
 	meta struct {
 		status int
@@ -128,6 +145,54 @@ func (c *TumblrClient) GetTaggedPosts(before int, tag string) []npf.Post {
 	dash := taggedResponse{}
 	json.Unmarshal(bytes, &dash)
 	return dash.Response
+}
+
+func (c *TumblrClient) GetSearchedPosts(before int, term string, next string) ([]npf.Post, string) {
+	if c.Config.Testing {
+		return npf.TestPosts(20), ""
+	}
+
+	if TokenExpired() {
+		c.Client = GetClient()
+	}
+
+	defer func() {
+		if err := recover(); err != nil {
+			RemoveToken()
+			print("Failed to retrieve posts\n")
+			panic(err)
+		}
+	}()
+
+	endpoint := "https://www.tumblr.com/api/v2/timeline/search"
+
+	if len(next) > 0 {
+		endpoint = "https://www.tumblr.com/api" + next
+	}
+
+	u, _ := url.Parse(endpoint)
+
+	q := u.Query()
+	if len(next) == 0 {
+		q.Add("before", strconv.Itoa(before))
+		q.Add("npf", "true")
+		q.Add("timeline_type", "post")
+		q.Add("query_source", "search_box_typed_query")
+		q.Add("post_role", "any")
+		q.Add("query", term)
+		q.Add("limit", "20")
+		q.Add("days", "0")
+	}
+
+	u.RawQuery = q.Encode()
+
+	resp, _ := c.Client.Get(u.String())
+	defer resp.Body.Close()
+	bytes, _ := io.ReadAll(resp.Body)
+
+	dash := timelimeResponse{}
+	json.Unmarshal(bytes, &dash)
+	return dash.Response.Timeline.Elements, dash.Response.Timeline.Links.Next.Href
 }
 
 func (c *TumblrClient) GetBlogPosts(before int, blogName string) []npf.Post {
