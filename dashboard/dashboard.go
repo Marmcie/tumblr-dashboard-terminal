@@ -40,6 +40,7 @@ type Dashboard struct {
 	mode             string
 	client           modules.TumblrClient
 	offset           int
+	next             string
 	timestamp        int64
 	option           string
 	TagTrie          *helper.Trie
@@ -246,6 +247,11 @@ func (d *Dashboard) SwitchMode(mode string, option string) {
 		d.option = option
 		d.feed.listElem.SetTitle(fmt.Sprintf("Tagged posts : %s", d.option))
 
+	case "search":
+		d.option = option
+		d.feed.listElem.SetTitle(fmt.Sprintf("Searched posts : %s", d.option))
+		d.next = ""
+
 	case "blog":
 		d.option = option
 		d.feed.listElem.SetTitle(fmt.Sprintf("Posts from : %s", d.option))
@@ -269,6 +275,9 @@ func (d *Dashboard) filterPosts(posts []npf.Post) []*npf.Post {
 	filteredContents := d.FilteredContents.ToSlice()
 	for _, postObject := range posts {
 		post := &postObject
+		if post.Type != "blocks" {
+			continue
+		}
 		result = append(result, post)
 		post.FilteredContents = mapset.NewSet[string]()
 		post.FilteredTags = mapset.NewSet[string]()
@@ -320,6 +329,10 @@ func (d *Dashboard) LoadPosts(ch chan bool) {
 		posts = d.client.GetTaggedPosts(int(d.timestamp), d.option)
 	case "blog":
 		posts = d.client.GetBlogPosts(int(d.timestamp), d.option)
+
+	case "search":
+		posts, d.next = d.client.GetSearchedPosts(int(d.timestamp), d.option, d.next)
+
 	case "tutorial":
 		posts = d.client.GetTutorial()
 	}

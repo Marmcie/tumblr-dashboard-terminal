@@ -9,7 +9,6 @@ import (
 	"os"
 	"strconv"
 	"tumblr-dt/npf"
-	"tumblr-dt/ui/helper"
 )
 
 type dashboardResponse struct {
@@ -32,7 +31,7 @@ type timelimeResponse struct {
 	Response struct {
 		Timeline struct {
 			Elements []npf.Post
-			Links   struct {
+			Links    struct {
 				Next struct {
 					Href string
 				}
@@ -114,7 +113,6 @@ func (c *TumblrClient) GetDashboard(offset int) []npf.Post {
 }
 
 func (c *TumblrClient) GetTaggedPosts(before int, tag string) []npf.Post {
-	return c.GetSearchedPosts(before, tag)
 	if c.Config.Testing {
 		return npf.TestPosts(20)
 	}
@@ -149,9 +147,9 @@ func (c *TumblrClient) GetTaggedPosts(before int, tag string) []npf.Post {
 	return dash.Response
 }
 
-func (c *TumblrClient) GetSearchedPosts(before int, term string) []npf.Post {
+func (c *TumblrClient) GetSearchedPosts(before int, term string, next string) ([]npf.Post, string) {
 	if c.Config.Testing {
-		return npf.TestPosts(20)
+		return npf.TestPosts(20), ""
 	}
 
 	if TokenExpired() {
@@ -166,17 +164,25 @@ func (c *TumblrClient) GetSearchedPosts(before int, term string) []npf.Post {
 		}
 	}()
 
-	u, _ := url.Parse("https://www.tumblr.com/api/v2/timeline/search")
+	endpoint := "https://www.tumblr.com/api/v2/timeline/search"
+
+	if len(next) > 0 {
+		endpoint = "https://www.tumblr.com/api" + next
+	}
+
+	u, _ := url.Parse(endpoint)
 
 	q := u.Query()
-	q.Add("before", strconv.Itoa(before))
-	q.Add("npf", "true")
-	q.Add("timeline_type", "post")
-	q.Add("query_source", "search_box_typed_query")
-	q.Add("post_role", "any")
-	q.Add("query", term)
-	q.Add("limit", "20")
-	q.Add("days", "0")
+	if len(next) == 0 {
+		q.Add("before", strconv.Itoa(before))
+		q.Add("npf", "true")
+		q.Add("timeline_type", "post")
+		q.Add("query_source", "search_box_typed_query")
+		q.Add("post_role", "any")
+		q.Add("query", term)
+		q.Add("limit", "20")
+		q.Add("days", "0")
+	}
 
 	u.RawQuery = q.Encode()
 
@@ -184,11 +190,9 @@ func (c *TumblrClient) GetSearchedPosts(before int, term string) []npf.Post {
 	defer resp.Body.Close()
 	bytes, _ := io.ReadAll(resp.Body)
 
-	helper.Log(string(bytes))
 	dash := timelimeResponse{}
 	json.Unmarshal(bytes, &dash)
-	helper.Log(dash.Response.Timeline.Links.Next.Href)
-	return dash.Response.Timeline.Elements
+	return dash.Response.Timeline.Elements, dash.Response.Timeline.Links.Next.Href
 }
 
 func (c *TumblrClient) GetBlogPosts(before int, blogName string) []npf.Post {
