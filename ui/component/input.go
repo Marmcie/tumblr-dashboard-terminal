@@ -56,7 +56,7 @@ func (l *Input) ParseInput(m tea.Msg) {
 }
 
 func (i *Input) ApplyTopSuggestion() {
-	if len(i.Value) > 0 {
+	if i.Suggestions != nil && len(i.Value) > 0 {
 		suggestion := i.Suggestions.Search(i.Value)
 		if len(suggestion) > 0 {
 			i.Value = suggestion
@@ -115,7 +115,7 @@ func (l *Input) RenderToCanvas() {
 	l.Line.RenderToCanvas()
 	canvas, fg, bg := l.GetCanvas()
 	suggestion := ""
-	if len(l.Value) > 0 {
+	if l.Suggestions != nil && len(l.Value) > 0 {
 		suggestion = l.Suggestions.Search(l.Value)
 	}
 	for i := len(l.Value); i < min(len(suggestion), len(canvas[0])); i++ {
