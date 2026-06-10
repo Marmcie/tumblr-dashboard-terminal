@@ -61,7 +61,7 @@ func (m RootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case tea.KeyPressMsg:
 		switch msg.String() {
-		case m.config.Keymaps.Quit, "ctrl+c":
+		case "ctrl+c":
 			commands = append(commands, tea.Quit)
 
 		case m.config.Keymaps.LogOut:
