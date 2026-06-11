@@ -433,6 +433,8 @@ func (d *Dashboard) DisplayPost(post *npf.Post, showFiltered bool) {
 	d.contents.DisplayPost(post, showFiltered)
 	d.LinkWindow.SetLinks(post.GetLinks())
 
+	d.contents.contentElem.OffsetY = 0
+
 	d.UpdateInfo(post)
 }
 
