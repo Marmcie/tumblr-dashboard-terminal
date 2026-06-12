@@ -211,6 +211,9 @@ func (f *Contents) DisplayPost(post *npf.Post, showFiltered bool) {
 				str.Reset()
 			}
 
+			// Line break after a paragraph
+			colors = append(colors, "")
+			parts = append(parts, "")
 		}
 		colors = append(colors, col)
 		parts = append(parts, str.String())
