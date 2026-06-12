@@ -93,7 +93,7 @@ func (f *Contents) DisplayPost(post *npf.Post, showFiltered bool) {
 		box.SetH(6)
 		f.contentElem.AddChild(box)
 		l := component.NewText("Filtered content")
-		l.SetText("This post contains filtered content.\nPress enter to read.")
+		l.SetText(fmt.Sprintf("This post contains filtered content.\nPress [%s] to read.", f.dashboard.config.Keymaps.Navigation.Right))
 		l.SetWidthInherit(true)
 		l.SetHeightInherit(true)
 		box.AddChild(l)
