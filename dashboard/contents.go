@@ -2,14 +2,13 @@ package dashboard
 
 import (
 	"bytes"
+	tea "charm.land/bubbletea/v2"
 	"fmt"
+	"github.com/rivo/uniseg"
 	"strings"
 	"tumblr-dt/npf"
 	"tumblr-dt/ui"
 	component "tumblr-dt/ui/component"
-
-	tea "charm.land/bubbletea/v2"
-	"github.com/rivo/uniseg"
 )
 
 type Contents struct {
@@ -173,8 +172,6 @@ func (f *Contents) DisplayPost(post *npf.Post, showFiltered bool) {
 				for len(line) > 0 {
 					word, line, state = uniseg.FirstWordInString(line, state)
 					//INFO: Divide the text into lines, while preventing word break
-					// for word := range strings.SplitSeq(contentStr, " ") {
-					// word = strings.Trim(word, " ")
 					strString := str.String()
 					if uniseg.StringWidth(strString)+uniseg.StringWidth(word)+1 >= innerWidth {
 						parts = append(parts, strString)
@@ -183,7 +180,7 @@ func (f *Contents) DisplayPost(post *npf.Post, showFiltered bool) {
 						//or the language doesn't use white space as separator,
 						//split the word into smaller chunks
 						if innerWidth > 1 && uniseg.StringWidth(word) >= innerWidth {
-							w := strings.ReplaceAll(word, " ", "")
+							w := word
 							//INFO: Loop through each characters to determine real width of string split
 							for uniseg.StringWidth(w) >= innerWidth {
 								l := uniseg.StringWidth(w)
@@ -209,13 +206,11 @@ func (f *Contents) DisplayPost(post *npf.Post, showFiltered bool) {
 			}
 
 			if len(strings.Trim(str.String(), " ")) > 0 {
-				parts = append(parts, strings.Trim(str.String(), " "))
+				parts = append(parts, str.String())
 				colors = append(colors, col)
 				str.Reset()
 			}
 
-			parts = append(parts, "")
-			colors = append(colors, "")
 		}
 		colors = append(colors, col)
 		parts = append(parts, str.String())
@@ -233,7 +228,7 @@ func (f *Contents) DisplayPost(post *npf.Post, showFiltered bool) {
 
 		//INFO: Convert each line into Line object, then apply corresponding style
 		for i := 0; i < min(len(parts), box.GetInnerHeight()); i++ {
-			line := strings.Trim(parts[i], " ")
+			line := strings.TrimLeft(parts[i], " ")
 			col := colors[i]
 			l := component.NewLine("Post text")
 			l.SetText(line)
