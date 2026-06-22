@@ -60,6 +60,8 @@ type Config struct {
 		IncreaseSize string
 		DecreaseSize string
 
+		ToggleFeed string
+
 		ControlHelp string
 		OpenLink    string
 		LoadMore    string
@@ -139,6 +141,7 @@ func makeConfig() Config {
 	con.Keymaps.LogOut = "delete"
 	con.Keymaps.IncreaseSize = "right"
 	con.Keymaps.DecreaseSize = "left"
+	con.Keymaps.ToggleFeed = "t"
 	con.Keymaps.ControlHelp = "?"
 	con.Keymaps.Log = "ctrl+l"
 	return con

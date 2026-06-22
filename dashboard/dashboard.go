@@ -168,6 +168,7 @@ func (d *Dashboard) toggleSwitcher() {
 	state := !d.switcher.Window.GetVisibility()
 	d.switcher.Window.SetVisibility(state)
 	if state {
+		d.ShowFeed()
 		d.switcher.DashOption.Focus()
 	} else {
 		d.feed.listElem.Focus()
@@ -222,6 +223,9 @@ func (d *Dashboard) initEvents() {
 				d.toggleControl()
 			case d.config.Keymaps.Links.Open:
 				d.LinkWindow.Focus()
+			case d.config.Keymaps.ToggleFeed:
+				d.feed.showFilteredPost = true
+				d.ToggleFeed()
 			}
 
 		}
@@ -320,7 +324,6 @@ func (d *Dashboard) LoadPosts(ch chan bool) {
 	}
 	d.feed.listElem.SetBorderLabel("Bottom", "Loading...")
 	d.IsLoading = true
-	component.Global.TickInterval = time.Second / 60
 	var posts []npf.Post
 	switch d.mode {
 	case "dashboard":
@@ -343,7 +346,6 @@ func (d *Dashboard) LoadPosts(ch chan bool) {
 		}()
 
 		d.IsLoading = false
-		component.Global.TickInterval = time.Second
 		return
 	}
 
@@ -370,7 +372,7 @@ func (d *Dashboard) LoadPosts(ch chan bool) {
 		}
 	}
 	d.IsLoading = false
-	component.Global.TickInterval = time.Second
+	component.Global.TickInterval = time.Second / 15
 
 	d.feed.listElem.SetBorderLabel("Bottom", "")
 }
@@ -391,7 +393,26 @@ func (d *Dashboard) FocusContents() {
 func (d *Dashboard) FocusFeed() {
 	d.contents.contentElem.OffsetY = 0
 	d.feed.Focus()
+	d.ShowFeed()
 	d.UpdateControlText()
+}
+
+func (d *Dashboard) ToggleFeed() {
+	if d.left.GetVisibility() {
+		d.HideFeed()
+	} else {
+		d.ShowFeed()
+	}
+}
+func (d *Dashboard) ShowFeed() {
+	d.left.SetVisibility(true)
+	d.feed.Focus()
+	d.contents.contentElem.SetBorderLabel("BottomLeft", "")
+}
+func (d *Dashboard) HideFeed() {
+	d.left.SetVisibility(false)
+	d.contents.Focus()
+	d.contents.contentElem.SetBorderLabel("BottomLeft", fmt.Sprintf("[%s] to restore feed", d.config.Keymaps.ToggleFeed))
 }
 
 func (d *Dashboard) UpdateControlText() {
@@ -407,9 +428,10 @@ func (d *Dashboard) UpdateControlText() {
 		str += fmt.Sprintf("Open blog feed          : %s\n", d.config.Keymaps.LoadBlog)
 		str += fmt.Sprintf("Open post in browser    : %s\n", d.config.Keymaps.OpenLink)
 		str += fmt.Sprintf("Adjust feed width       : %s/%s\n", d.config.Keymaps.IncreaseSize, d.config.Keymaps.DecreaseSize)
+		str += fmt.Sprintf("Toggle feed visibility  : %s\n", d.config.Keymaps.ToggleFeed)
 		str += fmt.Sprintf("Exit the program        : Ctrl+c/%s\n", d.config.Keymaps.Quit)
 		str += fmt.Sprintf("Log out of the account  : %s\n", d.config.Keymaps.LogOut)
-		d.control.SetH(13)
+		d.control.SetH(14)
 	} else {
 		str += fmt.Sprintf("Scroll post contents    : %s/%s %s/%s\n", d.config.Keymaps.Navigation.Up, d.config.Keymaps.Navigation.Down, strings.ToUpper(d.config.Keymaps.Navigation.Up), strings.ToUpper(d.config.Keymaps.Navigation.Down))
 		str += fmt.Sprintf("Scroll to next reblog   : %s/%s\n", d.config.Keymaps.Navigation.JumpNext, d.config.Keymaps.Navigation.JumpPrev)
@@ -421,9 +443,10 @@ func (d *Dashboard) UpdateControlText() {
 		str += fmt.Sprintf("Open blog feed          : %s\n", d.config.Keymaps.LoadBlog)
 		str += fmt.Sprintf("Open post in browser    : %s\n", d.config.Keymaps.OpenLink)
 		str += fmt.Sprintf("Adjust feed width       : %s/%s\n", d.config.Keymaps.IncreaseSize, d.config.Keymaps.DecreaseSize)
+		str += fmt.Sprintf("Toggle feed visibility  : %s\n", d.config.Keymaps.ToggleFeed)
 		str += fmt.Sprintf("Exit the program        : Ctrl+c/%s\n", d.config.Keymaps.Quit)
 		str += fmt.Sprintf("Log out of the account  : %s\n", d.config.Keymaps.LogOut)
-		d.control.SetH(14)
+		d.control.SetH(15)
 	}
 
 	d.control.SetText(str)

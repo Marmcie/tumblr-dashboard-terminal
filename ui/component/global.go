@@ -20,7 +20,7 @@ type GlobalValues struct {
 
 var Global = &GlobalValues{
 	Elements:     []Component{},
-	TickInterval: time.Second,
+	TickInterval: time.Second / 15,
 	IsSmall:      false,
 }
 

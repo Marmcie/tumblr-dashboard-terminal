@@ -352,24 +352,37 @@ func (c *BaseComponent) SetPos(x int, y int) *BaseComponent {
 
 // Set width of the component
 func (c *BaseComponent) SetW(v int) *BaseComponent {
+	if c.Width != v {
+		c.DispatchEvent("onResize")
+	}
 	c.Width = v
 	return c
 }
 
 // Set height of the component
 func (c *BaseComponent) SetH(v int) *BaseComponent {
+	if c.Height != v {
+		c.DispatchEvent("onResize")
+	}
 	c.Height = v
 	return c
 }
 
 // Set if component's height should be equal to the parent's inner height
 func (c *BaseComponent) SetHeightInherit(v bool) *BaseComponent {
+
+	if c.InheritHeight != v {
+		c.DispatchEvent("onResize")
+	}
 	c.InheritHeight = v
 	return c
 }
 
 // Set if component's width should be equal to the parent's inner width
 func (c *BaseComponent) SetWidthInherit(v bool) *BaseComponent {
+	if c.InheritWidth != v {
+		c.DispatchEvent("onResize")
+	}
 	c.InheritWidth = v
 	return c
 }

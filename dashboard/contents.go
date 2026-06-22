@@ -15,6 +15,7 @@ type Contents struct {
 	contentElem *component.Scrollable
 	dashboard   *Dashboard
 	prev        string
+	currentPost *npf.Post
 }
 
 func NewContents(dashboard *Dashboard) *Contents {
@@ -79,9 +80,22 @@ func (f *Contents) InitEvents() {
 			f.prev = msg.String()
 		}
 	}, true)
+
+	f.dashboard.right.AddEventListener("onResize", func(msg tea.Msg) {
+		f.renderPost(f.dashboard.feed.showFilteredPost)
+	}, true)
 }
 
 func (f *Contents) DisplayPost(post *npf.Post, showFiltered bool) {
+	f.currentPost = post
+	f.renderPost(showFiltered)
+}
+
+func (f *Contents) renderPost(showFiltered bool) {
+	if f.currentPost == nil {
+		return
+	}
+	post := f.currentPost
 	isSlimMode := f.dashboard.config.Post_theme == "slim"
 
 	f.contentElem.ClearChildren()
@@ -243,7 +257,6 @@ func (f *Contents) DisplayPost(post *npf.Post, showFiltered bool) {
 			box.AddChild(l)
 		}
 	}
-
 }
 
 func (f *Contents) Focus() {

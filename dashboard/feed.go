@@ -43,7 +43,7 @@ func (f *Feed) InitEvents() {
 
 		case tea.KeyPressMsg:
 			switch msg.String() {
-			case f.dashboard.config.Keymaps.Navigation.Right:
+			case f.dashboard.config.Keymaps.Navigation.Right, f.dashboard.config.Keymaps.ToggleFeed:
 				if f.listElem.Cursor < len(f.listElem.GetChildren()) {
 					f.showFilteredPost = true
 					f.dashboard.FocusContents()
