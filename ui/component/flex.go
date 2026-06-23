@@ -65,6 +65,7 @@ func (b *Flex) SetDirection(dir int) *Flex {
 	return b
 }
 
+// Update size of child elements based on proportion or fixed size
 func (b *Flex) UpdateChildSize() {
 
 	gapSize := b.Gap * (len(b.GetChildren()) - 1)
@@ -127,20 +128,23 @@ func (b *Flex) RenderToCanvas() {
 	cursor := top
 	sideOffset := left
 
+	// Loop through child elements
 	for _, c := range b.GetChildren() {
 		if !c.GetVisibility() {
 			continue
 		}
+		// Render child elements and get the result
 		c.RenderToCanvas()
 		output, childFG, childBG := c.GetCanvas()
 		if c.IsAbsolute() == true {
 			childX, childY := c.GetPos()
 			globalX := left + childX
 
+			// Loop through child output
 			for ind, line := range output {
 				posY := ind + b.GetY() + childY + top
 				for index, char := range line {
-					if globalX+index > 0 && globalX+index < len(result[posY]) {
+					if globalX+index > 0 && posY < len(result) && globalX+index < len(result[posY]) {
 						result[posY][globalX+index] = char
 						if len(childFG[ind][index]) > 0 {
 							fg[posY][globalX+index] = childFG[ind][index]
@@ -152,11 +156,14 @@ func (b *Flex) RenderToCanvas() {
 				}
 			}
 		} else {
+			//Loop through each lines of chidl output
 			for i := 0; i < min(len(result), len(output)); i++ {
 				line := output[i]
+				// Skip if it's above renderable area
 				if len(result) <= cursor {
 					break
 				}
+				// Loop through each letters
 				for a := 0; a < min(len(line), len(result[cursor])-sideOffset); a++ {
 					char := line[a]
 					result[cursor][a+sideOffset] = char
@@ -169,11 +176,14 @@ func (b *Flex) RenderToCanvas() {
 				}
 				cursor++
 			}
+			// Increment cursor based on flex direction
+			// Column
 			if b.Direction == 1 {
 				cursor = top
 				sideOffset += c.GetWidth()
 				sideOffset += b.Gap
 			} else {
+				// Row
 				cursor += b.Gap
 			}
 		}

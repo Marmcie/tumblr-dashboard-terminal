@@ -785,7 +785,7 @@ func (c *BaseComponent) SetCanvas(
 	c.BGSheet = bg
 }
 
-// Add border to a component if applicable
+// Add border to a canvas if applicable
 func (c *BaseComponent) addBorder(arr [][]string, fg [][]string, bg [][]string) ([][]string, [][]string, [][]string) {
 	if !c.ShowBorder || len(arr) <= 1 || len(arr[0]) <= 1 {
 		return arr, fg, bg
