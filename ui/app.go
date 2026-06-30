@@ -2,6 +2,7 @@ package ui
 
 import (
 	"bytes"
+	"fmt"
 	"strings"
 	component "tumblr-dt/ui/component"
 
@@ -64,7 +65,7 @@ func (m *App) Render() string {
 			ranges = append(ranges, lipgloss.NewRange(left, len(line), style.Foreground(lipgloss.Color(currentFG)).Background(lipgloss.Color(currentBG))))
 			str = lipgloss.StyleRanges(str, ranges...)
 		}
-		res.WriteString(str + "\n")
+		fmt.Fprintf(&res, "%s\n", str)
 	}
 	return res.String()
 }
