@@ -98,7 +98,6 @@ func (d *Dashboard) initComponents(config modules.Config) {
 	d.root.SetForeground(ui.GetColorStr(ui.ColorWhite))
 
 	if !config.Testing {
-
 		var s tsize.Size
 		s, err := tsize.GetSize()
 		if err != nil {
@@ -142,6 +141,7 @@ func (d *Dashboard) initComponents(config modules.Config) {
 
 	d.feed = NewFeed(d)
 	d.contents = NewContents(d)
+	d.contents.contentElem.SetW(d.root.GetWidth() / 2)
 
 	d.LinkWindow = NewLinkWindow(d)
 
@@ -196,13 +196,25 @@ func (d *Dashboard) initEvents() {
 				go d.LoadPosts(done)
 
 			case d.config.Keymaps.IncreaseSize:
-				d.left.SetFlexProportion(d.left.GetFlexProportion() + 0.1)
-				d.feed.listElem.RunSelectedOption()
+				// When feed is visible
+				if d.left.GetVisibility() {
+					d.left.SetFlexProportion(d.left.GetFlexProportion() + 0.1)
+					d.feed.listElem.RunSelectedOption()
+				} else {
+					// When feed is hidden
+					d.contents.contentElem.SetW(d.contents.contentElem.GetWidth() + 1)
+				}
 
 			case d.config.Keymaps.DecreaseSize:
-				proportion := d.left.GetFlexProportion()
-				d.left.SetFlexProportion(max(0.1, proportion-0.1))
-				d.feed.listElem.RunSelectedOption()
+				// When feed is visible
+				if d.left.GetVisibility() {
+					proportion := d.left.GetFlexProportion()
+					d.left.SetFlexProportion(max(0.1, proportion-0.1))
+					d.feed.listElem.RunSelectedOption()
+				} else {
+					// When feed is hidden
+					d.contents.contentElem.SetW(d.contents.contentElem.GetWidth() - 1)
+				}
 
 			case d.config.Keymaps.Quit:
 				component.Global.SetCmd(tea.Quit)
@@ -406,11 +418,20 @@ func (d *Dashboard) ToggleFeed() {
 }
 func (d *Dashboard) ShowFeed() {
 	d.left.SetVisibility(true)
+	d.contents.contentElem.SetAbsolute(false)
+	d.contents.contentElem.SetWidthInherit(true)
+	d.info.SetVisibility(true)
 	d.feed.Focus()
 	d.contents.contentElem.SetBorderLabel("BottomLeft", "")
 }
 func (d *Dashboard) HideFeed() {
 	d.left.SetVisibility(false)
+	d.contents.contentElem.SetAbsolute(true)
+	d.contents.contentElem.SetWidthInherit(false)
+	if d.contents.contentElem.GetWidth() > d.root.GetWidth() {
+		d.contents.contentElem.SetW(d.root.GetWidth() / 2)
+	}
+	d.info.SetVisibility(false)
 	d.contents.Focus()
 	d.contents.contentElem.SetBorderLabel("BottomLeft", fmt.Sprintf("[%s] to restore feed", d.config.Keymaps.ToggleFeed))
 }
