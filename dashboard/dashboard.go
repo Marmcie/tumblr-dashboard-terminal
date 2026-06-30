@@ -182,6 +182,7 @@ func (d *Dashboard) toggleLinkWindow() {
 	} else {
 		d.feed.listElem.Focus()
 		d.LinkWindow.Blur()
+		d.ShowFeed()
 	}
 }
 
