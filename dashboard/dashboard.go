@@ -214,7 +214,7 @@ func (d *Dashboard) initEvents() {
 					d.feed.listElem.RunSelectedOption()
 				} else {
 					// When feed is hidden
-					d.contents.contentElem.SetW(d.contents.contentElem.GetWidth() - 1)
+					d.contents.contentElem.SetW(max(d.contents.contentElem.GetWidth()-1, 3))
 				}
 
 			case d.config.Keymaps.Quit:
