@@ -141,7 +141,7 @@ func (d *Dashboard) initComponents(config modules.Config) {
 
 	d.feed = NewFeed(d)
 	d.contents = NewContents(d)
-	d.contents.contentElem.SetW(d.root.GetWidth() / 2)
+	d.contents.contentElem.SetW(int(float64(d.root.GetWidth()) * 0.75))
 
 	d.LinkWindow = NewLinkWindow(d)
 
@@ -420,6 +420,7 @@ func (d *Dashboard) ShowFeed() {
 	d.left.SetVisibility(true)
 	d.contents.contentElem.SetAbsolute(false)
 	d.contents.contentElem.SetWidthInherit(true)
+	d.contents.contentElem.SetHeightInherit(false)
 	d.info.SetVisibility(true)
 	d.feed.Focus()
 	d.contents.contentElem.SetBorderLabel("BottomLeft", "")
@@ -428,8 +429,9 @@ func (d *Dashboard) HideFeed() {
 	d.left.SetVisibility(false)
 	d.contents.contentElem.SetAbsolute(true)
 	d.contents.contentElem.SetWidthInherit(false)
+	d.contents.contentElem.SetHeightInherit(true)
 	if d.contents.contentElem.GetWidth() > d.root.GetWidth() {
-		d.contents.contentElem.SetW(d.root.GetWidth() / 2)
+		d.contents.contentElem.SetW(int(float64(d.root.GetWidth()) * 0.75))
 	}
 	d.info.SetVisibility(false)
 	d.contents.Focus()
