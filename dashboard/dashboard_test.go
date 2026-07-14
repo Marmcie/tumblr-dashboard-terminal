@@ -23,6 +23,20 @@ func TestDashboardLoad(t *testing.T) {
 	}
 }
 
+func TestTutorialLoad(t *testing.T) {
+	config := modules.Config{}
+	config.Testing = true
+	config.Initialized = false
+	ch := make(chan *dashboard.Dashboard)
+	go func(ch chan *dashboard.Dashboard) {
+		ch <- dashboard.NewDashboard(config)
+	}(ch)
+	dashboard := <-ch
+	if dashboard == nil {
+		t.Errorf("a")
+	}
+}
+
 func TestDashboardDisplay(t *testing.T) {
 	config := modules.Config{}
 	config.Testing = true
