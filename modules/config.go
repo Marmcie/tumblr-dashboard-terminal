@@ -74,9 +74,12 @@ type Config struct {
 	Initialized bool
 }
 
+var config Config
+var initialized bool
+
 func makeConfig() Config {
 	con := Config{}
-	con.Colors.Bg = "#060616"
+	con.Colors.Bg = "#262656"
 	con.Colors.Focus = "#135366"
 	con.Colors.Focus_border = "#30c0f0"
 	con.Colors.White = "#ffffff"
@@ -147,15 +150,13 @@ func makeConfig() Config {
 	return con
 }
 
-var config Config
-var initialized bool
-
 func GetConfig() Config {
 
 	if !initialized {
 		result := loadConfig()
 		if !result {
-			return makeConfig()
+			config = makeConfig()
+			initialized = true
 		}
 	}
 	return config

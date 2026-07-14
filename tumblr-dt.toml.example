@@ -10,7 +10,7 @@ blacklist = [
 post_theme = "default or slim"
 
 [colors]
-bg = "#060616"
+bg = "#262656"
 focus = "#135366"
 focus_border = "#30c0f0"
 white = "#ffffff"

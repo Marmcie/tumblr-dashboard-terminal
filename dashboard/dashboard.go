@@ -350,7 +350,9 @@ func (d *Dashboard) LoadPosts(ch chan bool) {
 		posts, d.next = d.client.GetSearchedPosts(int(d.timestamp), d.option, d.next)
 
 	case "tutorial":
-		posts = d.client.GetTutorial()
+		if len(d.feed.posts) == 0 {
+			posts = d.client.GetTutorial()
+		}
 	}
 	if len(posts) == 0 {
 		defer func() {

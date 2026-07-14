@@ -1,4 +1,7 @@
-{
+package modules
+
+func GetTutorialFile() []byte {
+	str := `{
   "meta": {
     "status": 200,
     "msg": "OK"
@@ -527,4 +530,6 @@
       }
     ]
   }
+}`
+	return []byte(str)
 }
