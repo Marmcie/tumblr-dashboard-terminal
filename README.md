@@ -44,3 +44,6 @@ cd tumblr-dashboard-terminal
 
 go build .
 ```
+## Disclaimer
+While I have not encountered any issue after extensive usage, I cannot be certain that this will not get your account deactivated.
+I am not responsible for any issue caused by using this program.
