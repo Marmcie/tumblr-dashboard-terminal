@@ -45,8 +45,11 @@ func (f *Feed) InitEvents() {
 			switch msg.String() {
 			case f.dashboard.config.Keymaps.Navigation.Right, f.dashboard.config.Keymaps.ToggleFeed:
 				if f.listElem.Cursor < len(f.listElem.GetChildren()) {
-					f.showFilteredPost = true
 					f.dashboard.FocusContents()
+					if f.posts[f.listElem.Cursor].IsFiltered && !f.showFilteredPost {
+						f.showFilteredPost = true
+						f.listElem.RunSelectedOption()
+					}
 				}
 			case f.dashboard.config.Keymaps.Navigation.Down:
 				if f.listElem.Cursor == len(f.listElem.GetChildren())-1 {
