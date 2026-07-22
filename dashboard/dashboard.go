@@ -286,6 +286,7 @@ func (d *Dashboard) SwitchMode(mode string, option string) {
 	go d.LoadPosts(done)
 	<-done
 
+	d.feed.showFilteredPost = false
 	// Display new post after switching feed if any are loaded.
 	if len(d.feed.posts) > 0 {
 		d.feed.listElem.RunSelectedOption()
