@@ -222,15 +222,19 @@ func (d *Dashboard) initEvents() {
 
 			case d.config.Keymaps.OpenLink:
 				post := d.feed.GetSelectedPost()
-				modules.OpenInBrowser(post.Short_url)
-				component.Global.SetCmd(tea.ClearScreen)
+				if post != nil {
+					modules.OpenInBrowser(post.Short_url)
+					component.Global.SetCmd(tea.ClearScreen)
+				}
 
 			case d.config.Keymaps.Switcher.Open:
 				d.toggleSwitcher()
 
 			case d.config.Keymaps.LoadBlog:
 				post := d.feed.GetSelectedPost()
-				d.SwitchMode("blog", post.Blog.Name)
+				if post != nil {
+					d.SwitchMode("blog", post.Blog.Name)
+				}
 
 			case d.config.Keymaps.ControlHelp:
 				d.toggleControl()
@@ -286,6 +290,7 @@ func (d *Dashboard) SwitchMode(mode string, option string) {
 	go d.LoadPosts(done)
 	<-done
 
+	d.feed.showFilteredPost = false
 	// Display new post after switching feed if any are loaded.
 	if len(d.feed.posts) > 0 {
 		d.feed.listElem.RunSelectedOption()

@@ -85,7 +85,10 @@ func (f *Feed) InitEvents() {
 }
 
 func (f *Feed) GetSelectedPost() *npf.Post {
-	return f.posts[f.listElem.Cursor]
+	if len(f.posts) > f.listElem.Cursor && f.listElem.Cursor >= 0 {
+		return f.posts[f.listElem.Cursor]
+	}
+	return nil
 }
 
 func (f *Feed) ClearPosts() {

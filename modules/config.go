@@ -64,6 +64,7 @@ type Config struct {
 
 		ControlHelp string
 		OpenLink    string
+		CopyLink    string
 		LoadMore    string
 		LoadBlog    string
 		Confirm     string
@@ -137,6 +138,7 @@ func makeConfig() Config {
 	}
 
 	con.Keymaps.OpenLink = "o"
+	con.Keymaps.CopyLink = "y"
 	con.Keymaps.LoadMore = "r"
 	con.Keymaps.LoadBlog = "b"
 	con.Keymaps.Confirm = "enter"
