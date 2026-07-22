@@ -47,7 +47,6 @@ func (f *Feed) InitEvents() {
 				if f.listElem.Cursor < len(f.listElem.GetChildren()) {
 					f.showFilteredPost = true
 					f.dashboard.FocusContents()
-					f.listElem.RunSelectedOption()
 				}
 			case f.dashboard.config.Keymaps.Navigation.Down:
 				if f.listElem.Cursor == len(f.listElem.GetChildren())-1 {

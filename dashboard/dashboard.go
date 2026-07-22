@@ -285,6 +285,11 @@ func (d *Dashboard) SwitchMode(mode string, option string) {
 	done := make(chan bool)
 	go d.LoadPosts(done)
 	<-done
+
+	// Display new post after switching feed if any are loaded.
+	if len(d.feed.posts) > 0 {
+		d.feed.listElem.RunSelectedOption()
+	}
 }
 
 func (d *Dashboard) filterPosts(posts []npf.Post) []*npf.Post {
@@ -406,7 +411,6 @@ func (d *Dashboard) FocusContents() {
 }
 
 func (d *Dashboard) FocusFeed() {
-	d.contents.contentElem.OffsetY = 0
 	d.feed.Focus()
 	d.ShowFeed()
 	d.UpdateControlText()
