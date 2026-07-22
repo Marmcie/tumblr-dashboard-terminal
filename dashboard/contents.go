@@ -38,6 +38,7 @@ func (f *Contents) InitEvents() {
 			switch msg.String() {
 			case f.dashboard.config.Keymaps.Navigation.Left:
 				f.dashboard.FocusFeed()
+
 			case f.dashboard.config.Keymaps.Navigation.Down:
 				f.contentElem.OffsetY = min(f.contentElem.Bottom-1, f.contentElem.OffsetY+1)
 
