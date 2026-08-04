@@ -462,6 +462,7 @@ func (d *Dashboard) UpdateControlText() {
 		str += fmt.Sprintf("Open post links         : %s\n", d.config.Keymaps.Links.Open)
 		str += fmt.Sprintf("Open blog feed          : %s\n", d.config.Keymaps.LoadBlog)
 		str += fmt.Sprintf("Open post in browser    : %s\n", d.config.Keymaps.OpenLink)
+		str += fmt.Sprintf("Copy post link          : %s\n", d.config.Keymaps.CopyLink)
 		str += fmt.Sprintf("Adjust feed width       : %s/%s\n", d.config.Keymaps.IncreaseSize, d.config.Keymaps.DecreaseSize)
 		str += fmt.Sprintf("Toggle feed visibility  : %s\n", d.config.Keymaps.ToggleFeed)
 		str += fmt.Sprintf("Exit the program        : Ctrl+c/%s\n", d.config.Keymaps.Quit)
