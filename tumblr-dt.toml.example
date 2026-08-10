@@ -52,7 +52,7 @@ Open=       "]"
 Close=      "esc"
 Up=         "up"
 Down=       "down"
-Suggestion= "right"
+Suggestion= "tab"
 
 [Keymaps.Links]
 Open=  "L"

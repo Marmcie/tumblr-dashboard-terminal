@@ -127,7 +127,7 @@ func makeConfig() Config {
 		Close:      "esc",
 		Up:         "up",
 		Down:       "down",
-		Suggestion: "right",
+		Suggestion: "tab",
 	}
 	con.Keymaps.Links = struct {
 		Open  string

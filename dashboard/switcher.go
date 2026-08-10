@@ -142,6 +142,8 @@ func (s *Switcher) InitEvents() {
 			case s.dashboard.config.Keymaps.Switcher.Close:
 				s.index = 0
 				s.TagInput.ClearInput()
+				s.BlogInput.ClearInput()
+				s.SearchInput.ClearInput()
 				s.dashboard.toggleSwitcher()
 			}
 

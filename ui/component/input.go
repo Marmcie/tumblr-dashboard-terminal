@@ -11,6 +11,7 @@ type Input struct {
 	Line
 	Value            string
 	Placeholder      string
+	CursorBackground string
 	EmptyForeground  string
 	ActiveForeground string
 	Suggestions      *helper.Trie
@@ -26,6 +27,7 @@ func NewInput(name string) *Input {
 	l.SetPos(0, 0)
 	l.EmptyForeground = "#aaaaaa"
 	l.ActiveForeground = "#ffffff"
+	l.CursorBackground = "#777777"
 	l.realInput = textinput.New()
 	l.realInput.SetVirtualCursor(false)
 	l.realInput.CharLimit = 156
@@ -61,6 +63,7 @@ func (i *Input) ApplyTopSuggestion() {
 		if len(suggestion) > 0 {
 			i.Value = suggestion
 			i.realInput.SetValue(suggestion)
+			i.realInput.SetCursor(len(suggestion))
 			i.UpdateText()
 		}
 	}
@@ -121,6 +124,10 @@ func (l *Input) RenderToCanvas() {
 	for i := len(l.Value); i < min(len(suggestion), len(canvas[0])); i++ {
 		canvas[0][i] = string(suggestion[i])
 		fg[0][i] = l.EmptyForeground
+	}
+
+	if len(l.Value) > 0 {
+		bg[0][min(len(bg[0])-1, l.realInput.Position())] = l.CursorBackground
 	}
 
 	l.SetCanvas(canvas, fg, bg)
