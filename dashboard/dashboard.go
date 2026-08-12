@@ -467,7 +467,7 @@ func (d *Dashboard) UpdateControlText() {
 		str += fmt.Sprintf("Toggle feed visibility  : %s\n", d.config.Keymaps.ToggleFeed)
 		str += fmt.Sprintf("Exit the program        : Ctrl+c/%s\n", d.config.Keymaps.Quit)
 		str += fmt.Sprintf("Log out of the account  : %s\n", d.config.Keymaps.LogOut)
-		d.control.SetH(14)
+		d.control.SetH(15)
 	} else {
 		str += fmt.Sprintf("Scroll post contents    : %s/%s %s/%s\n", d.config.Keymaps.Navigation.Up, d.config.Keymaps.Navigation.Down, strings.ToUpper(d.config.Keymaps.Navigation.Up), strings.ToUpper(d.config.Keymaps.Navigation.Down))
 		str += fmt.Sprintf("Scroll to next reblog   : %s/%s\n", d.config.Keymaps.Navigation.JumpNext, d.config.Keymaps.Navigation.JumpPrev)
