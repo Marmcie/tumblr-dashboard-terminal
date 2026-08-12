@@ -472,7 +472,7 @@ func (d *Dashboard) UpdateControlText() {
 		str += fmt.Sprintf("Scroll post contents    : %s/%s %s/%s\n", d.config.Keymaps.Navigation.Up, d.config.Keymaps.Navigation.Down, strings.ToUpper(d.config.Keymaps.Navigation.Up), strings.ToUpper(d.config.Keymaps.Navigation.Down))
 		str += fmt.Sprintf("Scroll to next reblog   : %s/%s\n", d.config.Keymaps.Navigation.JumpNext, d.config.Keymaps.Navigation.JumpPrev)
 		str += fmt.Sprintf("Scroll to top or bottom : %s%s/%s\n", d.config.Keymaps.Navigation.JumpTop, d.config.Keymaps.Navigation.JumpTop, d.config.Keymaps.Navigation.JumpBottom)
-		str += fmt.Sprintf("Focus feed              : Ctrl+c/%s\n", d.config.Keymaps.Navigation.Left)
+		str += fmt.Sprintf("Focus feed              : %s\n", d.config.Keymaps.Navigation.Left)
 		str += fmt.Sprintf("Load more posts         : %s\n", d.config.Keymaps.LoadMore)
 		str += fmt.Sprintf("Open feed switcher      : %s\n", d.config.Keymaps.Switcher.Open)
 		str += fmt.Sprintf("Open post links         : %s\n", d.config.Keymaps.Links.Open)
