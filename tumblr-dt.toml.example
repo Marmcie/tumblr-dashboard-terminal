@@ -48,7 +48,7 @@ JumpTop=    "g"
 JumpBottom= "G"
 
 [Keymaps.Switcher]
-Open=       "]"
+Open=       "f"
 Close=      "esc"
 Up=         "up"
 Down=       "down"

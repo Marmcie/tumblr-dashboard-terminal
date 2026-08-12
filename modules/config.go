@@ -123,7 +123,7 @@ func makeConfig() Config {
 		Down       string
 		Suggestion string
 	}{
-		Open:       "]",
+		Open:       "f",
 		Close:      "esc",
 		Up:         "up",
 		Down:       "down",
