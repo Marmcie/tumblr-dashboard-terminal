@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"image/color"
 	"strconv"
+	"tumblr-dt/modules"
 	"tumblr-dt/ui/helper"
 
 	tea "charm.land/bubbletea/v2"
@@ -197,9 +198,9 @@ func (c *BaseComponent) Initialize(name string) {
 	c.UUID = uuid.New().String()
 	c.EventCallbacks = map[string]map[string]EventCb{}
 	c.TitleAlignment = "center"
-	c.Foreground = ""
+	c.Foreground = modules.GetConfig().Colors.White
 	c.Background = ""
-	c.BorderForeground = ""
+	c.BorderForeground = modules.GetConfig().Colors.White
 	c.BorderFocusForeground = ""
 	c.SetPadding(0)
 
