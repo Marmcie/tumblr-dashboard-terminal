@@ -49,6 +49,10 @@ type Dashboard struct {
 	FilteredContents mapset.Set[string]
 	IsLoading        bool
 	LinkWindow       *LinkWindow
+	// ID for currently active post load process
+	currentLoadings mapset.Set[string]
+	// List of invalidated loading IDs to prevent race condition
+	invalidLoadings mapset.Set[string]
 }
 
 func NewDashboard(config modules.Config) *Dashboard {
@@ -60,6 +64,8 @@ func NewDashboard(config modules.Config) *Dashboard {
 	d.FilteredContents = mapset.NewSet[string]()
 	d.TagTrie = helper.NewTrie()
 	d.BlogTrie = helper.NewTrie()
+	d.currentLoadings = mapset.NewSet[string]()
+	d.invalidLoadings = mapset.NewSet[string]()
 
 	d.initComponents(d.config)
 	d.initEvents()
@@ -282,6 +288,7 @@ func (d *Dashboard) SwitchMode(mode string, option string) {
 
 	d.root.SetBorderLabelColor("BottomLeft", "")
 
+	// Clear currently loaded posts
 	d.feed.ClearPosts()
 	d.feed.listElem.ClearChildren()
 	d.offset = 0
@@ -289,6 +296,8 @@ func (d *Dashboard) SwitchMode(mode string, option string) {
 
 	// Override existing loading process to prevent race condition
 	d.IsLoading = false
+	// Invalidate currently active loading IDs
+	d.invalidLoadings.Append(d.currentLoadings.ToSlice()...)
 
 	done := make(chan bool)
 	go d.LoadPosts(done)
@@ -301,6 +310,7 @@ func (d *Dashboard) SwitchMode(mode string, option string) {
 	}
 }
 
+// Hide posts based on filtered posts and tags setting
 func (d *Dashboard) filterPosts(posts []npf.Post) []*npf.Post {
 	result := []*npf.Post{}
 	filteredContents := d.FilteredContents.ToSlice()
@@ -346,9 +356,21 @@ func (d *Dashboard) filterPosts(posts []npf.Post) []*npf.Post {
 func (d *Dashboard) LoadPosts(ch chan bool) {
 	defer func() { ch <- true }()
 
+	// Prevent loading same posts consecutively
 	if d.IsLoading {
 		return
 	}
+
+	// Add current loading process into the set of active loading IDs
+	loadingId := time.Now().String()
+	d.currentLoadings.Add(loadingId)
+
+	defer func() {
+		// Clear loading IDs
+		d.currentLoadings.Remove(loadingId)
+		d.invalidLoadings.Remove(loadingId)
+	}()
+
 	d.feed.listElem.SetBorderLabel("Bottom", "Loading...")
 	d.IsLoading = true
 	var posts []npf.Post
@@ -374,6 +396,12 @@ func (d *Dashboard) LoadPosts(ch chan bool) {
 			d.root.SetBorderLabel("BottomLeft", "Could not retrieve posts")
 		}()
 
+		d.IsLoading = false
+		return
+	}
+
+	// If current loading ID was invalidated stop the function
+	if d.invalidLoadings.Contains(loadingId) {
 		d.IsLoading = false
 		return
 	}
