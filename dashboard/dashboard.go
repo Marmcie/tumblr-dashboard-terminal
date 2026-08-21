@@ -286,6 +286,10 @@ func (d *Dashboard) SwitchMode(mode string, option string) {
 	d.feed.listElem.ClearChildren()
 	d.offset = 0
 	d.contents.contentElem.OffsetY = 0
+
+	// Override existing loading process to prevent race condition
+	d.IsLoading = false
+
 	done := make(chan bool)
 	go d.LoadPosts(done)
 	<-done
