@@ -1,6 +1,7 @@
 package dashboard
 
 import (
+	"context"
 	"fmt"
 	"time"
 	"tumblr-dt/npf"
@@ -99,7 +100,9 @@ func (f *Feed) InitEvents() {
 				if f.clipboardInitialized {
 					post := f.GetSelectedPost()
 					if post != nil {
-						clipboard.Write(clipboard.FmtText, []byte(post.Post_url))
+						ctx := context.Background()
+						clipboard.Write(ctx, clipboard.FmtText, []byte(post.Post_url))
+						ctx.Done()
 
 						f.listElem.SetBorderLabel("TopRight", "Copied!")
 						timestamp := time.Now().Unix()
