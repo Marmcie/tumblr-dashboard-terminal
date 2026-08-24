@@ -133,7 +133,7 @@ func Auth(ctx context.Context) *oauth2.Token {
 
 func Refresh(ctx context.Context, refreshToken string) *oauth2.Token {
 	conf := getAuthConfig()
-	url := "http://api.tumblr.com/v2/oauth2/token"
+	url := "https://api.tumblr.com/v2/oauth2/token"
 
 	b := map[string]string{
 		"grant_type":    "refresh_token",

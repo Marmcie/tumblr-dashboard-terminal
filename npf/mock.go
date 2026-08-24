@@ -1,8 +1,9 @@
 package npf
 
 import (
+	"crypto/rand"
 	"encoding/json"
-	"math/rand"
+	"math/big"
 	"os"
 	"strconv"
 	"strings"
@@ -60,13 +61,17 @@ func TestPost() Post {
 
 	post := Post{}
 	json.Unmarshal(blogBytes, &post)
-	post.Id_string += strconv.Itoa(rand.Int())
+	id, _ := rand.Int(rand.Reader, big.NewInt(1000))
+	post.Id_string += strconv.Itoa(int(id.Int64()))
 	post.Blog = TestBlog()
-	for i := 0; i < rand.Int()%6; i++ {
+
+	countentsCount, _ := rand.Int(rand.Reader, big.NewInt(6))
+	for i := 0; i < int(countentsCount.Int64()); i++ {
 		post.Content = append(post.Content, getRandomContent())
 	}
 
-	for i := 0; i < rand.Int()%6; i++ {
+	trailCount, _ := rand.Int(rand.Reader, big.NewInt(6))
+	for i := 0; i < int(trailCount.Int64()); i++ {
 		post.Trail = append(post.Trail, TestTrail())
 	}
 
@@ -83,7 +88,8 @@ func TestTrail() TrailPost {
 	json.Unmarshal(blogBytes, &trail)
 	trail.Blog = TestBlog()
 
-	for i := 0; i < rand.Int()%6; i++ {
+	rand, _ := rand.Int(rand.Reader, big.NewInt(1000))
+	for i := 0; i < int(rand.Int64())%6; i++ {
 		trail.Content = append(trail.Content, getRandomContent())
 	}
 
@@ -97,7 +103,8 @@ var contentKeys = []string{
 }
 
 func getRandomContent() Content {
-	return TestContent(contentKeys[rand.Int()%len(contentKeys)])
+	rand, _ := rand.Int(rand.Reader, big.NewInt(1000))
+	return TestContent(contentKeys[int(rand.Int64())%len(contentKeys)])
 }
 
 func TestContent(contentType string) Content {

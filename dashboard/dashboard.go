@@ -1,8 +1,9 @@
 package dashboard
 
 import (
+	"crypto/rand"
 	"fmt"
-	"math/rand"
+	"math/big"
 	"slices"
 	"sort"
 	"strings"
@@ -260,7 +261,8 @@ func (d *Dashboard) SwitchMode(mode string, option string) {
 	d.feed.listElem.Focus()
 
 	if mode != "dashboard" && slices.Contains(d.config.Blacklist, option) {
-		d.root.SetBorderLabel("BottomLeft", girlNo[rand.Intn(len(girlNo))])
+		ind, _ := rand.Int(rand.Reader, big.NewInt(255))
+		d.root.SetBorderLabel("BottomLeft", girlNo[int(ind.Int64())%(len(girlNo))])
 		d.root.SetBorderLabelColor("BottomLeft", ui.GetColorStr(ui.ColorBlacklisted))
 		return
 	}
