@@ -199,9 +199,9 @@ func (d *Dashboard) initEvents() {
 		switch msg := msg.(type) {
 		case tea.KeyMsg:
 			switch msg.String() {
-			case d.config.Keymaps.LoadMore:
-				done := make(chan bool)
-				go d.LoadPosts(done)
+			case d.config.Keymaps.Refresh:
+				// Refresh the current feed
+				d.SwitchMode(d.mode, d.option)
 
 			case d.config.Keymaps.IncreaseSize:
 				// When feed is visible
@@ -491,7 +491,7 @@ func (d *Dashboard) UpdateControlText() {
 		str += fmt.Sprintf("Scroll post on feed     : %s/%s\n", d.config.Keymaps.Navigation.Up, d.config.Keymaps.Navigation.Down)
 		str += fmt.Sprintf("Scroll to top or bottom : %s%s/%s\n", d.config.Keymaps.Navigation.JumpTop, d.config.Keymaps.Navigation.JumpTop, d.config.Keymaps.Navigation.JumpBottom)
 		str += fmt.Sprintf("Focus post window       : %s\n", d.config.Keymaps.Navigation.Right)
-		str += fmt.Sprintf("Load more posts         : %s\n", d.config.Keymaps.LoadMore)
+		str += fmt.Sprintf("Refresh the current feed: %s\n", d.config.Keymaps.Refresh)
 		str += fmt.Sprintf("Open feed switcher      : %s\n", d.config.Keymaps.Switcher.Open)
 		str += fmt.Sprintf("Open post links         : %s\n", d.config.Keymaps.Links.Open)
 		str += fmt.Sprintf("Open blog feed          : %s\n", d.config.Keymaps.LoadBlog)
@@ -507,7 +507,7 @@ func (d *Dashboard) UpdateControlText() {
 		str += fmt.Sprintf("Scroll to next reblog   : %s/%s\n", d.config.Keymaps.Navigation.JumpNext, d.config.Keymaps.Navigation.JumpPrev)
 		str += fmt.Sprintf("Scroll to top or bottom : %s%s/%s\n", d.config.Keymaps.Navigation.JumpTop, d.config.Keymaps.Navigation.JumpTop, d.config.Keymaps.Navigation.JumpBottom)
 		str += fmt.Sprintf("Focus feed              : %s\n", d.config.Keymaps.Navigation.Left)
-		str += fmt.Sprintf("Load more posts         : %s\n", d.config.Keymaps.LoadMore)
+		str += fmt.Sprintf("Refresh the current feed: %s\n", d.config.Keymaps.Refresh)
 		str += fmt.Sprintf("Open feed switcher      : %s\n", d.config.Keymaps.Switcher.Open)
 		str += fmt.Sprintf("Open post links         : %s\n", d.config.Keymaps.Links.Open)
 		str += fmt.Sprintf("Open blog feed          : %s\n", d.config.Keymaps.LoadBlog)
