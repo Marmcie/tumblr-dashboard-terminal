@@ -301,15 +301,18 @@ func (d *Dashboard) SwitchMode(mode string, option string) {
 	// Invalidate currently active loading IDs
 	d.invalidLoadings.Append(d.currentLoadings.ToSlice()...)
 
-	done := make(chan bool)
-	go d.LoadPosts(done)
-	<-done
+	go func() {
+		// Load posts from API asynchronously
+		done := make(chan bool)
+		go d.LoadPosts(done)
+		<-done
 
-	d.feed.showFilteredPost = false
-	// Display new post after switching feed if any are loaded.
-	if len(d.feed.posts) > 0 {
-		d.feed.listElem.RunSelectedOption()
-	}
+		d.feed.showFilteredPost = false
+		// Display new post after switching feed if any are loaded.
+		if len(d.feed.posts) > 0 {
+			d.feed.listElem.RunSelectedOption()
+		}
+	}()
 }
 
 // Hide posts based on filtered posts and tags setting
