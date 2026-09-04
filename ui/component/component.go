@@ -397,7 +397,7 @@ func (c *BaseComponent) SetSize(w int, h int) *BaseComponent {
 
 // Get width of a component. if InheritWidth is true, retrieve parent's inner width
 func (c *BaseComponent) GetWidth() int {
-	if c.InheritWidth == true && c.GetParent() != nil {
+	if c.InheritWidth && c.GetParent() != nil {
 		return c.GetParent().GetInnerWidth()
 	}
 	return c.Width
@@ -405,7 +405,7 @@ func (c *BaseComponent) GetWidth() int {
 
 // Get height of a component. if InheritHeight is true, retrieve parent's inner height
 func (c *BaseComponent) GetHeight() int {
-	if c.InheritHeight == true && c.GetParent() != nil {
+	if c.InheritHeight && c.GetParent() != nil {
 		return c.GetParent().GetInnerHeight()
 	}
 	return c.Height
@@ -699,7 +699,7 @@ func (b *BaseComponent) RenderToCanvas() {
 		c.RenderToCanvas()
 		output, childFG, childBG := c.GetCanvas()
 
-		if c.IsAbsolute() == true {
+		if c.IsAbsolute() {
 			childX, childY := c.GetPos()
 			globalX := left + childX
 
@@ -752,9 +752,9 @@ func (c *BaseComponent) CreateCanvas() ([][]string, [][]string, [][]string) {
 	height := max(c.GetContentsHeight()+1, 1)
 	width := max(c.GetWidth(), 1)
 
-	var arr [][]string = make([][]string, height)
-	var fg [][]string = make([][]string, height)
-	var bg [][]string = make([][]string, height)
+	var arr = make([][]string, height)
+	var fg = make([][]string, height)
+	var bg = make([][]string, height)
 
 	for i := range height {
 		arr[i] = make([]string, width)
@@ -1100,7 +1100,7 @@ func (c *BaseComponent) UpdateVisibility(ytop int, hei int) {
 	h := hei
 	for _, child := range c.GetChildren() {
 		childHeight := child.GetHeight()
-		child.SetVisibility(!(top+childHeight < y || top > y+h))
+		child.SetVisibility(top+childHeight >= y && top <= y+h)
 		top += childHeight
 	}
 }

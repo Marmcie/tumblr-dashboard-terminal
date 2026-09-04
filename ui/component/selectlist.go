@@ -13,7 +13,7 @@ type Selectlist struct {
 
 func NewSelectlist(name string) *Selectlist {
 	s := &Selectlist{}
-	s.Scrollable.Initialize(name)
+	s.Initialize(name)
 	s.Cursor = 0
 	s.ComponentName = "Selectlist"
 	s.SizeList = append(s.SizeList, 0)
@@ -65,7 +65,7 @@ func (s *Selectlist) UpdateOffset() {
 }
 
 func (s *Selectlist) AddOption(child Component, cb func()) {
-	s.BaseComponent.AddChild(child)
+	s.AddChild(child)
 	s.OptionCallbacks = append(s.OptionCallbacks, cb)
 
 	children := s.GetChildren()

@@ -39,9 +39,9 @@ func (l *Line) RenderToCanvas() {
 		l.SetCanvas([][]string{{""}}, [][]string{{""}}, [][]string{{""}})
 		return
 	}
-	var result [][]string = [][]string{make([]string, w)}
-	var fg [][]string = [][]string{make([]string, w)}
-	var bg [][]string = [][]string{make([]string, w)}
+	var result = [][]string{make([]string, w)}
+	var fg = [][]string{make([]string, w)}
+	var bg = [][]string{make([]string, w)}
 
 	str := l.Text
 

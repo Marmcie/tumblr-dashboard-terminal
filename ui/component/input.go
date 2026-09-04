@@ -81,12 +81,12 @@ func (i *Input) SetPlaceholder(s string) *Input {
 func (i *Input) UpdateText() {
 	text := i.Value
 	if len(text) == 0 {
-		i.Line.SetForeground(i.EmptyForeground)
-		i.Line.SetText(i.Placeholder)
+		i.SetForeground(i.EmptyForeground)
+		i.SetText(i.Placeholder)
 		return
 	}
-	i.Line.SetForeground(i.ActiveForeground)
-	i.Line.SetText(text)
+	i.SetForeground(i.ActiveForeground)
+	i.SetText(text)
 }
 
 func (i *Input) AppendChar(ch string) {
