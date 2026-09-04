@@ -302,6 +302,8 @@ func (d *Dashboard) SwitchMode(mode string, option string) {
 	d.invalidLoadings.Append(d.currentLoadings.ToSlice()...)
 
 	go func() {
+		// Display feed if it was hidden
+		d.ShowFeed()
 		// Load posts from API asynchronously
 		done := make(chan bool)
 		go d.LoadPosts(done)
