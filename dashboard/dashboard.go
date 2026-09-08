@@ -54,6 +54,8 @@ type Dashboard struct {
 	currentLoadings mapset.Set[string]
 	// List of invalidated loading IDs to prevent race condition
 	invalidLoadings mapset.Set[string]
+	// Keep track of latest "Copied!" message for correct timeout timing
+	clipboardMessageTimestamp int64
 }
 
 func NewDashboard(config modules.Config) *Dashboard {
@@ -599,4 +601,24 @@ func (d *Dashboard) UpdateInfo(post *npf.Post) {
 	}
 
 	d.info.SetText(b.String())
+}
+
+// Copy the currently selected post URL to the clipboard
+func (d *Dashboard) CopyCurrentPostToClipboard() {
+
+	// Copy the link to the currently selected post to the clipboard
+	post := d.GetSelectedPost()
+	if post != nil {
+		modules.CopyToClipboard(post.Post_url)
+		d.feed.listElem.SetBorderLabel("TopRight", "Copied!")
+		timestamp := time.Now().Unix()
+		d.clipboardMessageTimestamp = timestamp
+		go func() {
+			time.Sleep(2 * time.Second)
+			if timestamp == d.clipboardMessageTimestamp {
+				d.feed.listElem.SetBorderLabel("TopRight", "")
+			}
+		}()
+	}
+
 }
