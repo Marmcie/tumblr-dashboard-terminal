@@ -9,11 +9,12 @@ import (
 )
 
 type LinkWindow struct {
-	LinkList  []string
-	Window    *component.Box
-	List      *component.Selectlist
-	prev      string
-	dashboard *Dashboard
+	LinkList      []string
+	LinkTitleList []string
+	Window        *component.Box
+	List          *component.Selectlist
+	prev          string
+	dashboard     *Dashboard
 }
 
 func NewLinkWindow(dashboard *Dashboard) *LinkWindow {
@@ -75,8 +76,9 @@ func NewLinkWindow(dashboard *Dashboard) *LinkWindow {
 	return l
 }
 
-func (l *LinkWindow) SetLinks(links []string) {
+func (l *LinkWindow) SetLinks(links []string, linkTitles []string) {
 	l.LinkList = links
+	l.LinkTitleList = linkTitles
 	l.UpdateLinks()
 	if len(links) > 0 {
 		l.List.SetCursor(0)
@@ -86,7 +88,7 @@ func (l *LinkWindow) SetLinks(links []string) {
 func (l *LinkWindow) UpdateLinks() {
 
 	l.List.ClearChildren()
-	for _, link := range l.LinkList {
+	for i := range len(l.LinkList) {
 		box := component.NewBox("Link item")
 
 		box.SetBorder(true).
@@ -96,11 +98,11 @@ func (l *LinkWindow) UpdateLinks() {
 			SetWidthInherit(true)
 		title := component.NewLine("Link Title")
 		title.SetWidthInherit(true).SetH(1)
-		title.SetText(link)
+		title.SetText(l.LinkTitleList[i])
 		box.AddChild(title)
 
 		l.List.AddOption(box, func() {
-			modules.OpenInBrowser(link)
+			modules.OpenInBrowser(l.LinkList[i])
 			component.Global.SetCmd(tea.ClearScreen)
 		})
 	}

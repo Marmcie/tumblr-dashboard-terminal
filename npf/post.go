@@ -1,6 +1,7 @@
 package npf
 
 import (
+	"fmt"
 	"sort"
 	"strconv"
 
@@ -64,7 +65,14 @@ type Post struct {
 	IsFiltered                 bool
 	FilteredContents           mapset.Set[string]
 	FilteredTags               mapset.Set[string]
-	Links                      mapset.Set[string]
+
+	// Keeps track of which link has been stored already.
+	// Without it multiple links to same blog in reblog chain can end up in a list.
+	LinkSet mapset.Set[string]
+	// Link URLs
+	Links []string
+	// Title for each of the links to be displayed in links modal
+	LinkTitles []string
 }
 
 var orderedListIndex = 1
@@ -74,6 +82,7 @@ type ContentData struct {
 	ContentType string
 	Str         string
 	Links       []string
+	LinkTitles  []string
 }
 
 type TrailData struct {
@@ -104,21 +113,41 @@ func (p *Post) Render() []TrailData {
 		return renderResults[p.Id_string]
 	}
 	var result []TrailData
-	p.Links = mapset.NewSet[string]()
+	p.LinkSet = mapset.NewSet[string]()
 
-	p.Links.Add(p.Blog.Url)
+	p.LinkSet.Add(p.Blog.Url)
+	p.Links = append(p.Links, p.Blog.Url)
+	p.LinkTitles = append(p.LinkTitles, fmt.Sprintf("%s's blog", p.Blog.Name))
 
+	/** To differentiate images in post link list */
+	imageCount := 1
+	videoCount := 1
+	audioCount := 1
 	if len(p.Content) > 0 {
 		var res []ContentData
 		orderedListIndex = 1
 		for _, c := range p.Content {
-			data := c.RenderWithData()
+			data := c.RenderWithData(imageCount, videoCount, audioCount)
 			res = append(res, ContentData{
 				ContentType: data.ContentType,
 				Str:         data.Str,
 			})
-			for _, link := range data.Links {
-				p.Links.Add(link)
+			switch c.Type {
+			case "image":
+				imageCount++
+			case "video":
+				videoCount++
+			case "audio":
+				audioCount++
+			}
+
+			// Update list of links
+			for i := range len(data.Links) {
+				if !p.LinkSet.Contains(data.Links[i]) {
+					p.LinkSet.Add(data.Links[i])
+					p.Links = append(p.Links, data.Links[i])
+					p.LinkTitles = append(p.LinkTitles, data.LinkTitles[i])
+				}
 			}
 		}
 		result = append(result, TrailData{
@@ -131,23 +160,42 @@ func (p *Post) Render() []TrailData {
 	}
 	for _, t := range p.Trail {
 		var res []ContentData
-		orderedListIndex = 1
-		for _, c := range t.Content {
-			data := c.RenderWithData()
-			res = append(res, ContentData{
-				ContentType: data.ContentType,
-				Str:         data.Str,
-			})
 
-			for _, link := range data.Links {
-				p.Links.Add(link)
-			}
-		}
-		tID, _ := strconv.ParseInt(t.Post.Id, 10, 64)
 		blogName := t.Blog.Name
 		if len(blogName) == 0 {
 			blogName = t.Broken_blog_name
 		}
+		if !p.LinkSet.Contains(t.Blog.Url) {
+			p.LinkSet.Add(t.Blog.Url)
+			p.Links = append(p.Links, t.Blog.Url)
+			p.LinkTitles = append(p.LinkTitles, fmt.Sprintf("%s's blog", blogName))
+		}
+
+		orderedListIndex = 1
+		for _, c := range t.Content {
+			data := c.RenderWithData(imageCount, videoCount, audioCount)
+			res = append(res, ContentData{
+				ContentType: data.ContentType,
+				Str:         data.Str,
+			})
+			switch c.Type {
+			case "image":
+				imageCount++
+			case "video":
+				videoCount++
+			case "audio":
+				audioCount++
+			}
+
+			for i := range len(data.Links) {
+				if !p.LinkSet.Contains(data.Links[i]) {
+					p.LinkSet.Add(data.Links[i])
+					p.Links = append(p.Links, data.Links[i])
+					p.LinkTitles = append(p.LinkTitles, data.LinkTitles[i])
+				}
+			}
+		}
+		tID, _ := strconv.ParseInt(t.Post.Id, 10, 64)
 		result = append(result, TrailData{
 			Contents: res,
 			Blog:     t.Blog,
@@ -155,7 +203,6 @@ func (p *Post) Render() []TrailData {
 			Layout:   t.Layout,
 			ID:       tID,
 		})
-		p.Links.Add(t.Blog.Url)
 	}
 	sort.Sort(sortById(result))
 	renderResults[p.Id_string] = result
@@ -172,7 +219,13 @@ func (p *Post) RemoveRenderResult() {
 
 func (p *Post) GetLinks() []string {
 	if p.Links == nil {
-		p.Links = mapset.NewSet[string]()
+		p.Links = []string{}
 	}
-	return p.Links.ToSlice()
+	return p.Links
+}
+func (p *Post) GetLinkTitles() []string {
+	if p.LinkTitles == nil {
+		p.LinkTitles = []string{}
+	}
+	return p.LinkTitles
 }

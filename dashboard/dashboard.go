@@ -531,7 +531,7 @@ func (d *Dashboard) UpdateControlText() {
 
 func (d *Dashboard) DisplayPost(post *npf.Post, showFiltered bool) {
 	d.contents.DisplayPost(post, showFiltered)
-	d.LinkWindow.SetLinks(post.GetLinks())
+	d.LinkWindow.SetLinks(post.GetLinks(), post.GetLinkTitles())
 
 	d.contents.contentElem.OffsetY = 0
 
