@@ -103,7 +103,7 @@ func (l *LinkWindow) UpdateLinks() {
 
 		l.List.AddOption(box, func() {
 			modules.OpenInBrowser(l.LinkList[i])
-			component.Global.SetCmd(tea.ClearScreen)
+			component.Global.RedrawScreen()
 		})
 	}
 

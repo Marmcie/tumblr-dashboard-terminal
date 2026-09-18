@@ -233,7 +233,7 @@ func (d *Dashboard) initEvents() {
 				post := d.feed.GetSelectedPost()
 				if post != nil {
 					modules.OpenInBrowser(post.Short_url)
-					component.Global.SetCmd(tea.ClearScreen)
+					component.Global.RedrawScreen()
 				}
 
 			case d.config.Keymaps.Switcher.Open:
