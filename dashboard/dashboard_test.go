@@ -51,6 +51,9 @@ func TestDashboardDisplay(t *testing.T) {
 	for dashboard.IsLoading {
 		time.Sleep(time.Second / 2)
 	}
+	loading := make(chan bool)
+	go dashboard.LoadPosts(loading)
+	<-loading
 	dashboard.DisplayPost(dashboard.GetSelectedPost(), true)
 }
 
@@ -69,6 +72,11 @@ func TestDashboard0SizeDisplay(t *testing.T) {
 		time.Sleep(time.Second / 2)
 	}
 	dashboard.GetRootModel().App.UpdateSize(0, 0)
+
+	loading := make(chan bool)
+	go dashboard.LoadPosts(loading)
+	<-loading
+
 	dashboard.DisplayPost(dashboard.GetSelectedPost(), true)
 }
 
@@ -85,7 +93,13 @@ func BenchmarkDashboardLoad(b *testing.B) {
 	for dashboard.IsLoading {
 		time.Sleep(time.Second / 2)
 	}
+
+	loading := make(chan bool)
+	go dashboard.LoadPosts(loading)
+	<-loading
+
 	for b.Loop() {
+
 		dashboard.DisplayPost(dashboard.GetSelectedPost(), true)
 	}
 }

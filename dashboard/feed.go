@@ -1,15 +1,12 @@
 package dashboard
 
 import (
-	"context"
 	"fmt"
-	"time"
 	"tumblr-dt/npf"
 	"tumblr-dt/ui"
 	component "tumblr-dt/ui/component"
 
 	tea "charm.land/bubbletea/v2"
-	"golang.design/x/clipboard"
 )
 
 type Feed struct {
@@ -18,10 +15,6 @@ type Feed struct {
 	posts            []*npf.Post
 	prev             string
 	showFilteredPost bool
-	// Flag to see if clipboard feature can be used
-	clipboardInitialized bool
-	// Keep track of latest "Copied!" message for correct timeout timing
-	clipboardMessageTimestamp int64
 }
 
 func NewFeed(dashboard *Dashboard) *Feed {
@@ -34,12 +27,6 @@ func NewFeed(dashboard *Dashboard) *Feed {
 	f.listElem.SetSelectedOptionForeground(ui.GetColorStr(ui.ColorWhite))
 	f.listElem.SetBorderFocusForeground(ui.GetColorStr(ui.ColorFocusBorder))
 	f.showFilteredPost = false
-
-	f.clipboardInitialized = false
-	err := clipboard.Init()
-	if err == nil {
-		f.clipboardInitialized = true
-	}
 
 	f.InitEvents()
 	return f
@@ -96,26 +83,7 @@ func (f *Feed) InitEvents() {
 				}
 
 			case f.dashboard.config.Keymaps.CopyLink:
-				// Copy the link to the currently selected post to the clipboard
-				if f.clipboardInitialized {
-					post := f.GetSelectedPost()
-					if post != nil {
-						ctx := context.Background()
-						clipboard.Write(ctx, clipboard.FmtText, []byte(post.Post_url))
-						ctx.Done()
-
-						f.listElem.SetBorderLabel("TopRight", "Copied!")
-						timestamp := time.Now().Unix()
-						f.clipboardMessageTimestamp = timestamp
-						go func() {
-							time.Sleep(2 * time.Second)
-							if timestamp == f.clipboardMessageTimestamp {
-								f.listElem.SetBorderLabel("TopRight", "")
-							}
-						}()
-					}
-				}
-
+				f.dashboard.CopyCurrentPostToClipboard()
 			}
 			f.prev = msg.String()
 		}

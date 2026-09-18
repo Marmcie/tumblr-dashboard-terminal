@@ -54,6 +54,8 @@ type Dashboard struct {
 	currentLoadings mapset.Set[string]
 	// List of invalidated loading IDs to prevent race condition
 	invalidLoadings mapset.Set[string]
+	// Keep track of latest "Copied!" message for correct timeout timing
+	clipboardMessageTimestamp int64
 }
 
 func NewDashboard(config modules.Config) *Dashboard {
@@ -199,9 +201,9 @@ func (d *Dashboard) initEvents() {
 		switch msg := msg.(type) {
 		case tea.KeyMsg:
 			switch msg.String() {
-			case d.config.Keymaps.LoadMore:
-				done := make(chan bool)
-				go d.LoadPosts(done)
+			case d.config.Keymaps.Refresh:
+				// Refresh the current feed
+				d.SwitchMode(d.mode, d.option)
 
 			case d.config.Keymaps.IncreaseSize:
 				// When feed is visible
@@ -231,7 +233,7 @@ func (d *Dashboard) initEvents() {
 				post := d.feed.GetSelectedPost()
 				if post != nil {
 					modules.OpenInBrowser(post.Short_url)
-					component.Global.SetCmd(tea.ClearScreen)
+					component.Global.RedrawScreen()
 				}
 
 			case d.config.Keymaps.Switcher.Open:
@@ -301,15 +303,20 @@ func (d *Dashboard) SwitchMode(mode string, option string) {
 	// Invalidate currently active loading IDs
 	d.invalidLoadings.Append(d.currentLoadings.ToSlice()...)
 
-	done := make(chan bool)
-	go d.LoadPosts(done)
-	<-done
+	go func() {
+		// Display feed if it was hidden
+		d.ShowFeed()
+		// Load posts from API asynchronously
+		done := make(chan bool)
+		go d.LoadPosts(done)
+		<-done
 
-	d.feed.showFilteredPost = false
-	// Display new post after switching feed if any are loaded.
-	if len(d.feed.posts) > 0 {
-		d.feed.listElem.RunSelectedOption()
-	}
+		d.feed.showFilteredPost = false
+		// Display new post after switching feed if any are loaded.
+		if len(d.feed.posts) > 0 {
+			d.feed.listElem.RunSelectedOption()
+		}
+	}()
 }
 
 // Hide posts based on filtered posts and tags setting
@@ -491,7 +498,7 @@ func (d *Dashboard) UpdateControlText() {
 		str += fmt.Sprintf("Scroll post on feed     : %s/%s\n", d.config.Keymaps.Navigation.Up, d.config.Keymaps.Navigation.Down)
 		str += fmt.Sprintf("Scroll to top or bottom : %s%s/%s\n", d.config.Keymaps.Navigation.JumpTop, d.config.Keymaps.Navigation.JumpTop, d.config.Keymaps.Navigation.JumpBottom)
 		str += fmt.Sprintf("Focus post window       : %s\n", d.config.Keymaps.Navigation.Right)
-		str += fmt.Sprintf("Load more posts         : %s\n", d.config.Keymaps.LoadMore)
+		str += fmt.Sprintf("Refresh the current feed: %s\n", d.config.Keymaps.Refresh)
 		str += fmt.Sprintf("Open feed switcher      : %s\n", d.config.Keymaps.Switcher.Open)
 		str += fmt.Sprintf("Open post links         : %s\n", d.config.Keymaps.Links.Open)
 		str += fmt.Sprintf("Open blog feed          : %s\n", d.config.Keymaps.LoadBlog)
@@ -507,7 +514,7 @@ func (d *Dashboard) UpdateControlText() {
 		str += fmt.Sprintf("Scroll to next reblog   : %s/%s\n", d.config.Keymaps.Navigation.JumpNext, d.config.Keymaps.Navigation.JumpPrev)
 		str += fmt.Sprintf("Scroll to top or bottom : %s%s/%s\n", d.config.Keymaps.Navigation.JumpTop, d.config.Keymaps.Navigation.JumpTop, d.config.Keymaps.Navigation.JumpBottom)
 		str += fmt.Sprintf("Focus feed              : %s\n", d.config.Keymaps.Navigation.Left)
-		str += fmt.Sprintf("Load more posts         : %s\n", d.config.Keymaps.LoadMore)
+		str += fmt.Sprintf("Refresh the current feed: %s\n", d.config.Keymaps.Refresh)
 		str += fmt.Sprintf("Open feed switcher      : %s\n", d.config.Keymaps.Switcher.Open)
 		str += fmt.Sprintf("Open post links         : %s\n", d.config.Keymaps.Links.Open)
 		str += fmt.Sprintf("Open blog feed          : %s\n", d.config.Keymaps.LoadBlog)
@@ -524,7 +531,7 @@ func (d *Dashboard) UpdateControlText() {
 
 func (d *Dashboard) DisplayPost(post *npf.Post, showFiltered bool) {
 	d.contents.DisplayPost(post, showFiltered)
-	d.LinkWindow.SetLinks(post.GetLinks())
+	d.LinkWindow.SetLinks(post.GetLinks(), post.GetLinkTitles())
 
 	d.contents.contentElem.OffsetY = 0
 
@@ -594,4 +601,24 @@ func (d *Dashboard) UpdateInfo(post *npf.Post) {
 	}
 
 	d.info.SetText(b.String())
+}
+
+// Copy the currently selected post URL to the clipboard
+func (d *Dashboard) CopyCurrentPostToClipboard() {
+
+	// Copy the link to the currently selected post to the clipboard
+	post := d.GetSelectedPost()
+	if post != nil {
+		modules.CopyToClipboard(post.Post_url)
+		d.feed.listElem.SetBorderLabel("TopRight", "Copied!")
+		timestamp := time.Now().Unix()
+		d.clipboardMessageTimestamp = timestamp
+		go func() {
+			time.Sleep(2 * time.Second)
+			if timestamp == d.clipboardMessageTimestamp {
+				d.feed.listElem.SetBorderLabel("TopRight", "")
+			}
+		}()
+	}
+
 }

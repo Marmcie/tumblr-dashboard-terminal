@@ -102,7 +102,10 @@ func (c *TumblrClient) GetDashboard(offset int) []npf.Post {
 
 	u.RawQuery = q.Encode()
 
-	resp, _ := c.Client.Get(u.String())
+	resp, err := c.Client.Get(u.String())
+	if err != nil {
+		panic(err)
+	}
 	defer resp.Body.Close()
 	bytes, _ := io.ReadAll(resp.Body)
 
@@ -137,7 +140,10 @@ func (c *TumblrClient) GetTaggedPosts(before int, tag string) []npf.Post {
 
 	u.RawQuery = q.Encode()
 
-	resp, _ := c.Client.Get(u.String())
+	resp, err := c.Client.Get(u.String())
+	if err != nil {
+		panic(err)
+	}
 	defer resp.Body.Close()
 	bytes, _ := io.ReadAll(resp.Body)
 
@@ -185,7 +191,10 @@ func (c *TumblrClient) GetSearchedPosts(before int, term string, next string) ([
 
 	u.RawQuery = q.Encode()
 
-	resp, _ := c.Client.Get(u.String())
+	resp, err := c.Client.Get(u.String())
+	if err != nil {
+		panic(err)
+	}
 	defer resp.Body.Close()
 	bytes, _ := io.ReadAll(resp.Body)
 
@@ -219,7 +228,10 @@ func (c *TumblrClient) GetBlogPosts(before int, blogName string) []npf.Post {
 
 	u.RawQuery = q.Encode()
 
-	resp, _ := c.Client.Get(u.String())
+	resp, err := c.Client.Get(u.String())
+	if err != nil {
+		panic(err)
+	}
 	defer resp.Body.Close()
 	bytes, _ := io.ReadAll(resp.Body)
 
@@ -248,7 +260,10 @@ func (c *TumblrClient) GetFilteredTags(ch chan []string) {
 
 	u, _ := url.Parse("https://api.tumblr.com/v2/user/filtered_tags")
 
-	resp, _ := c.Client.Get(u.String())
+	resp, err := c.Client.Get(u.String())
+	if err != nil {
+		panic(err)
+	}
 	defer resp.Body.Close()
 	bytes, _ := io.ReadAll(resp.Body)
 
@@ -277,7 +292,10 @@ func (c *TumblrClient) GetFilteredContents(ch chan []string) {
 
 	u, _ := url.Parse("https://api.tumblr.com/v2/user/filtered_content")
 
-	resp, _ := c.Client.Get(u.String())
+	resp, err := c.Client.Get(u.String())
+	if err != nil {
+		panic(err)
+	}
 	defer resp.Body.Close()
 	bytes, _ := io.ReadAll(resp.Body)
 

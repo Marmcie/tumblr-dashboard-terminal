@@ -25,7 +25,7 @@ blacklisted = "#ff00ff"
 [Keymaps]
 OpenLink = "o"
 CopyLink = "y"
-LoadMore = "r"
+Refresh = "r"
 LoadBlog = "b"
 Confirm = "enter"
 Quit = "q"

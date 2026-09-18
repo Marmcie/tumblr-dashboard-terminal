@@ -36,6 +36,11 @@ func (m *App) SetRoot(child component.Component) {
 
 func (m *App) Render() string {
 	(*m.root).BeforeRender()
+	// Force redraw by returning empty view for 1 frame
+	if component.Global.TriggerRedraw {
+		component.Global.TriggerRedraw = false
+		return ""
+	}
 
 	(*m.root).RenderToCanvas()
 	result, foreground, background := (*m.root).GetCanvas()

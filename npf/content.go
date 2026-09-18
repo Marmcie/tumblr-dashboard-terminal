@@ -2,9 +2,10 @@ package npf
 
 import (
 	"fmt"
-	"github.com/rivo/uniseg"
 	"strconv"
 	"strings"
+
+	"github.com/rivo/uniseg"
 )
 
 type Content struct {
@@ -50,10 +51,11 @@ type Content struct {
 	}
 }
 
-func (c *Content) RenderWithData() ContentData {
+func (c *Content) RenderWithData(imageCount int, videoCount int, audioCount int) ContentData {
 	var b strings.Builder
 	var cType = ""
 	var links []string
+	var linkTitles []string
 
 	switch c.Type {
 	case "image":
@@ -62,15 +64,23 @@ func (c *Content) RenderWithData() ContentData {
 		if uniseg.StringWidth(alt) == 0 {
 			alt = "No alt"
 		}
-		fmt.Fprintf(&b, "[Image : %s]", alt)
+		titleStr := fmt.Sprintf("[Image %d : %s]", imageCount, alt)
+
+		b.Write([]byte(titleStr))
 		if len(c.Caption) > 0 {
 			fmt.Fprintf(&b, "\n%s", c.Caption)
 		}
+
+		links = append(links, c.Media[0].Url)
+		linkTitles = append(linkTitles, titleStr)
 		cType = "Image"
 
 	case "video":
-		fmt.Fprintf(&b, "[Video](%s)", c.Url)
+		titleStr := fmt.Sprintf("[Video %d](%s)", videoCount, c.Url)
+		b.Write([]byte(titleStr))
 		cType = "Video"
+		links = append(links, c.Url)
+		linkTitles = append(linkTitles, titleStr)
 
 	case "audio":
 		audioTitle := c.Title
@@ -87,7 +97,13 @@ func (c *Content) RenderWithData() ContentData {
 		if len(audioAlbum) == 0 {
 			audioAlbum = "Unknown album"
 		}
-		fmt.Fprintf(&b, "[Audio : %s By %s, From %s]", audioTitle, audioArtist, audioAlbum)
+
+		titleStr := fmt.Sprintf("[Audio %d : %s By %s, From %s]", audioCount, audioTitle, audioArtist, audioAlbum)
+
+		b.Write([]byte(titleStr))
+
+		links = append(links, c.Url)
+		linkTitles = append(linkTitles, titleStr)
 		cType = "Audio"
 
 	case "text":
@@ -97,6 +113,7 @@ func (c *Content) RenderWithData() ContentData {
 			switch f.Type {
 			case "link":
 				links = append(links, f.Url)
+				linkTitles = append(linkTitles, f.Url)
 				t := strings.Split(text, "")
 
 				urlString := fmt.Sprintf(" (%s)", f.Url)
@@ -151,6 +168,7 @@ func (c *Content) RenderWithData() ContentData {
 	case "link":
 		fmt.Fprintf(&b, "%s(%s)", c.Title, c.Url)
 		links = append(links, c.Url)
+		linkTitles = append(linkTitles, c.Url)
 
 	default:
 		fmt.Fprintf(&b, "%s", c.Text)
@@ -162,5 +180,6 @@ func (c *Content) RenderWithData() ContentData {
 		ContentType: cType,
 		Str:         postStr,
 		Links:       links,
+		LinkTitles:  linkTitles,
 	}
 }

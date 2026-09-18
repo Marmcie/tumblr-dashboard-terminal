@@ -16,12 +16,14 @@ type GlobalValues struct {
 	Logger          []func() string
 	TickInterval    time.Duration
 	IsSmall         bool
+	TriggerRedraw   bool
 }
 
 var Global = &GlobalValues{
-	Elements:     []Component{},
-	TickInterval: time.Second / 15,
-	IsSmall:      false,
+	Elements:      []Component{},
+	TickInterval:  time.Second / 15,
+	IsSmall:       false,
+	TriggerRedraw: false,
 }
 
 // Add a component to the global list of all components
@@ -91,4 +93,11 @@ func (g *GlobalValues) CallEvents() {
 // Update globally accessible values
 func UpdateGlobalValues(msg tea.Msg) {
 	Global.Msg = msg
+}
+
+// Manually force redraw of the screen.
+//
+// This is needed since when opening a link for the first time in some terminal, screen becomes blank without bubbletea detecting it.
+func (g *GlobalValues) RedrawScreen() {
+	g.TriggerRedraw = true
 }

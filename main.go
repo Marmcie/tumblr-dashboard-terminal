@@ -1,14 +1,17 @@
 package main
 
 import (
-	tea "charm.land/bubbletea/v2"
 	"fmt"
 	"os"
 	"tumblr-dt/dashboard"
 	"tumblr-dt/modules"
+
+	tea "charm.land/bubbletea/v2"
 )
 
 func main() {
+
+	modules.HandleArgs()
 	config := modules.GetConfig()
 	dashboard := dashboard.NewDashboard(config)
 

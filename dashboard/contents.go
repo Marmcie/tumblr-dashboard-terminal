@@ -78,6 +78,9 @@ func (f *Contents) InitEvents() {
 				if f.prev == f.dashboard.config.Keymaps.Navigation.JumpTop {
 					f.contentElem.OffsetY = 0
 				}
+
+			case f.dashboard.config.Keymaps.CopyLink:
+				f.dashboard.CopyCurrentPostToClipboard()
 			}
 			f.prev = msg.String()
 		}

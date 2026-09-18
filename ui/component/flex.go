@@ -136,7 +136,7 @@ func (b *Flex) RenderToCanvas() {
 		// Render child elements and get the result
 		c.RenderToCanvas()
 		output, childFG, childBG := c.GetCanvas()
-		if c.IsAbsolute() == true {
+		if c.IsAbsolute() {
 			childX, childY := c.GetPos()
 			globalX := left + childX
 
