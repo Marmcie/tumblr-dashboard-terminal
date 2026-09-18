@@ -39,7 +39,7 @@ Log = "ctrl+l"
 
 [Keymaps.Navigation]
 Up=         "k"
-Down=       "m"
+Down=       "j"
 Left=       "h"
 Right=      "l"
 JumpNext=   "d"
