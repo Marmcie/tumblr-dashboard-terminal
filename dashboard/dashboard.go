@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"math/big"
 	"slices"
-	"sort"
 	"strings"
 	"time"
 	"tumblr-dt/modules"
@@ -415,7 +414,8 @@ func (d *Dashboard) LoadPosts(ch chan bool) {
 		return
 	}
 
-	sort.Sort(npf.SortPostByTimestamp(posts))
+	slices.SortFunc(posts, func(a npf.Post, b npf.Post) int { return int(b.Id) - int(a.Id) })
+
 	d.root.SetBorderLabel("BottomLeft", "")
 
 	if d.mode != "tutorial" {
