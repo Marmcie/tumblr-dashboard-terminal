@@ -66,12 +66,12 @@ func NewLinkWindow(dashboard *Dashboard) *LinkWindow {
 					l.List.SetCursor(0)
 					l.List.RunSelectedOption()
 				}
-			case l.dashboard.config.Keymaps.Links.Close:
+			case l.dashboard.config.Keymaps.Links.Close, l.dashboard.config.Keymaps.Links.Open:
 				l.dashboard.toggleLinkWindow()
 			}
 			l.prev = msg.String()
 		}
-	}, true)
+	}, false)
 
 	return l
 }
