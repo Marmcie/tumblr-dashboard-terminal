@@ -11,6 +11,7 @@ func HandleArgs() {
 	//#region Version flag initialization
 	version := flag.Bool("v", false, "Print current version")
 	versionAlt := flag.Bool("version", false, "Print current version")
+	configPath := flag.String("config", "", "Print current version")
 	//#endregion
 
 	flag.Parse()
@@ -30,4 +31,8 @@ func HandleArgs() {
 		os.Exit(0)
 	}
 	//#endregion
+
+	if len(*configPath) > 0 {
+		ConfigPath = *configPath
+	}
 }

@@ -1,7 +1,6 @@
 package modules
 
 import (
-	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -77,6 +76,7 @@ type Config struct {
 
 var config Config
 var initialized bool
+var ConfigPath string
 
 func makeConfig() Config {
 	con := Config{}
@@ -165,13 +165,10 @@ func GetConfig() Config {
 }
 
 func resolveConfigPath() string {
-
-	flagPath := flag.String("config", "", "config path")
-	flag.Parse()
-	if len(*flagPath) > 0 {
-		_, err := os.ReadFile(*flagPath)
+	if len(ConfigPath) > 0 {
+		_, err := os.ReadFile(ConfigPath)
 		if err == nil {
-			return *flagPath
+			return ConfigPath
 		}
 	}
 
