@@ -415,7 +415,10 @@ func (d *Dashboard) LoadPosts(ch chan bool) {
 		return
 	}
 
-	sort.Sort(npf.SortPostByTimestamp(posts))
+	sort.Slice(posts, func(i, j int) bool {
+		return posts[i].Timestamp > posts[j].Timestamp
+	})
+
 	d.root.SetBorderLabel("BottomLeft", "")
 
 	if d.mode != "tutorial" {
