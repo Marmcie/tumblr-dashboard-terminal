@@ -93,17 +93,14 @@ type TrailData struct {
 	ID       int64
 }
 
-type SortPostByTimestamp []Post
-
-func (t SortPostByTimestamp) Len() int               { return len(t) }
-func (t SortPostByTimestamp) Swap(i int, j int)      { t[i], t[j] = t[j], t[i] }
-func (t SortPostByTimestamp) Less(i int, j int) bool { return t[i].Timestamp > t[j].Timestamp }
-
-type sortById []TrailData
-
-func (t sortById) Len() int               { return len(t) }
-func (t sortById) Swap(i int, j int)      { t[i], t[j] = t[j], t[i] }
-func (t sortById) Less(i int, j int) bool { return t[i].ID < t[j].ID }
+// Used to combine the post and reblog trails into the single list
+type GenericPost struct {
+	Content  []Content
+	Blog     Blog
+	BlogName string
+	Layout   []Layout
+	ID       int64
+}
 
 func (p *Post) Render() []TrailData {
 	if renderResults == nil {
@@ -113,66 +110,62 @@ func (p *Post) Render() []TrailData {
 		return renderResults[p.Id_string]
 	}
 	var result []TrailData
+	var postList = []GenericPost{}
+
+	// Only render reblog if it contains addition
+	if len(p.Content) > 0 {
+		postList = append(postList, GenericPost{
+			Content:  p.Content,
+			Blog:     p.Blog,
+			BlogName: p.Blog.GetName(),
+			Layout:   p.Layout,
+			ID:       p.Id,
+		})
+	}
+
+	// Add the rest of the reblog chain into the list
+	for _, trail := range p.Trail {
+		trailID, ok := strconv.Atoi(trail.Post.Id)
+		if ok != nil {
+			panic(ok)
+		}
+		postList = append(postList, GenericPost{
+			Content:  trail.Content,
+			Blog:     trail.Blog,
+			BlogName: trail.Blog.GetName(),
+			Layout:   trail.Layout,
+			ID:       int64(trailID),
+		})
+	}
+
 	p.LinkSet = mapset.NewSet[string]()
 
 	p.LinkSet.Add(p.Blog.Url)
 	p.Links = append(p.Links, p.Blog.Url)
 	p.LinkTitles = append(p.LinkTitles, fmt.Sprintf("%s's blog", p.Blog.Name))
 
+	// Sort all posts into correct order based on ID
+	sort.Slice(postList, func(i, j int) bool {
+		return postList[i].ID < postList[j].ID
+	})
+
 	/** To differentiate images in post link list */
 	imageCount := 1
 	videoCount := 1
 	audioCount := 1
-	if len(p.Content) > 0 {
-		var res []ContentData
-		orderedListIndex = 1
-		for _, c := range p.Content {
-			data := c.RenderWithData(imageCount, videoCount, audioCount)
-			res = append(res, ContentData{
-				ContentType: data.ContentType,
-				Str:         data.Str,
-			})
-			switch c.Type {
-			case "image":
-				imageCount++
-			case "video":
-				videoCount++
-			case "audio":
-				audioCount++
-			}
 
-			// Update list of links
-			for i := range len(data.Links) {
-				if !p.LinkSet.Contains(data.Links[i]) {
-					p.LinkSet.Add(data.Links[i])
-					p.Links = append(p.Links, data.Links[i])
-					p.LinkTitles = append(p.LinkTitles, data.LinkTitles[i])
-				}
-			}
-		}
-		result = append(result, TrailData{
-			Contents: res,
-			Blog:     p.Blog,
-			BlogName: p.Blog.Name,
-			Layout:   p.Layout,
-			ID:       p.Id,
-		})
-	}
-	for _, t := range p.Trail {
-		var res []ContentData
+	for _, post := range postList {
 
-		blogName := t.Blog.Name
-		if len(blogName) == 0 {
-			blogName = t.Broken_blog_name
-		}
-		if !p.LinkSet.Contains(t.Blog.Url) {
-			p.LinkSet.Add(t.Blog.Url)
-			p.Links = append(p.Links, t.Blog.Url)
+		var res []ContentData
+		blogName := post.BlogName
+		if !p.LinkSet.Contains(post.Blog.Url) {
+			p.LinkSet.Add(post.Blog.Url)
+			p.Links = append(p.Links, post.Blog.Url)
 			p.LinkTitles = append(p.LinkTitles, fmt.Sprintf("%s's blog", blogName))
 		}
 
 		orderedListIndex = 1
-		for _, c := range t.Content {
+		for _, c := range post.Content {
 			data := c.RenderWithData(imageCount, videoCount, audioCount)
 			res = append(res, ContentData{
 				ContentType: data.ContentType,
@@ -195,16 +188,16 @@ func (p *Post) Render() []TrailData {
 				}
 			}
 		}
-		tID, _ := strconv.ParseInt(t.Post.Id, 10, 64)
+		tID := post.ID
 		result = append(result, TrailData{
 			Contents: res,
-			Blog:     t.Blog,
+			Blog:     post.Blog,
 			BlogName: blogName,
-			Layout:   t.Layout,
+			Layout:   post.Layout,
 			ID:       tID,
 		})
 	}
-	sort.Sort(sortById(result))
+
 	renderResults[p.Id_string] = result
 	return renderResults[p.Id_string]
 }
